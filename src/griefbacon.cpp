@@ -1,13 +1,18 @@
 #include "WPILib.h"
 
-class Robot: public IterativeRobot
+class griefbacon: public IterativeRobot
 {
 private:
-	LiveWindow *lw;
+
+public:
+	griefbacon::griefbacon()
+	{
+
+	}
 
 	void RobotInit()
 	{
-		lw = LiveWindow::GetInstance();
+
 	}
 
 	void AutonomousInit()
@@ -32,8 +37,8 @@ private:
 
 	void TestPeriodic()
 	{
-		lw->Run();
+
 	}
 };
 
-START_ROBOT_CLASS(Robot);
+START_ROBOT_CLASS(griefbacon);
