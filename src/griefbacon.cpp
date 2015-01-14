@@ -5,7 +5,7 @@ class griefbacon: public IterativeRobot
 private:
 
 public:
-	griefbacon::griefbacon()
+	griefbacon()
 	{
 
 	}
