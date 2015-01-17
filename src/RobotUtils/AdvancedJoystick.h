@@ -32,18 +32,18 @@ public:
 
     // BUTTON AND AXIS ENUMS ----------
     typedef enum {
-        kButtonA = 0,
-        kButtonB = 1,
-        kButtonX = 2,
-        kButtonY = 3,
-        kButtonLB = 4,
-        kButtonRB = 5,
-        kButtonBack = 6,
-        kButtonStart = 7,
-        kButtonL3 = 8,
-        kButtonR3 = 9,
-        kTriggerL = 10,
-        kTriggerR = 11
+        kButtonA = 1,
+        kButtonB = 2,
+        kButtonX = 3,
+        kButtonY = 4,
+        kButtonLB = 5,
+        kButtonRB = 6,
+        kButtonBack = 7,
+        kButtonStart = 8,
+        kButtonL3 = 9,
+        kButtonR3 = 10,
+        kTriggerL = 11,
+        kTriggerR = 12
     } button_t;
 
     typedef enum {
@@ -58,8 +58,8 @@ public:
         kLeftX = 0,
         kLeftY = 1,
         kRawTrigger = 2,
-        kRightX = 3,
-        kRightY = 4,
+        kRightX = 4,
+        kRightY = 3,
         kLeftTrigger = 5,
         kRightTrigger = 6
     } axis_t;

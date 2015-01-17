@@ -11,6 +11,15 @@ private:
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
 
+	Talon* m_STUPID;
+
+	Gyro* m_euro;
+
+	Encoder* m_encodeL;
+	Encoder* m_encodeR;
+
+	PIDController* m_euroTurnPID;
+
 	RobotDrive* m_drive;
 public:
 	griefbacon()
@@ -27,6 +36,19 @@ public:
 
 		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 		m_drive->SetSafetyEnabled(false);
+
+		m_euro = new Gyro(0);
+
+		m_encodeR = new Encoder(0,1);
+		m_encodeL = new Encoder(2,3);
+
+		double euro_P = 0.015;
+		double euro_I = 0.0;
+		double euro_D = 0.01;
+
+		m_STUPID = new Talon(5);
+
+		m_euroTurnPID = new PIDController(euro_P, euro_I, euro_D, m_euro,m_STUPID);
 	}
 
 	void RobotInit()
@@ -51,8 +73,46 @@ public:
 
 	void TeleopPeriodic()
 	{
-		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-		SmartDashboard::PutBoolean("Test",m_driver->GetButtonPress_new(AdvancedJoystick::kButtonA));
+		if (!m_driver->GetRawButton(AdvancedJoystick::kButtonX) && !m_driver->GetRawButton(AdvancedJoystick::kButtonA)){
+			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+			m_euroTurnPID->Disable();
+		}
+
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)) {
+			m_drive->ArcadeDrive(0.0,0.0);
+			if(m_encodeL->GetRate() == 0 && m_encodeR->GetRate() == 0){
+				m_euro->Reset();
+			}
+		}
+
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA)){
+			m_euroTurnPID->Enable();
+			if (m_euroTurnPID->Get() > 0)
+				m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_euroTurnPID->Get()*.33+.3);
+			else if(m_euroTurnPID->Get() < 0)
+				m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_euroTurnPID->Get()*.33-.3);
+
+		}
+
+
+		SmartDashboard::PutNumber("Angle", m_euro->GetAngle());
+		SmartDashboard::PutNumber("Current Angle", m_euro->GetAngle());
+		//*1.02857142857142857142857142857143
+		SmartDashboard::PutNumber("Rate", m_euro->GetRate());
+		SmartDashboard::PutBoolean("PIDGET", m_euroTurnPID->IsEnabled());
+		SmartDashboard::PutNumber("PID",m_euroTurnPID->Get());
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
+			m_euroTurnPID->SetPID(SmartDashboard::GetNumber("Gyro P"), SmartDashboard::GetNumber("Gyro I"), SmartDashboard::GetNumber("Gyro D"));
+			m_euroTurnPID->SetSetpoint(SmartDashboard::GetNumber("Set Point"));
+		}
+		SmartDashboard::PutNumber("Gyro P",m_euroTurnPID->GetP());
+		SmartDashboard::PutNumber("Gyro I",m_euroTurnPID->GetI());
+		SmartDashboard::PutNumber("Gyro D",m_euroTurnPID->GetD());
+		SmartDashboard::PutNumber("Set Point", m_euroTurnPID->GetSetpoint());
+		SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+
+
 	}
 
 	void TestPeriodic()
