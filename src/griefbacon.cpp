@@ -18,7 +18,7 @@ public:
 		m_driver = new AdvancedJoystick (0);
 
 		m_driver->SetDeadband(0.2);
-		m_driver->SetDeadbandType(AdvancedJoystick::kFlat);
+		m_driver->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_rDrive1 = new Talon (0);
 		m_rDrive2 = new Talon (1);
@@ -52,7 +52,7 @@ public:
 	void TeleopPeriodic()
 	{
 		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-		SmartDashboard::PutBoolean("Test",m_driver->GetButtonPress_new(AdvancedJoystick::kButtonA));
+		SmartDashboard::PutBoolean("Test",m_driver->GetButtonPress(AdvancedJoystick::kButtonA));
 	}
 
 	void TestPeriodic()
