@@ -87,6 +87,7 @@ public:
     bool GetRawButton (button_t);
     bool GetButtonPress (button_t);
     float GetRawAxis (axis_t);
+    int GetPOV (uint32_t pov = 0) {return m_gamepad->GetPOV(pov); }
 
     Joystick* GetJoystick() { return m_gamepad; }
 
