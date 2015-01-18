@@ -10,7 +10,7 @@
  *
  * Builtin deadband control:
  * - Set the deadband width (SetDeadband)
- * - Turn the deadband into a quadratic, cubic, sinusoid ramp (SetDeadbandType)
+ * - Add a quadratic or cubic ramp off of the deadband (SetDeadbandType)
  *
  * Treat the triggers like buttons in GetRawButton or GetButtonPress.
  *
@@ -51,17 +51,15 @@ public:
         kFlat,
         kQuad,
         kCube,
-        kSine
     } deadband_t;
 
     typedef enum {
         kLeftX = 0,
         kLeftY = 1,
-        kRawTrigger = 2,
+        kLeftTrigger = 2,
+        kRightTrigger = 3,
         kRightX = 4,
-        kRightY = 3,
-        kLeftTrigger = 5,
-        kRightTrigger = 6
+        kRightY = 5,
     } axis_t;
 
     //CONSTRUCTORS --------------
@@ -89,6 +87,7 @@ public:
     bool GetRawButton (button_t);
     bool GetButtonPress (button_t);
     float GetRawAxis (axis_t);
+    int GetPOV (uint32_t pov = 0) {return m_gamepad->GetPOV(pov); }
 
     Joystick* GetJoystick() { return m_gamepad; }
 
@@ -110,7 +109,6 @@ private:
     float applyDeadbandFlat (float input);
     float applyDeadbandQuad (float input);
     float applyDeadbandCube (float input);
-    float applyDeadbandSine (float input);
 
     void trackTimer();
 

@@ -131,8 +131,6 @@ bool AdvancedJoystick::GetRawButton (button_t channel) {
             return GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.4;
         }
     }
-
-    return false;
 }
 
 bool AdvancedJoystick::GetButtonPress (button_t channel) {
@@ -165,29 +163,10 @@ bool AdvancedJoystick::GetButtonPress_new (button_t channel)
 float AdvancedJoystick::GetRawAxis (axis_t channel) {
     update();
 
-    if ((channel < 5) && (channel != 2))
+    if ((channel < 2) || (channel > 3))
         return applyDeadband(m_gamepad->GetRawAxis(channel));
-    else if (channel == 2)
-        return m_gamepad->GetRawAxis(2);
     else
-    {
-        if (channel == AdvancedJoystick::kLeftTrigger)
-        {
-            if (m_gamepad->GetRawAxis(2) < 0)
-                m_gamepad->GetRawAxis(2);
-            else
-                return 0.0;
-        }
-        else
-        {
-            if (m_gamepad->GetRawAxis(2) > 0)
-                return fabs(m_gamepad->GetRawAxis(2));
-            else
-                return 0.0;
-        }
-    }
-
-    return 0.0;
+        return m_gamepad->GetRawAxis(channel);
 }
 
 /**** INTERNAL FUNCTIONS ****/
@@ -199,8 +178,6 @@ float AdvancedJoystick::applyDeadband (float input) {
         return applyDeadbandQuad(input);
     else if (m_deadbandType == kCube)
         return applyDeadbandQuad(input);
-    else if (m_deadbandType == kSine)
-        return applyDeadbandSine(input);
     else
         return input;
 }
@@ -219,42 +196,22 @@ float AdvancedJoystick::applyDeadbandFlat (float input)
 float AdvancedJoystick::applyDeadbandQuad (float input)
 {
     if (fabs(input) < m_deadband)
-    {
-        if (input > 0)
-            return pow((input/m_deadband),2.0)*m_deadband;
-        else if (input < 0)
-            return (-pow((input/m_deadband),2.0))*m_deadband;
-        else
-            return 0.0;
-    }
+        return 0.0;
+    else if (input < 0)
+        return -pow(((input-m_deadband)*(1/(1-m_deadband))),2);
     else
-        return input;
+        return pow(((input-m_deadband)*(1/(1-m_deadband))),2);
 }
 
 float AdvancedJoystick::applyDeadbandCube (float input)
 {
     if (fabs(input) < m_deadband)
-    {
-        if (input != 0)
-            return pow((input/m_deadband),3.0)*m_deadband;
-        else
-            return 0.0;
-    }
+        return 0.0;
+    else if (input < 0)
+        return -pow(((input-m_deadband)*(1/(1-m_deadband))),2);
     else
-        return input;
-}
+        return pow(((input-m_deadband)*(1/(1-m_deadband))),2);
 
-float AdvancedJoystick::applyDeadbandSine (float input)
-{
-    if (fabs(input) < m_deadband)
-    {
-        if (input != 0)
-            return sin(M_PI_2*(input/m_deadband))*m_deadband;
-        else
-            return 0.0;
-    }
-    else
-        return input;
 }
 
 void AdvancedJoystick::trackTimer () {
