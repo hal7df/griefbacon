@@ -28,9 +28,9 @@ public:
 		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 		m_drive->SetSafetyEnabled(false);
 
-		CameraServer server = CameraServer.getInstance();
-								server.setQuality(50);
-								server.startAutomaticCapture("cam0");
+		CameraServer* server = CameraServer::GetInstance();
+								server->SetQuality(50);
+								server->StartAutomaticCapture("cam0");
 	}
 
 	void RobotInit()
