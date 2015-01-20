@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "RobotUtils/AdvancedJoystick.h"
+#include "AutonWrapper.h"
 
 class griefbacon: public IterativeRobot
 {
@@ -20,8 +21,13 @@ private:
 
 	PIDController* m_euroTurnPID;
 
+	PIDController* PIDdrive;
+
 	RobotDrive* m_drive;
-public:
+
+	AutonWrapper* m_AutonWrapper;
+
+	public:
 	griefbacon()
 	{
 		m_driver = new AdvancedJoystick (0);
@@ -49,6 +55,7 @@ public:
 		m_STUPID = new Talon(5);
 
 		m_euroTurnPID = new PIDController(euro_P, euro_I, euro_D, m_euro,m_STUPID);
+
 	}
 
 	void RobotInit()
@@ -76,6 +83,7 @@ public:
 		if (!m_driver->GetRawButton(AdvancedJoystick::kButtonX) && !m_driver->GetRawButton(AdvancedJoystick::kButtonA)){
 			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 			m_euroTurnPID->Disable();
+			m_AutonWrapper->Disable();
 		}
 
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)) {
@@ -93,6 +101,14 @@ public:
 				m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_euroTurnPID->Get()*.33-.3);
 
 		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
+			m_AutonWrapper->SetSetpoint(360);
+			m_AutonWrapper->Enable();
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+			m_encodeL->Reset();
+			m_encodeR->Reset();
+		}
 
 
 		SmartDashboard::PutNumber("Angle", m_euro->GetAngle());
@@ -101,6 +117,8 @@ public:
 		SmartDashboard::PutNumber("Rate", m_euro->GetRate());
 		SmartDashboard::PutBoolean("PIDGET", m_euroTurnPID->IsEnabled());
 		SmartDashboard::PutNumber("PID",m_euroTurnPID->Get());
+		SmartDashboard::PutNumber("Left Encoder",m_encodeL->GetDistance());
+		SmartDashboard::PutNumber("Right Encoder",m_encodeR->GetDistance());
 
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
 			m_euroTurnPID->SetPID(SmartDashboard::GetNumber("Gyro P"), SmartDashboard::GetNumber("Gyro I"), SmartDashboard::GetNumber("Gyro D"));
