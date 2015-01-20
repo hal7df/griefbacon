@@ -1,5 +1,5 @@
 #include "WPILib.h"
-#include "RobotUtils/AdvancedJoystick.h"
+#include "RobotUtils/RobotUtils.h"
 
 class griefbacon: public IterativeRobot
 {
