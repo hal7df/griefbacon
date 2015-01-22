@@ -85,7 +85,7 @@ private:
 		if (!m_driver->GetRawButton(AdvancedJoystick::kButtonX) && !m_driver->GetRawButton(AdvancedJoystick::kButtonA) && !m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
 			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 			m_euroTurnPID->Disable();
-			m_AutonWrapper->Disable();
+			m_AutonWrapper->Disable();//
 		}
 
 		/*else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)) {
