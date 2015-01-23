@@ -29,7 +29,7 @@ public:
 	float GetSetpoint () {return m_PID->GetSetpoint();}
 
 	void Enable () {m_PID->Enable(); }
-	void Disable () {m_PID->Disable(); }
+	void Disable () { if (IsEnabled()) {m_PID->Disable();} }
 	bool IsEnabled () {return m_PID->IsEnabled(); }
 
 	float GetPIDOutput () {return m_PID->Get();}

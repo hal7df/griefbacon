@@ -31,7 +31,7 @@ private:
 		m_driver = new AdvancedJoystick (0);
 
 		m_driver->SetDeadband(0.2);
-		m_driver->SetDeadbandType(AdvancedJoystick::kFlat);
+		m_driver->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_rDrive1 = new Talon (0);
 		m_rDrive2 = new Talon (1);
@@ -85,10 +85,10 @@ private:
 		if (!m_driver->GetRawButton(AdvancedJoystick::kButtonX) && !m_driver->GetRawButton(AdvancedJoystick::kButtonA) && !m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
 			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 			m_euroTurnPID->Disable();
-			m_AutonWrapper->Disable();//
+			m_AutonWrapper->Disable();
 		}
 
-		/*else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)) {
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)) {
 			m_drive->ArcadeDrive(0.0,0.0);
 			if(m_encodeL->GetRate() == 0 && m_encodeR->GetRate() == 0){
 				m_euro->Reset();
@@ -111,7 +111,7 @@ private:
 			m_encodeR->Reset();
 		}
 
-	*/
+
 
 
 
