@@ -1,6 +1,6 @@
 #include "WPILib.h"
 #include "RobotUtils/AdvancedJoystick.h"
-#include "AutonWrapper.h"
+#include "DistancePIDWrapper.h"
 
 class griefbacon: public IterativeRobot
 {
@@ -11,19 +11,21 @@ private:
 	Talon* m_lDrive2;
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
+	Talon* m_dummy;
+	Talon* m_dummy2;
 
-	Talon* m_STUPID;
-
-	Gyro* m_euro;
+	Gyro* m_gyro;
 
 	Encoder* m_encodeL;
 	Encoder* m_encodeR;
 
-	PIDController* m_euroTurnPID;
+	PIDController* m_turnPID;
+	PIDController* m_distancePID;
 
 	RobotDrive* m_drive;
 
-	AutonWrapper* m_AutonWrapper;
+	DistancePIDWrapper* m_distancePIDWrapper;
+
 
 	public:
 	griefbacon()
@@ -38,24 +40,24 @@ private:
 		m_lDrive1 = new Talon (2);
 		m_lDrive2 = new Talon (3);
 
+		m_dummy = new Talon(5);
+		m_dummy2 = new Talon(6);
+
 		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 		m_drive->SetSafetyEnabled(false);
 
-		m_euro = new Gyro(0);
+		m_gyro = new Gyro(0);
 
 		m_encodeR = new Encoder(0,1);
 		m_encodeL = new Encoder(2,3);
 
-		double euro_P = 0.015;
-		double euro_I = 0.0;
-		double euro_D = 0.01;
+		double gyro_P = 0.015;
+		double gyro_I = 0.0;
+		double gyro_D = 0.01;
 
-		m_STUPID = new Talon(5);
-
-		m_euroTurnPID = new PIDController(euro_P, euro_I, euro_D, m_euro,m_STUPID);
-		m_AutonWrapper = new AutonWrapper (m_drive, m_encodeL, m_encodeR);
-		m_AutonWrapper->Disable();
-
+		m_turnPID = new PIDController(gyro_P, gyro_I, gyro_D, m_gyro, m_dummy);
+		m_distancePIDWrapper = new DistancePIDWrapper (m_encodeL, m_encodeR);
+		m_distancePID = new PIDController(0.01,0.,0.,m_distancePIDWrapper,m_dummy2);
 	}
 
 	void RobotInit()
@@ -75,41 +77,33 @@ private:
 
 	void TeleopInit()
 	{
+		m_turnPID->SetSetpoint(0);
+		m_distancePID->SetSetpoint(2000);
 
 	}
 
 	void TeleopPeriodic()
 	{
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
+		{
+					m_encodeL->Reset();
+					m_encodeR->Reset();
+		}
+		if(m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+		{
+			m_turnPID->Enable();
+			m_distancePID->Enable();
+			m_drive->ArcadeDrive(m_distancePID->Get(),m_turnPID->Get());
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+		{
+						m_gyro->Reset();
+		}
+		else
+			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		PrintData();
 
-		if (!m_driver->GetRawButton(AdvancedJoystick::kButtonX) && !m_driver->GetRawButton(AdvancedJoystick::kButtonA) && !m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
-			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-			m_euroTurnPID->Disable();
-			m_AutonWrapper->Disable();
-		}
-
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)) {
-			m_drive->ArcadeDrive(0.0,0.0);
-			if(m_encodeL->GetRate() == 0 && m_encodeR->GetRate() == 0){
-				m_euro->Reset();
-			}
-		}
-
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA)){
-			m_euroTurnPID->Enable();
-			if (m_euroTurnPID->Get() > 0)
-				m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_euroTurnPID->Get()*.33+.3);
-			else if(m_euroTurnPID->Get() < 0)
-				m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_euroTurnPID->Get()*.33-.3);
-
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
-			m_AutonWrapper->Enable();
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
-			m_encodeL->Reset();
-			m_encodeR->Reset();
-		}
 
 
 
@@ -125,34 +119,29 @@ private:
 	/** MISCELLANEOUS FUNCTIONS **/
 	void PrintData ()
 	{
-		SmartDashboard::PutNumber("Angle", m_euro->GetAngle());
-		SmartDashboard::PutNumber("Current Angle", m_euro->GetAngle());
+		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
+		SmartDashboard::PutNumber("Current Angle", m_gyro->GetAngle());
 		//*1.02857142857142857142857142857143
-		SmartDashboard::PutNumber("Rate", m_euro->GetRate());
-		SmartDashboard::PutBoolean("PIDGET", m_euroTurnPID->IsEnabled());
-		SmartDashboard::PutNumber("PID",m_euroTurnPID->Get());
+		SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
+		SmartDashboard::PutBoolean("PIDGET", m_turnPID->IsEnabled());
+		SmartDashboard::PutNumber("PID",m_turnPID->Get());
 		SmartDashboard::PutNumber("Left Encoder",m_encodeL->GetDistance());
 		SmartDashboard::PutNumber("Right Encoder",m_encodeR->GetDistance());
+		SmartDashboard::PutNumber("Turn PIDGet", m_turnPID->Get());
 
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
-			m_euroTurnPID->SetPID(SmartDashboard::GetNumber("Gyro P"), SmartDashboard::GetNumber("Gyro I"), SmartDashboard::GetNumber("Gyro D"));
-			m_euroTurnPID->SetSetpoint(SmartDashboard::GetNumber("Set Point"));
-			m_AutonWrapper->SetPID(SmartDashboard::GetNumber("Auto Drive P"), SmartDashboard::GetNumber("Auto Drive I"), SmartDashboard::GetNumber("Auto Drive D"));
-			m_AutonWrapper->SetSetpoint(SmartDashboard::GetNumber("Auto Drive Setpoint"));
-		}
 
-		SmartDashboard::PutNumber("Gyro P",m_euroTurnPID->GetP());
-		SmartDashboard::PutNumber("Gyro I",m_euroTurnPID->GetI());
-		SmartDashboard::PutNumber("Gyro D",m_euroTurnPID->GetD());
-		SmartDashboard::PutNumber("Set Point", m_euroTurnPID->GetSetpoint());
+		SmartDashboard::PutNumber("Gyro P",m_turnPID->GetP());
+		SmartDashboard::PutNumber("Gyro I",m_turnPID->GetI());
+		SmartDashboard::PutNumber("Gyro D",m_turnPID->GetD());
+		SmartDashboard::PutNumber("Set Point", m_turnPID->GetSetpoint());
 		SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
-		SmartDashboard::PutNumber("Auton Drive Output", m_AutonWrapper->GetPIDOutput());
-		SmartDashboard::PutNumber("Auto Drive P", m_AutonWrapper->GetP());
-		SmartDashboard::PutNumber("Auto Drive I", m_AutonWrapper->GetI());
-		SmartDashboard::PutNumber("Auto Drive D", m_AutonWrapper->GetD());
-		SmartDashboard::PutNumber("Auto Drive Setpoint", m_AutonWrapper->GetSetpoint());
-		SmartDashboard::PutBoolean("Auto Drive Enabled", m_AutonWrapper->IsEnabled());
+		SmartDashboard::PutNumber("Auto Drive P", m_distancePID->GetP());
+		SmartDashboard::PutNumber("Auto Drive I", m_distancePID->GetI());
+		SmartDashboard::PutNumber("Auto Drive D", m_distancePID->GetD());
+		SmartDashboard::PutNumber("Distance PIDGet", m_distancePID->Get());
+		SmartDashboard::PutNumber("Auto Drive Setpoint", m_distancePID->GetSetpoint());
+		SmartDashboard::PutBoolean("Auto Drive Enabled", m_distancePID->IsEnabled());
 	}
 };
 
