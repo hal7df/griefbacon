@@ -12,7 +12,7 @@ class HotSubsystem
 public:
 	/********** Constructor **********/
 	HotSubsystem(std::string id) { m_id = id; }
-	virtual ~HotSubsystem();
+	virtual ~HotSubsystem() {}
 	
 	/********** Constents **********/
 	virtual void Update() {}

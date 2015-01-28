@@ -1,6 +1,6 @@
 #include "HotThread.h"
 
-HotThread::HotThread(const char* id, UINT32 priority)
+HotThread::HotThread(const char* id, uint32_t priority)
 {
 	/***** Set Flags *****/
 	f_kill = false;
@@ -9,7 +9,7 @@ HotThread::HotThread(const char* id, UINT32 priority)
 	
 	/***** Initialize Task Object *****/
 	m_task = new Task(id, (FUNCPTR)HotThread::TaskStarter, priority);
-	m_task->Start((UINT32)this);
+	m_task->Start((uint32_t)this);
 }
 
 HotThread::~HotThread()
