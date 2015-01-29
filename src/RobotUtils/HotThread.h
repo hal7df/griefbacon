@@ -7,7 +7,7 @@ class HotThread
 {
 public:
 	/********** Constructor **********/
-	HotThread(const char* id, UINT32 priority = Task::kDefaultPriority);
+	HotThread(const char* id, uint32_t priority = Task::kDefaultPriority);
 	virtual ~HotThread();
 	
 	/********** Control Thread **********/

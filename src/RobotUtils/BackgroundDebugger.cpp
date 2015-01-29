@@ -4,12 +4,14 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
     HotSubsystem("BackgroundDebugger")
 {
     Preferences* prefs;
+    struct stat st;
 
     prefs = Preferences::GetInstance();
 
     m_debugInterval = debugInterval;
     m_manualLog = "manualLog.txt";
     m_fout = new ofstream;
+    m_concat = new stringstream (ios::in | ios::out);
     m_csv = new CSVWriter;
 
     //Auton setup
@@ -26,9 +28,10 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
     m_runNum = prefs->GetInt("DebugRun");
     m_runPath = "/home/lvuser/DisabledLogs";
 
-    if (!S_ISDIR(stat(m_runPath.c_str())))
+
+    if (!S_ISDIR(stat(m_runPath.c_str(),&st)))
     {
-        mkdir(m_runPath.c_str());
+        mkdir(m_runPath.c_str(), 0755);
         m_runPath += '/';
     }
     else
@@ -89,7 +92,7 @@ void BackgroundDebugger::AddValue(string id, string *value)
     stringData.id = id;
     stringData.value = value;
 
-    m_numList.push_back(stringData);
+    m_stringList.push_back(stringData);
 }
 
 void BackgroundDebugger::LogData(string id, double value)
@@ -97,13 +100,18 @@ void BackgroundDebugger::LogData(string id, double value)
     time_t currentTime;
 
     time(&currentTime);
-    m_fout->open(m_runPath.c_str()+m_manualLog.c_str(), ios::app);
+
+    (*m_concat) << m_runPath << m_manualLog;
+    m_fout->open(m_concat->str().c_str(), ios::app);
 
     if (m_fout->is_open())
     {
-        (*m_fout)<<ctime(currentTime)<<' '<<id<<' '<<value<<endl;
+        (*m_fout)<<ctime(&currentTime)<<' '<<id<<' '<<value<<endl;
         m_fout->close();
     }
+
+    m_concat->clear();
+    m_concat->str("");
 }
 
 void BackgroundDebugger::LogData(string id, string value)
@@ -111,13 +119,17 @@ void BackgroundDebugger::LogData(string id, string value)
     time_t currentTime;
 
     time(&currentTime);
-    m_fout->open(m_runPath.c_str()+m_manualLog.c_str(), ios::app);
+    (*m_concat) << m_runPath << m_manualLog;
+    m_fout->open(m_concat->str().c_str(), ios::app);
 
     if (m_fout->is_open())
     {
-        (*m_fout)<<ctime(currentTime)<<' '<<id<<' '<<value<<endl;
+        (*m_fout)<<ctime(&currentTime)<<' '<<id<<' '<<value<<endl;
         m_fout->close();
     }
+
+    m_concat->clear();
+    m_concat->str("");
 }
 
 void BackgroundDebugger::ResetRunNumber()
@@ -128,14 +140,17 @@ void BackgroundDebugger::ResetRunNumber()
 
 void BackgroundDebugger::StartRun()
 {
+	struct stat st;
+	int x;
+
     m_runNum++;
     m_runPath = "/home/lvuser/Run"+m_runNum;
 
     time(&m_startTime);
 
-    if (!S_ISDIR(stat(m_runPath.c_str())))
+    if (!S_ISDIR(stat(m_runPath.c_str(),&st)))
     {
-        mkdir(m_runPath.c_str());
+        mkdir(m_runPath.c_str(), 0755);
         m_runPath += '/';
     }
     else if (f_delContents)
@@ -158,7 +173,8 @@ void BackgroundDebugger::StartRun()
         }
     }
 
-    m_csv->open(m_runPath.c_str()+"data.csv");
+    (*m_concat) << m_runPath << "data.csv";
+    m_csv->open(m_concat->str().c_str());
     m_csv->setColumns(m_numList.size()+m_stringList.size()+m_funcList.size()+1);
 
     if (m_csv->is_open())
@@ -214,9 +230,9 @@ void BackgroundDebugger::Update()
                 }
 
                 for (x = 0; x < m_funcList.size(); x++)
-                    m_csv->writeCell(m_funcList[x].function());
+                    m_csv->writeCell((float)(m_funcList[x].function()));
                 for (x = 0; x < m_numList.size(); x++)
-                    m_csv->writeCell(*m_numList[x].value);
+                    m_csv->writeCell((float)*m_numList[x].value);
                 for (x = 0; x < m_stringList.size(); x++)
                     m_csv->writeCell(*m_stringList[x].value);
             }

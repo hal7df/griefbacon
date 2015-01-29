@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <cstdio>
+#include <sstream>
 
 #define DEBUG_INTERVAL 500 //ms
 #define AUTON_CASE_DURATION 2.5 //s
@@ -187,6 +188,7 @@ private:
     string m_tempMsg;
     string m_manualLog;
     ofstream* m_fout;
+    stringstream* m_concat;
     CSVWriter* m_csv;
     double m_debugInterval;
     time_t m_lastDebugTime;
