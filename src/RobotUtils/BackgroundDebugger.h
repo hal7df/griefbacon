@@ -84,6 +84,8 @@ public:
      */
     void StopRun();
 
+    void CloseFile() { if(m_fout->is_open()) m_fout->close(); }
+
     // AUTON DEBUGGER ---------------------------------------------------------------------------
 
     /* BackgroundDebugger provides functionality to watch the robot's autonomous mode. Should

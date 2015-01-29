@@ -100,15 +100,16 @@ void BackgroundDebugger::LogData(string id, double value)
     time_t currentTime;
 
     time(&currentTime);
-
     (*m_concat) << m_runPath << m_manualLog;
-    m_fout->open(m_concat->str().c_str(), ios::app);
+
+    if (!m_fout->is_open())
+    	m_fout->open(m_concat->str().c_str(), ios::app);
 
     if (m_fout->is_open())
-    {
         (*m_fout)<<ctime(&currentTime)<<' '<<id<<' '<<value<<endl;
-        m_fout->close();
-    }
+
+    m_concat->clear();
+    m_concat->str("");
 
     m_concat->clear();
     m_concat->str("");
@@ -140,8 +141,8 @@ void BackgroundDebugger::ResetRunNumber()
 
 void BackgroundDebugger::StartRun()
 {
-	struct stat st;
 	int x;
+	struct stat st;
 
     m_runNum++;
     m_runPath = "/home/lvuser/Run"+m_runNum;
@@ -229,8 +230,8 @@ void BackgroundDebugger::Update()
                     m_csv->writeCell((float)difftime(time(NULL),m_startTime));
                 }
 
-                for (x = 0; x < m_funcList.size(); x++)
-                    m_csv->writeCell((float)(m_funcList[x].function()));
+                /*for (x = 0; x < m_funcList.size(); x++)
+                    m_csv->writeCell(m_funcList[x].function);*/
                 for (x = 0; x < m_numList.size(); x++)
                     m_csv->writeCell((float)*m_numList[x].value);
                 for (x = 0; x < m_stringList.size(); x++)
