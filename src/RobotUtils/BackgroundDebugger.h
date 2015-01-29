@@ -12,6 +12,7 @@
 #include <dirent.h>
 #include <cstdio>
 #include <sstream>
+#include <string>
 
 #define DEBUG_INTERVAL 500 //ms
 #define AUTON_CASE_DURATION 2.5 //s
@@ -84,7 +85,7 @@ public:
      */
     void StopRun();
 
-    void CloseFile() { if(m_fout->is_open()) m_fout->close(); }
+    void CloseFile();
 
     // AUTON DEBUGGER ---------------------------------------------------------------------------
 
@@ -192,6 +193,7 @@ private:
     ofstream* m_fout;
     stringstream* m_concat;
     CSVWriter* m_csv;
+    CSVWriter* m_manualCsv;
     double m_debugInterval;
     time_t m_lastDebugTime;
     time_t m_startTime;

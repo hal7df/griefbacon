@@ -19,7 +19,7 @@ void CSVWriter::open(const char *fname)
     if (is_open())
         close();
 
-    m_fout.open(fname,ios::ate);
+    m_fout.open(fname,ios::app);
 }
 
 bool CSVWriter::writeCell(string str)

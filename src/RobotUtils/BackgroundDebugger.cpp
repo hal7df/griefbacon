@@ -9,10 +9,12 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
     prefs = Preferences::GetInstance();
 
     m_debugInterval = debugInterval;
-    m_manualLog = "manualLog.txt";
+    m_manualLog = "manualLog.csv";
     m_fout = new ofstream;
     m_concat = new stringstream (ios::in | ios::out);
     m_csv = new CSVWriter;
+    m_manualCsv = new CSVWriter;
+    m_manualCsv->setColumns(3);
 
     //Auton setup
     m_autonCase = NULL;
@@ -97,22 +99,7 @@ void BackgroundDebugger::AddValue(string id, string *value)
 
 void BackgroundDebugger::LogData(string id, double value)
 {
-    time_t currentTime;
-
-    time(&currentTime);
-    (*m_concat) << m_runPath << m_manualLog;
-
-    if (!m_fout->is_open())
-    	m_fout->open(m_concat->str().c_str(), ios::app);
-
-    if (m_fout->is_open())
-        (*m_fout)<<ctime(&currentTime)<<' '<<id<<' '<<value<<endl;
-
-    m_concat->clear();
-    m_concat->str("");
-
-    m_concat->clear();
-    m_concat->str("");
+    LogData(id,to_string(value));
 }
 
 void BackgroundDebugger::LogData(string id, string value)
@@ -121,16 +108,28 @@ void BackgroundDebugger::LogData(string id, string value)
 
     time(&currentTime);
     (*m_concat) << m_runPath << m_manualLog;
-    m_fout->open(m_concat->str().c_str(), ios::app);
+
+    if (!m_manualCsv->is_open())
+    	m_manualCsv->open(m_concat->str().c_str());
 
     if (m_fout->is_open())
     {
-        (*m_fout)<<ctime(&currentTime)<<' '<<id<<' '<<value<<endl;
-        m_fout->close();
+        m_manualCsv->writeCell(string(ctime(&currentTime)));
+        m_manualCsv->writeCell(id);
+        m_manualCsv->writeCell(value);
     }
 
     m_concat->clear();
     m_concat->str("");
+}
+
+void BackgroundDebugger::CloseFile()
+{
+	if (m_fout->is_open())
+		m_fout->close();
+
+	if (m_manualCsv->is_open())
+		m_manualCsv->close();
 }
 
 void BackgroundDebugger::ResetRunNumber()
