@@ -26,6 +26,13 @@ private:
 
 	DistancePIDWrapper* m_distancePIDWrapper;
 
+	Timer* m_timer;
+
+	double m_speed;
+
+	double m_ratio;
+
+	double m_distance;
 
 	public:
 	griefbacon()
@@ -58,6 +65,17 @@ private:
 		m_turnPID = new PIDController(gyro_P, gyro_I, gyro_D, m_gyro, m_dummy);
 		m_distancePIDWrapper = new DistancePIDWrapper (m_encodeL, m_encodeR);
 		m_distancePID = new PIDController(0.01,0.,0.,m_distancePIDWrapper,m_dummy2);
+
+		m_speed = 0.6;
+
+		m_ratio = 0.0;
+
+
+		//Ratio: y=(.1955321253)(259.3608864)^x
+
+		m_distance = 0.0;
+
+		m_timer = new Timer;
 	}
 
 	void RobotInit()
@@ -79,7 +97,6 @@ private:
 	{
 		m_turnPID->SetSetpoint(0);
 		m_distancePID->SetSetpoint(2000);
-
 	}
 
 	void TeleopPeriodic()
@@ -87,24 +104,41 @@ private:
 
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
 		{
-					m_encodeL->Reset();
-					m_encodeR->Reset();
+			m_encodeL->Reset();
+			m_encodeR->Reset();
 		}
+
 		if(m_driver->GetRawButton(AdvancedJoystick::kButtonA))
 		{
 			m_turnPID->Enable();
 			m_distancePID->Enable();
 			m_drive->ArcadeDrive(m_distancePID->Get(),m_turnPID->Get());
 		}
+
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
-						m_gyro->Reset();
+			m_gyro->Reset();
 		}
-		else
+
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+			m_turnPID->SetSetpoint(0);
+			if (m_timer->Get() == 0.0){
+				m_timer->Start();
+			}
+			m_drive->ArcadeDrive(m_speed, m_turnPID->Get());
+			m_turnPID->Enable();
+		}
+
+		else{
 			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+			m_turnPID->Disable();
+			if (m_timer->Get() > 0.0){
+				m_timer->Stop();
+				m_timer->Reset();
+			}
+		}
+
 		PrintData();
-
-
 
 
 
@@ -142,6 +176,19 @@ private:
 		SmartDashboard::PutNumber("Distance PIDGet", m_distancePID->Get());
 		SmartDashboard::PutNumber("Auto Drive Setpoint", m_distancePID->GetSetpoint());
 		SmartDashboard::PutBoolean("Auto Drive Enabled", m_distancePID->IsEnabled());
+		SmartDashboard::PutNumber("Encoder Rate Left", m_encodeL->GetRate() / 1200);
+		SmartDashboard::PutNumber("Encoder Rate Right", m_encodeR->GetRate() / 1200);
+		SmartDashboard::PutNumber("Encoder Rate Average", ((m_encodeL->GetRate() / 1200) - (m_encodeR->GetRate() / 1200)) / 2);
+		SmartDashboard::PutNumber("m_ratio", m_ratio);
+		SmartDashboard::PutNumber("m_distance", m_distance);
+		SmartDashboard::PutNumber("m_speed", m_speed);
+		SmartDashboard::PutNumber("ETA:", (m_distance / (m_ratio * m_driver->GetRawAxis(AdvancedJoystick::kLeftY))) - m_timer->Get());
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
+			m_ratio = SmartDashboard::GetNumber("m_ratio");
+			m_distance = SmartDashboard::GetNumber("m_distance");
+			m_speed = SmartDashboard::GetNumber("m_speed");
+		}
 	}
 };
 
