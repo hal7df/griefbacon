@@ -1,5 +1,8 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
+#include <fstream>
+#include <ctime>
+using namespace std;
 
 class griefbacon: public IterativeRobot
 {
@@ -14,6 +17,9 @@ private:
 	RobotDrive* m_drive;
 
 	BackgroundDebugger* m_debug;
+
+	ofstream* m_fout;
+	time_t* m_time;
 public:
 	griefbacon()
 	{
@@ -31,6 +37,7 @@ public:
 		m_drive->SetSafetyEnabled(false);
 
 		m_debug = new BackgroundDebugger;
+		m_fout = new ofstream;
 	}
 
 	void RobotInit()
@@ -41,6 +48,7 @@ public:
 	void DisabledInit ()
 	{
 		m_debug->CloseFile();
+		m_fout->close();
 	}
 
 	void AutonomousInit()
@@ -60,19 +68,21 @@ public:
 
 	void TeleopPeriodic()
 	{
-		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-		SmartDashboard::PutBoolean("Test",m_driver->GetButtonPress(AdvancedJoystick::kButtonA));
-
-
-		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-		SmartDashboard::PutBoolean("Test",m_driver->GetButtonPress(AdvancedJoystick::kButtonA));
-
-		if(m_driver->GetButtonPress(AdvancedJoystick::kButtonA))
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
 		{
-				m_debug->LogData("Test", m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
-		}
-				///m_debug->Update();
+			if (!m_fout->is_open())
+				m_fout->open("/home/lvuser/DisabledLogs/manualLog.txt");
 
+			time(m_time);
+
+			(*m_fout)<<asctime(localtime(m_time))<<"Test 1"<<"Testing MAA STRINGS"<<endl;
+			(*m_fout)<<asctime(localtime(m_time))<<"Joystick Left Axis X"<<m_driver->GetRawAxis(AdvancedJoystick::kLeftX)<<endl;
+			(*m_fout)<<asctime(localtime(m_time))<<"Joystick Left Axis Y"<<m_driver->GetRawAxis(AdvancedJoystick::kLeftY)<<endl;
+
+			SmartDashboard::PutBoolean("Debugging",true);
+		}
+		else
+			SmartDashboard::PutBoolean("Debugging",false);
 	}
 
 	void TestPeriodic()
