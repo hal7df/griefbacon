@@ -14,11 +14,14 @@ private:
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
 
+	Encoder* m_lEncode;
+
 	RobotDrive* m_drive;
 
 	BackgroundDebugger* m_debug;
+	HotSubsystemHandler* m_subsys;
 
-	ofstream m_fout;
+	double m_loopcounter;
 public:
 	griefbacon()
 	{
@@ -32,10 +35,20 @@ public:
 		m_lDrive1 = new Talon (2);
 		m_lDrive2 = new Talon (3);
 
+		m_lEncode = new Encoder (2,3,false);
+
 		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 		m_drive->SetSafetyEnabled(false);
 
 		m_debug = new BackgroundDebugger;
+		m_debug->AddValue("Left Encoder",m_lEncode);
+		m_debug->AddValue("Loop Counter",&m_loopcounter);
+
+		m_subsys = new HotSubsystemHandler;
+		m_subsys->Add(m_debug);
+		m_subsys->Start();
+
+		m_loopcounter = 0;
 	}
 
 	void RobotInit()
@@ -45,8 +58,7 @@ public:
 
 	void DisabledInit ()
 	{
-		m_debug->CloseFile();
-		m_fout.close();
+		m_debug->StopRun();
 	}
 
 	void AutonomousInit()
@@ -61,44 +73,24 @@ public:
 
 	void TeleopInit()
 	{
-
+		m_debug->StartRun();
+		m_debug->SetTempMessage("** TELEOP **");
 	}
 
 	void TeleopPeriodic()
 	{
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-		{
-			if (!m_fout.is_open())
-				m_fout.open("/home/lvuser/DisabledLogs/manualLog.txt", ios::app);
-
-			SmartDashboard::PutBoolean("Debug Log Stream Status",m_fout.good());
-
-			if (m_driver->GetRawButton(AdvancedJoystick::kButtonB) && m_fout.is_open())
-			{
-				m_fout<<"Test 1"<<"Testing MAA STRINGS"<<endl;
-				m_fout<<m_driver->GetRawAxis(AdvancedJoystick::kLeftX)<<endl;
-				m_fout<<"Joystick Left Axis Y"<<m_driver->GetRawAxis(AdvancedJoystick::kLeftY)<<endl;
-
-
-				cout<<"Done debugging"<<endl;
-
-				SmartDashboard::PutBoolean("Debugging",true);
-
-			}
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
 			m_debug->LogData("Joystick Left Axis X",m_driver->GetRawAxis(AdvancedJoystick::kLeftX));
 			m_debug->LogData("Joystick Left Axis Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
 			SmartDashboard::PutBoolean("Debugging",true);
-
 		}
 		else
 			SmartDashboard::PutBoolean("Debugging",false);
 
-		SmartDashboard::PutBoolean("Debug Log Open",m_fout.is_open());
+		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY),-m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
-		cout<<"End of periodic loop"<<endl;
+		m_loopcounter++;
 	}
 
 	void TestPeriodic()
