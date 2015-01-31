@@ -10,11 +10,12 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
 
     m_debugInterval = debugInterval;
     m_manualLog = "manualLog.csv";
-    m_fout = new ofstream;
     m_concat = new stringstream (ios::in | ios::out);
+    m_fout = new ofstream;
     m_csv = new CSVWriter;
     m_manualCsv = new CSVWriter;
     m_manualCsv->setColumns(3);
+    m_ds = DriverStation::GetInstance();
 
     //Auton setup
     m_autonCase = NULL;
@@ -104,17 +105,14 @@ void BackgroundDebugger::LogData(string id, double value)
 
 void BackgroundDebugger::LogData(string id, string value)
 {
-    time_t currentTime;
-
-    time(&currentTime);
     (*m_concat) << m_runPath << m_manualLog;
 
     if (!m_manualCsv->is_open())
     	m_manualCsv->open(m_concat->str().c_str());
 
-    if (m_fout->is_open())
+    if (m_manualCsv->is_open())
     {
-        m_manualCsv->writeCell(string(ctime(&currentTime)));
+    	m_manualCsv->writeCell((float)m_ds->GetMatchTime());
         m_manualCsv->writeCell(id);
         m_manualCsv->writeCell(value);
     }

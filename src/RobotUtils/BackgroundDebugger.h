@@ -190,13 +190,15 @@ private:
     vector<FuncData> m_funcList;
     string m_tempMsg;
     string m_manualLog;
-    ofstream* m_fout;
+
     stringstream* m_concat;
+    ofstream* m_fout;
     CSVWriter* m_csv;
     CSVWriter* m_manualCsv;
     double m_debugInterval;
     time_t m_lastDebugTime;
     time_t m_startTime;
+    DriverStation* m_ds;
 
     bool f_running;
     bool f_delContents;

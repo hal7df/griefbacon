@@ -86,6 +86,12 @@ public:
 				SmartDashboard::PutBoolean("Debugging",true);
 			}
 		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+		{
+			m_debug->LogData("Joystick Left Axis X",m_driver->GetRawAxis(AdvancedJoystick::kLeftX));
+			m_debug->LogData("Joystick Left Axis Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
+			SmartDashboard::PutBoolean("Debugging",true);
+		}
 		else
 			SmartDashboard::PutBoolean("Debugging",false);
 
