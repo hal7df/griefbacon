@@ -198,7 +198,7 @@ private:
     double m_debugInterval;
     time_t m_lastDebugTime;
     time_t m_startTime;
-    DriverStation* m_ds;
+    Timer* m_matchTimer;
 
     bool f_running;
     bool f_delContents;

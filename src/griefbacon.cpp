@@ -19,7 +19,6 @@ private:
 	BackgroundDebugger* m_debug;
 
 	ofstream m_fout;
-	time_t* m_time;
 public:
 	griefbacon()
 	{
@@ -84,6 +83,7 @@ public:
 				cout<<"Done debugging"<<endl;
 
 				SmartDashboard::PutBoolean("Debugging",true);
+
 			}
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
@@ -91,6 +91,7 @@ public:
 			m_debug->LogData("Joystick Left Axis X",m_driver->GetRawAxis(AdvancedJoystick::kLeftX));
 			m_debug->LogData("Joystick Left Axis Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
 			SmartDashboard::PutBoolean("Debugging",true);
+
 		}
 		else
 			SmartDashboard::PutBoolean("Debugging",false);

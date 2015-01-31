@@ -15,7 +15,7 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
     m_csv = new CSVWriter;
     m_manualCsv = new CSVWriter;
     m_manualCsv->setColumns(3);
-    m_ds = DriverStation::GetInstance();
+    m_matchTimer = new Timer;
 
     //Auton setup
     m_autonCase = NULL;
@@ -105,14 +105,21 @@ void BackgroundDebugger::LogData(string id, double value)
 
 void BackgroundDebugger::LogData(string id, string value)
 {
+	struct tm curTime;
+	time_t t;
     (*m_concat) << m_runPath << m_manualLog;
+
+    char buf [80];
+    t = time(NULL);
+    curTime = *localtime(&t);
+    strftime(buf, 80, "%X", &curTime);
 
     if (!m_manualCsv->is_open())
     	m_manualCsv->open(m_concat->str().c_str());
 
     if (m_manualCsv->is_open())
     {
-    	m_manualCsv->writeCell((float)m_ds->GetMatchTime());
+    	m_manualCsv->writeCell(string(buf));
         m_manualCsv->writeCell(id);
         m_manualCsv->writeCell(value);
     }
