@@ -18,7 +18,7 @@ private:
 
 	BackgroundDebugger* m_debug;
 
-	ofstream* m_fout;
+	ofstream m_fout;
 	time_t* m_time;
 public:
 	griefbacon()
@@ -37,7 +37,6 @@ public:
 		m_drive->SetSafetyEnabled(false);
 
 		m_debug = new BackgroundDebugger;
-		m_fout = new ofstream;
 	}
 
 	void RobotInit()
@@ -48,7 +47,7 @@ public:
 	void DisabledInit ()
 	{
 		m_debug->CloseFile();
-		m_fout->close();
+		m_fout.close();
 	}
 
 	void AutonomousInit()
@@ -70,19 +69,29 @@ public:
 	{
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
 		{
-			if (!m_fout->is_open())
-				m_fout->open("/home/lvuser/DisabledLogs/manualLog.txt");
+			if (!m_fout.is_open())
+				m_fout.open("/home/lvuser/DisabledLogs/manualLog.txt", ios::app);
 
-			time(m_time);
+			SmartDashboard::PutBoolean("Debug Log Stream Status",m_fout.good());
 
-			(*m_fout)<<asctime(localtime(m_time))<<"Test 1"<<"Testing MAA STRINGS"<<endl;
-			(*m_fout)<<asctime(localtime(m_time))<<"Joystick Left Axis X"<<m_driver->GetRawAxis(AdvancedJoystick::kLeftX)<<endl;
-			(*m_fout)<<asctime(localtime(m_time))<<"Joystick Left Axis Y"<<m_driver->GetRawAxis(AdvancedJoystick::kLeftY)<<endl;
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonB) && m_fout.is_open())
+			{
+				m_fout<<"Test 1"<<"Testing MAA STRINGS"<<endl;
+				m_fout<<m_driver->GetRawAxis(AdvancedJoystick::kLeftX)<<endl;
+				m_fout<<"Joystick Left Axis Y"<<m_driver->GetRawAxis(AdvancedJoystick::kLeftY)<<endl;
 
-			SmartDashboard::PutBoolean("Debugging",true);
+
+				cout<<"Done debugging"<<endl;
+
+				SmartDashboard::PutBoolean("Debugging",true);
+			}
 		}
 		else
 			SmartDashboard::PutBoolean("Debugging",false);
+
+		SmartDashboard::PutBoolean("Debug Log Open",m_fout.is_open());
+
+		cout<<"End of periodic loop"<<endl;
 	}
 
 	void TestPeriodic()
