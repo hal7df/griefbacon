@@ -51,6 +51,12 @@ public:
 		m_loopcounter = 0;
 	}
 
+	~griefbacon()
+	{
+		m_debug->StopRun();
+		m_subsys->Stop();
+	}
+
 	void RobotInit()
 	{
 
@@ -86,7 +92,10 @@ public:
 			SmartDashboard::PutBoolean("Debugging",true);
 		}
 		else
+		{
 			SmartDashboard::PutBoolean("Debugging",false);
+			m_debug->CloseFile();
+		}
 
 		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY),-m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
