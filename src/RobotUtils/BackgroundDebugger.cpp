@@ -265,6 +265,13 @@ void BackgroundDebugger::Update()
     }
 }
 
+void BackgroundDebugger::PrintData()
+{
+	SmartDashboard::PutBoolean("Auto CSV File Open",m_csv->is_open());
+	SmartDashboard::PutBoolean("Auto CSV File Good",m_csv->good());
+	SmartDashboard::PutString("Run Path",m_runPath);
+}
+
 void BackgroundDebugger::watchAuton()
 {
     if ((*m_autonCase > 0 && *m_autonCase < m_endCase) && f_watchAuton && f_autonState)

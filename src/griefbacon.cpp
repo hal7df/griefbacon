@@ -43,6 +43,7 @@ public:
 		m_debug = new BackgroundDebugger;
 		m_debug->AddValue("Left Encoder",m_lEncode);
 		m_debug->AddValue("Loop Counter",&m_loopcounter);
+		m_debug->ClearContentsOnNewRun(false);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_debug);
