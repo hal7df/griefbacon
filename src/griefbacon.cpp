@@ -4,6 +4,9 @@
 #include "FeedbackWrapper.h"
 #include <cmath>
 
+
+//Add back in variables
+
 class griefbacon: public IterativeRobot
 {
 private:
@@ -79,7 +82,7 @@ private:
 		m_distancePIDWrapper = new DistancePIDWrapper (m_encodeL, m_encodeR);
 		m_distancePID = new PIDController(0.01,0.,0.,m_distancePIDWrapper,m_dummy2);
 		m_FeedbackWrapper = new FeedbackWrapper(m_encodeL, m_encodeR);
-		m_FeedbackPID = new PIDController(FEED_P, FEED_I, FEED_D, m_FeedbackWrapper, m_dummy3);
+		m_FeedbackPID = new PIDController(0.1,0.0,0.0, m_FeedbackWrapper, m_dummy3);
 		m_speed = .4;
 
 		m_ratio1 = 26.11001704;
@@ -89,7 +92,7 @@ private:
 
 		//Ratio: y=(.1955321253)(259.3608864)^x
 
-		m_distance = 5.0;
+		m_distance = 12.0;
 
 		m_etaFlag = 0;
 
@@ -139,16 +142,24 @@ private:
 			m_gyro->Reset();
 		}
 
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
-			ETA(3.0, m_distance, m_angle);
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+			ETA(5.0, 10.0, 0.0);
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
 			m_etaFlag = 0;
 		}
 
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
+			m_FeedbackPID->SetSetpoint(3);
+			m_FeedbackPID->Enable();
+			m_turnPID->Enable();
+			m_drive->ArcadeDrive(m_FeedbackPID->Get(), m_turnPID->Get());
+		}
+
 		else{
 			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-		//	m_turnPID->Disable();
+			m_turnPID->Disable();
+			m_FeedbackPID->Disable();
 		}
 
 		PrintData();
@@ -196,8 +207,9 @@ private:
 		SmartDashboard::PutNumber("Encoder Rate Average", ((m_encodeL->GetRate() / 1200) - (m_encodeR->GetRate() / 1200)) / 2);
 		SmartDashboard::PutNumber("m_distance", m_distance);
 		SmartDashboard::PutNumber("m_speed", m_speed);
-		SmartDashboard::PutNumber("ETA:",  ((m_distance / (m_ratio1 * (pow(m_speed, (m_ratio2))))) - m_timer->Get()));
+		SmartDashboard::PutNumber("ETA:",  4.0 - m_timer->Get());
 		SmartDashboard::PutNumber("m_etaFlag", m_etaFlag);
+		SmartDashboard::PutNumber("HOT STUFF",m_FeedbackPID->Get());
 
 	}
 
@@ -206,29 +218,26 @@ private:
 		double speedSC;
 		double speed;
 		speed = distance / time;
-		m_FeedbackPID->SetSetpoint(speed);
 		speedSC = pow(speed/m_ratio1, 1/m_ratio2);
 		switch(m_etaFlag){
 		case 0:
-			m_encodeL->Reset();
-			m_encodeR->Reset();
-			m_timer->Reset();
 			m_timer->Start();
+			m_timer->Reset();
 			m_turnPID->SetSetpoint(angle);
+			m_FeedbackPID->SetSetpoint(speed);
 			m_etaFlag++;
 			break;
 		case 1:
 			if(!m_timer->HasPeriodPassed(time)){
-				m_drive->ArcadeDrive((speedSC + (m_FeedbackPID->Get()/5)), m_turnPID->Get());
-				SmartDashboard::PutNumber("Encoder Count Average", (m_encodeL->GetDistance() - m_encodeR->GetDistance()) / 2400);
-				m_turnPID->Enable();
+				m_drive->ArcadeDrive((speedSC + (m_FeedbackPID->Get()/10)), m_turnPID->Get());
 				m_FeedbackPID->Enable();
-				SmartDashboard::PutNumber("HOT STUFF",m_FeedbackPID->Get());
+				m_turnPID->Enable();
 			}
 			else
 				m_etaFlag++;
 			break;
 		case 2:
+			m_FeedbackPID->Disable();
 			m_timer->Stop();
 			m_drive->ArcadeDrive(0.0, m_turnPID->Get());
 			if (m_encodeL->GetRate() == 0.0){
