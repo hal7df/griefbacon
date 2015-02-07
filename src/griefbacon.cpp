@@ -71,9 +71,14 @@ public:
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 
-	void TestPeriodic()
+	void TestInit ()
 	{
 
+	}
+
+	void TestPeriodic()
+	{
+		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 };
 
