@@ -1,13 +1,13 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
-#include <fstream>
-#include <ctime>
+#include "Arm.h"
 using namespace std;
 
 class griefbacon: public IterativeRobot
 {
 private:
 	AdvancedJoystick* m_driver;
+	AdvancedJoystick* m_operator;
 
 	Talon* m_lDrive1;
 	Talon* m_lDrive2;
@@ -18,17 +18,20 @@ private:
 
 	RobotDrive* m_drive;
 
-	BackgroundDebugger* m_debug;
 	HotSubsystemHandler* m_subsys;
-
-	double m_loopcounter;
+	Arm* m_arm;
 public:
 	griefbacon()
 	{
-		m_driver = new AdvancedJoystick (0);
+		m_driver = new AdvancedJoystick(0);
+		m_operator = new AdvancedJoystick(1);
 
 		m_driver->SetDeadband(0.2);
 		m_driver->SetDeadbandType(AdvancedJoystick::kQuad);
+
+		m_operator->SetDeadband(0.2);
+		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
+
 
 		m_rDrive1 = new Talon (0);
 		m_rDrive2 = new Talon (1);
@@ -40,21 +43,13 @@ public:
 		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 		m_drive->SetSafetyEnabled(false);
 
-		m_debug = new BackgroundDebugger;
-		m_debug->AddValue("Left Encoder",m_lEncode);
-		m_debug->AddValue("Loop Counter",&m_loopcounter);
-		m_debug->ClearContentsOnNewRun(false);
+		m_arm = new Arm(11,16,14,10,15,12,13);
 
 		m_subsys = new HotSubsystemHandler;
-		m_subsys->Add(m_debug);
 		m_subsys->Start();
-
-		m_loopcounter = 0;
 	}
-
 	~griefbacon()
 	{
-		m_debug->StopRun();
 		m_subsys->Stop();
 	}
 
@@ -65,7 +60,7 @@ public:
 
 	void DisabledInit ()
 	{
-		m_debug->StopRun();
+
 	}
 
 	void AutonomousInit()
@@ -80,32 +75,31 @@ public:
 
 	void TeleopInit()
 	{
-		m_debug->StartRun();
-		m_debug->SetTempMessage("** TELEOP **");
+
 	}
 
 	void TeleopPeriodic()
 	{
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
-		{
-			m_debug->LogData("Joystick Left Axis X",m_driver->GetRawAxis(AdvancedJoystick::kLeftX));
-			m_debug->LogData("Joystick Left Axis Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
-			SmartDashboard::PutBoolean("Debugging",true);
-		}
-		else
-		{
-			SmartDashboard::PutBoolean("Debugging",false);
-			m_debug->CloseFile();
-		}
 
-		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY),-m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-
-		m_loopcounter++;
 	}
 
 	void TestPeriodic()
 	{
+		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+		m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
 
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
+			m_arm->rollerSet(1);
+		}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
+			m_arm->rollerSet(-1);
+		}
+		if (m_operator->GetRawButton(AdvancedJoystick::kTriggerL)){
+			m_arm->intakeSet(1);
+		}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kTriggerR)){
+			m_arm->intakeSet(-1);
+		}
 	}
 };
 
