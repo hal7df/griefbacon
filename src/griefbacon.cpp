@@ -10,14 +10,7 @@ class griefbacon: public IterativeRobot
 private:
 	AdvancedJoystick* m_driver;
 
-	Talon* m_lDrive1;
-	Talon* m_lDrive2;
-	Talon* m_rDrive1;
-	Talon* m_rDrive2;
-
 	Encoder* m_lEncode;
-
-	RobotDrive* m_drive;
 
 	HotSubsystemHandler* m_subsys;
 
@@ -31,11 +24,6 @@ public:
 
 		m_driver->SetDeadband(0.2);
 		m_driver->SetDeadbandType(AdvancedJoystick::kQuad);
-
-		m_rDrive1 = new Talon (0);
-		m_rDrive2 = new Talon (1);
-		m_lDrive1 = new Talon (2);
-		m_lDrive2 = new Talon (3);
 
 		m_drivetrain = new Drivetrain (0,1,2,3);
 
