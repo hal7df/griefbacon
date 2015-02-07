@@ -33,7 +33,7 @@ public:
 
 		m_drivetrain = new Drivetrain (0,1,2,3);
 		m_arm = new Arm(11,16,14,10,15,12,13);
-		m_elev = new Elevator (4,5,0);
+		m_elev = new Elevator (4,5,0,8);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
