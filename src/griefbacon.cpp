@@ -1,5 +1,5 @@
 #include "WPILib.h"
-#include "RobotUtils/AdvancedJoystick.h"
+#include "RobotUtils/RobotUtils.h"
 #include "DistancePIDWrapper.h"
 #include "FeedbackWrapper.h"
 #include <cmath>
@@ -34,6 +34,7 @@ private:
 	DistancePIDWrapper* m_distancePIDWrapper;
 
 	FeedbackWrapper* m_FeedbackWrapper;
+	BackgroundDebugger* m_debug;
 
 	Timer* m_timer;
 
@@ -80,7 +81,7 @@ private:
 
 		m_turnPID = new PIDController(gyro_P, gyro_I, gyro_D, m_gyro, m_dummy);
 		m_distancePIDWrapper = new DistancePIDWrapper (m_encodeL, m_encodeR);
-		m_distancePID = new PIDController(0.13,0.0,0.0,m_distancePIDWrapper,m_dummy2);
+		m_distancePID = new PIDController(0.16,0.0,0.0,m_distancePIDWrapper,m_dummy2);
 		m_FeedbackWrapper = new FeedbackWrapper(m_encodeL, m_encodeR);
 		m_FeedbackPID = new PIDController(0.1,0.0,0.0, m_FeedbackWrapper, m_dummy3);
 		m_speed = .4;
@@ -99,6 +100,8 @@ private:
 		m_angle = 0;
 
 		m_timer = new Timer;
+
+		m_debug = new BackgroundDebugger;
 	}
 
 	void RobotInit()
@@ -132,9 +135,8 @@ private:
 
 		else if(m_driver->GetRawButton(AdvancedJoystick::kButtonA))
 		{
-			m_turnPID->Enable();
-			m_distancePID->Enable();
-			m_drive->ArcadeDrive(m_distancePID->Get(),m_turnPID->Get());
+			m_debug->LogData("Encoder Rate", m_FeedbackWrapper->PIDGet());
+			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		}
 
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
