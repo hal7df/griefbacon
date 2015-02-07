@@ -15,7 +15,7 @@ class Drivetrain: public HotSubsystem {
 public:
 
 	friend class HotSubsystemHandler;
-	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2);
+	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode);
 	virtual ~Drivetrain();
 
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
@@ -31,6 +31,8 @@ private:
 	Talon* m_lDrive2;
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
+	Encoder* m_lEncode;
+	Encoder* m_rEncode;
 	RobotDrive* m_drive;
 };
 

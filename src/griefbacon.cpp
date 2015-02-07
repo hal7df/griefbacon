@@ -12,8 +12,6 @@ private:
 	AdvancedJoystick* m_driver;
 	AdvancedJoystick* m_operator;
 
-	Encoder* m_lEncode;
-
 	Elevator* m_elev;
 	HotSubsystemHandler* m_subsys;
 	Drivetrain* m_drivetrain;
@@ -29,9 +27,7 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_lEncode = new Encoder (2,3,false);
-
-		m_drivetrain = new Drivetrain (0,1,2,3);
+		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0);
 
