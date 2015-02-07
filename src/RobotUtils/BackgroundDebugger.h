@@ -174,6 +174,7 @@ public:
 
 protected:
     void Update();
+    void PrintData();
 private:
     //Auton debugger
     void watchAuton();
