@@ -13,7 +13,7 @@
 
 class Arm: public HotSubsystem {
 public:
-	friend class HotSubsystemsHandler;
+	friend class HotSubsystemHandler;
 	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR);
 	virtual ~Arm();
 
