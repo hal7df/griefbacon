@@ -3,6 +3,7 @@
 #include "Elevator.h"
 #include <fstream>
 #include <ctime>
+
 using namespace std;
 
 class griefbacon: public IterativeRobot
@@ -43,7 +44,7 @@ public:
 		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 		m_drive->SetSafetyEnabled(false);
 
-		m_elev = new Elevator (4,5);
+		m_elev = new Elevator (4,5,0);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
@@ -86,6 +87,12 @@ public:
 	void TestPeriodic()
 	{
 
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
+			m_elev->Set(Relay::kForward);
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+			m_elev->Set(Relay::kReverse);
+		else
+			m_elev->Set(Relay::kOff);
 	}
 };
 

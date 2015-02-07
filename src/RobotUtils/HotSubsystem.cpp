@@ -55,7 +55,7 @@ void HotSubsystemHandler::Run()
 		{
 			m_subsystems[i]->Update();
 		}
-		if (f_runUpdate)
+		if (f_runPrintData)
 		{
 			m_subsystems[i]->PrintData();
 		}

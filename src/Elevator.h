@@ -8,24 +8,28 @@
 #ifndef SRC_ELEVATOR_H_
 #define SRC_ELEVATOR_H_
 
-#include <RobotUtils/HotSubsystem.h>
+#include "RobotUtils/HotSubsystem.h"
+#include "RobotUtils/RobotUtils.h"
 #include "WPILib.h"
 
 class Elevator: public HotSubsystem {
 public:
 	friend class HotSubsystemHandler;
 
-	Elevator(Victor* lElevator, Victor* rElevator);
-	Elevator(int lElevator, int rElevator);
+	Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt);
+	Elevator(int lElevator, int rElevator, int binExt);
+
 	virtual ~Elevator();
 
 	void Set (double speed);
-protected:
+	void Set (Relay::Value direction);
+
 	void Update();
 	void PrintData();
 private:
 	Victor* m_lElevator;
 	Victor* m_rElevator;
+	Relay* m_binExt;
 };
 
 #endif /* SRC_ELEVATOR_H_ */
