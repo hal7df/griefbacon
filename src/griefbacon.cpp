@@ -87,6 +87,8 @@ public:
 			m_elev->Set(0.5);
 		else if (m_operator->GetPOV() == 180)
 			m_elev->Set(-0.5);
+
+		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 };
 
