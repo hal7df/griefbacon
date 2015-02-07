@@ -1,9 +1,8 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Elevator.h"
+#include "Arm.h"
 #include "Drivetrain.h"
-#include <fstream>
-#include <ctime>
 
 using namespace std;
 
@@ -18,12 +17,12 @@ private:
 	Elevator* m_elev;
 	HotSubsystemHandler* m_subsys;
 	Drivetrain* m_drivetrain;
-
+	Arm* m_arm;
 public:
 	griefbacon()
 	{
-		m_driver = new AdvancedJoystick (0);
-		m_operator = new AdvancedJoystick (1);
+		m_driver = new AdvancedJoystick(0);
+		m_operator = new AdvancedJoystick(1);
 
 		m_driver->SetDeadband(0.2);
 		m_driver->SetDeadbandType(AdvancedJoystick::kQuad);
@@ -31,15 +30,18 @@ public:
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_drivetrain = new Drivetrain (0,1,2,3);
+		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
+
+
 
 		m_lEncode = new Encoder (2,3,false);
 
+		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Start();
 	}
-
 	~griefbacon()
 	{
 		m_subsys->Stop();
@@ -89,6 +91,30 @@ public:
 			m_elev->Set(-0.5);
 
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+
+		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+		m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
+			m_arm->rollerSet(1);
+		}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
+			m_arm->rollerSet(-1);
+		}
+		else{
+			m_arm->rollerSet(0);
+		}
+
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kTriggerL)){
+			m_arm->intakeSet(1);
+		}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kTriggerR)){
+			m_arm->intakeSet(-1);
+		}
+		else{
+			m_arm->intakeSet(0);
+		}
 	}
 };
 
