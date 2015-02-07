@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "RobotUtils/RobotUtils.h"
 #include "Elevator.h"
+#include "Drivetrain.h"
 #include <fstream>
 #include <ctime>
 
@@ -12,17 +13,12 @@ private:
 	AdvancedJoystick* m_driver;
 	AdvancedJoystick* m_operator;
 
-	Talon* m_lDrive1;
-	Talon* m_lDrive2;
-	Talon* m_rDrive1;
-	Talon* m_rDrive2;
-
 	Encoder* m_lEncode;
 
-	RobotDrive* m_drive;
 	Elevator* m_elev;
-
 	HotSubsystemHandler* m_subsys;
+	Drivetrain* m_drivetrain;
+
 public:
 	griefbacon()
 	{
@@ -34,20 +30,13 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_rDrive1 = new Talon (0);
-		m_rDrive2 = new Talon (1);
-		m_lDrive1 = new Talon (2);
-		m_lDrive2 = new Talon (3);
+		m_drivetrain = new Drivetrain (0,1,2,3);
 
 		m_lEncode = new Encoder (2,3,false);
 
-		m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
-		m_drive->SetSafetyEnabled(false);
-
-		m_elev = new Elevator (4,5,0);
-
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
+		m_subsys->Add(m_drivetrain);
 		m_subsys->Start();
 	}
 
@@ -82,6 +71,7 @@ public:
 	void TeleopPeriodic()
 	{
 		m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 
 	void TestPeriodic()
