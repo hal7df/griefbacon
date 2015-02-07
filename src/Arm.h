@@ -9,7 +9,7 @@
 #define SRC_ARM_H_
 
 #include "RobotUtils/HotSubsystem.h"
-#include "WPILIB.h"
+#include "WPILib.h"
 
 class Arm: public HotSubsystem {
 public:
