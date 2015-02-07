@@ -94,11 +94,19 @@ public:
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_arm->rollerSet(-1);
 		}
+		else{
+			m_arm->rollerSet(0);
+		}
+
+
 		if (m_operator->GetRawButton(AdvancedJoystick::kTriggerL)){
 			m_arm->intakeSet(1);
 		}
 		else if (m_operator->GetRawButton(AdvancedJoystick::kTriggerR)){
 			m_arm->intakeSet(-1);
+		}
+		else{
+			m_arm->intakeSet(0);
 		}
 	}
 };
