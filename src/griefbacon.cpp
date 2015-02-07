@@ -29,17 +29,16 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_drivetrain = new Drivetrain (0,1,2,3);
-		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
-
-
-
 		m_lEncode = new Encoder (2,3,false);
 
+		m_drivetrain = new Drivetrain (0,1,2,3);
 		m_arm = new Arm(11,16,14,10,15,12,13);
+		m_elev = new Elevator (4,5,0);
+
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
+		m_subsys->Add(m_arm);
 		m_subsys->Start();
 	}
 	~griefbacon()
@@ -89,6 +88,8 @@ public:
 			m_elev->Set(0.5);
 		else if (m_operator->GetPOV() == 180)
 			m_elev->Set(-0.5);
+		else
+			m_elev->Set(0);
 
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
@@ -99,7 +100,7 @@ public:
 			m_arm->rollerSet(1);
 		}
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
-			m_arm->rollerSet(-1);
+			m_arm->rollerSet(-0.5);
 		}
 		else{
 			m_arm->rollerSet(0);

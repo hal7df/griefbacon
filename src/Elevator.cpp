@@ -29,8 +29,8 @@ Elevator::~Elevator() {
 
 void Elevator::Set (double speed)
 {
-	m_lElevator->Set(speed);
-	m_rElevator->Set(-speed);
+	m_lElevator->Set(-speed);
+	m_rElevator->Set(speed);
 }
 
 void Elevator::Set (Relay::Value direction)
