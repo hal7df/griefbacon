@@ -86,13 +86,17 @@ public:
 
 	void TestPeriodic()
 	{
-
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
 			m_elev->Set(Relay::kForward);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
 			m_elev->Set(Relay::kReverse);
 		else
 			m_elev->Set(Relay::kOff);
+
+		if (m_operator->GetPOV() == 0)
+			m_elev->Set(0.5);
+		else if (m_operator->GetPOV() == 180)
+			m_elev->Set(-0.5);
 	}
 };
 
