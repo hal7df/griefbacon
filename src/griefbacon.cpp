@@ -38,6 +38,10 @@ private:
 
 	Timer* m_timer;
 
+	Timer* m_driftTime;
+
+	Timer* m_inbetween;
+
 	double m_speed;
 
 	double m_ratio1;
@@ -49,6 +53,16 @@ private:
 	double m_angle;
 
 	int m_etaFlag;
+
+	double m_ratioTracker;
+
+	int m_averageDenom;
+
+	double m_driftRatio;
+
+	bool m_initReset;
+
+	bool m_GyroDriftDone;
 
 	public:
 	griefbacon()
@@ -101,6 +115,20 @@ private:
 
 		m_timer = new Timer;
 
+		m_driftTime = new Timer;
+
+		m_inbetween = new Timer;
+
+		m_initReset = false;
+
+		m_ratioTracker = 0.0;
+
+		m_averageDenom = 1;
+
+		m_GyroDriftDone = false;
+
+		m_driftRatio = 0.0;
+
 		m_debug = new BackgroundDebugger;
 	}
 
@@ -127,6 +155,14 @@ private:
 
 	void TeleopPeriodic()
 	{
+		if(!m_GyroDriftDone){
+			m_driftRatio = GyroRatio();
+			if(m_GyroDriftDone){
+				m_inbetween->Start();
+				m_inbetween->Reset();
+			}
+		}
+
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
 		{
 			m_encodeL->Reset();
@@ -166,7 +202,11 @@ private:
 
 		PrintData();
 
-
+		if(m_inbetween->Get() >= 5.0){
+			m_inbetween->Stop();
+			m_initReset = false;
+			m_GyroDriftDone = false;
+		}
 
 
 	}
@@ -179,6 +219,7 @@ private:
 	/** MISCELLANEOUS FUNCTIONS **/
 	void PrintData ()
 	{
+		SmartDashboard::PutNumber("m_driftRatio", m_driftRatio);
 		SmartDashboard::PutNumber("Feedback PID",m_FeedbackPID->Get()/5);
 		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
 		SmartDashboard::PutNumber("Current Angle", m_gyro->GetAngle());
@@ -261,6 +302,30 @@ private:
 				break;
 		}
 	}
+
+	double GyroRatio(){
+
+		if (m_initReset == false){
+		m_gyro->Reset();
+		m_driftTime->Start();
+		m_driftTime->Reset();
+		m_initReset = true;
+		}
+
+		if (m_driftTime->Get() >= m_averageDenom)
+		m_ratioTracker = (double)m_gyro->GetAngle() + m_ratioTracker;
+		m_averageDenom++;
+
+		if(m_driftTime->HasPeriodPassed(5.0)){
+			m_GyroDriftDone = true;
+		}
+		return(m_ratioTracker / (m_averageDenom - 1));
+	}
+
+	/*double dirftComp() {
+
+
+	} */
 };
 
 START_ROBOT_CLASS(griefbacon);
