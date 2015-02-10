@@ -77,6 +77,7 @@ public:
 
 	void TestPeriodic()
 	{
+		testDrive();
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
 			m_elev->Set(Relay::kForward);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -90,8 +91,6 @@ public:
 			m_elev->Set(-0.5);
 		else
 			m_elev->Set(0);
-
-		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
 		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
@@ -116,6 +115,12 @@ public:
 		else{
 			m_arm->intakeSet(0);
 		}
+	}
+
+	void testDrive(){
+
+		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+
 	}
 };
 
