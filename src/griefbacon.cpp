@@ -80,6 +80,8 @@ public:
 
 	void TeleopPeriodic()
 	{
+		teleopArm();
+
 
 	}
 
@@ -107,6 +109,32 @@ public:
 		}
 		else{
 			m_arm->intakeSet(0);
+		}
+	}
+
+	void teleopArm(){
+
+		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
+			m_arm->rollerSet(1);
+		}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
+			m_arm->rollerSet(-1);
+		}
+		else{
+			m_arm->rollerSet(0);
+		}
+
+
+		if (m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger)){
+			m_arm->wristSet(1);
+		}
+		else if (m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger)){
+			m_arm->wristSet(-1);
+		}
+		else{
+			m_arm->wristSet(0);
 		}
 	}
 };
