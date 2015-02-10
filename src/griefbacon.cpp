@@ -71,7 +71,7 @@ public:
 
 	void TeleopPeriodic()
 	{
-		m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+		TeleopElevator();
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 
@@ -116,6 +116,13 @@ public:
 		else{
 			m_arm->intakeSet(0);
 		}
+	}
+
+	/** SPECIALIZED FUNCTIONS **/
+	void TeleopElevator ()
+	{
+		//Manual Control
+		m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 	}
 };
 
