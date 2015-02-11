@@ -125,6 +125,8 @@ private:
 
     // FLAGS -----------------
     std::vector<button_t> f_pressedButtons;
+
+    int m_id;
 };
 
 #endif //ADVANCEDJOYSTICK_H

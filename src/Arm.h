@@ -35,6 +35,9 @@ private:
 	CANTalon* m_pickRR;
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
+
+	Encoder* m_shoulderEncode;
+	Encoder* m_wristEncode;
 };
 
 #endif /* SRC_ARM_H_ */
