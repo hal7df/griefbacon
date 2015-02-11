@@ -14,6 +14,8 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 	m_rElevator = rElevator;
 	m_binExt = binExt;
 	m_elevEncode = encode;
+
+	m_Elepid = new PIDController(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
 }
 
 Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
@@ -23,6 +25,8 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 	m_rElevator = new Victor (rElevator);
 	m_binExt = new Relay (binExt);
 	m_elevEncode = new Encoder (encode,encode++,false);
+
+	m_Elepid = new PIDController (ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
 }
 
 Elevator::~Elevator() {
@@ -39,6 +43,8 @@ void Elevator::Set (Relay::Value direction)
 {
 	m_binExt->Set(direction);
 }
+
+
 
 void Elevator::Update ()
 {
