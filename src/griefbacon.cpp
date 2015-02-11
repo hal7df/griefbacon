@@ -63,6 +63,8 @@ private:
 	bool m_initReset;
 
 	bool m_GyroDriftDone;
+	
+	double m_gyroHolder;
 
 	public:
 	griefbacon()
@@ -128,6 +130,8 @@ private:
 		m_GyroDriftDone = false;
 
 		m_driftRatio = 0.0;
+		
+		m_gyroHolder = 0.0;
 
 		m_debug = new BackgroundDebugger;
 	}
@@ -306,9 +310,9 @@ private:
 	double GyroRatio(){
 
 		if (m_initReset == false){
-		m_gyro->Reset();
 		m_driftTime->Start();
 		m_driftTime->Reset();
+		m_gyroHolder = m_gyro->GetAngle();
 		m_initReset = true;
 		}
 
@@ -319,7 +323,7 @@ private:
 		if(m_driftTime->HasPeriodPassed(5.0)){
 			m_GyroDriftDone = true;
 		}
-		return(m_ratioTracker / (m_averageDenom - 1));
+		return((m_ratioTracker / (m_averageDenom - 1)) - m_gyroHolder);
 	}
 
 	/*double dirftComp() {
