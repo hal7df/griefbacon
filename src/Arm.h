@@ -37,6 +37,9 @@ private:
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
 
+	Encoder* m_shoulderEncode;
+	Encoder* m_wristEncode;
+
 	PIDController* m_shoulderPid;
 	PIDController* m_wristPid;
 };

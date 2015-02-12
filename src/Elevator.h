@@ -16,8 +16,8 @@ class Elevator: public HotSubsystem {
 public:
 	friend class HotSubsystemHandler;
 
-	Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt);
-	Elevator(int lElevator, int rElevator, int binExt);
+	Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder* encode);
+	Elevator(int lElevator, int rElevator, int binExt, int encode);
 
 	virtual ~Elevator();
 
@@ -30,6 +30,7 @@ private:
 	Victor* m_lElevator;
 	Victor* m_rElevator;
 	Relay* m_binExt;
+	Encoder* m_elevEncode;
 };
 
 #endif /* SRC_ELEVATOR_H_ */

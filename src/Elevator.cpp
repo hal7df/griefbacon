@@ -7,20 +7,22 @@
 
 #include <Elevator.h>
 
-Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt)
+Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder* encode)
 	: HotSubsystem("Elevator")
 {
 	m_lElevator = lElevator;
 	m_rElevator = rElevator;
 	m_binExt = binExt;
+	m_elevEncode = encode;
 }
 
-Elevator::Elevator(int lElevator, int rElevator, int binExt)
+Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 	: HotSubsystem("Elevator")
 {
 	m_lElevator = new Victor (lElevator);
 	m_rElevator = new Victor (rElevator);
 	m_binExt = new Relay (binExt);
+	m_elevEncode = new Encoder (encode,encode++,false);
 }
 
 Elevator::~Elevator() {
@@ -45,5 +47,7 @@ void Elevator::Update ()
 
 void Elevator::PrintData()
 {
-	SmartDashboard::PutNumber("Elevator Throttle",m_lElevator->Get());
+	SmartDashboard::PutNumber("Left Elevator",m_lElevator->Get());
+	SmartDashboard::PutNumber("Right Elevator",m_rElevator->Get());
+	SmartDashboard::PutNumber("Elevator Distance",m_elevEncode->GetDistance());
 }

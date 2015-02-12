@@ -30,5 +30,8 @@ void Drivetrain::Update() {
 }
 
 void Drivetrain::PrintData() {
-
+	SmartDashboard::PutNumber("Left Drive 1",m_lDrive1->Get());
+	SmartDashboard::PutNumber("Left Drive 2",m_lDrive2->Get());
+	SmartDashboard::PutNumber("Right Drive 1",m_rDrive1->Get());
+	SmartDashboard::PutNumber("Right Drive 2",m_rDrive2->Get());
 }
