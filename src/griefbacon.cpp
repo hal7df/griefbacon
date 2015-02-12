@@ -113,7 +113,7 @@ private:
 
 	void RobotInit()
 	{
-
+		m_gyroTime->Start();
 	}
 
 	void DisabledPeriodic()
@@ -140,7 +140,7 @@ private:
 	void TeleopPeriodic()
 	{
 
-		m_gyroTime->Start();
+
 
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
 		{

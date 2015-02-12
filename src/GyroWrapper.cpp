@@ -38,6 +38,7 @@ void GyroWrapper::GyroRatio() {
 			if(m_driftTime->HasPeriodPassed(5)) {
 				m_driftTime->Stop();
 				m_driftRatio = (((double)m_gyro->GetAngle()) / 5);
+				m_driftRatioCase++;
 			}
 			break;
 		}
