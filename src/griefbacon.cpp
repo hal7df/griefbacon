@@ -138,7 +138,7 @@ public:
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
 			m_elev->Set(kTop);
 		else
-			m_elev->Set(0);
+			m_elev->Disable();
 	}
 
 	void TeleopDrive() {
