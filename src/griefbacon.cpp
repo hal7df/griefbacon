@@ -12,9 +12,16 @@ private:
 	AdvancedJoystick* m_driver;
 	AdvancedJoystick* m_operator;
 
+	CANTalon* m_wrist;
+
 	Encoder* m_lEncode;
+	Encoder* m_shoulderEncode;
+	Encoder* m_wristEncode;
 
 	Elevator* m_elev;
+	PIDController* m_shoulderPID;
+	PIDController* m_wristPID;
+
 	HotSubsystemHandler* m_subsys;
 	Drivetrain* m_drivetrain;
 	Arm* m_arm;
@@ -29,11 +36,14 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_lEncode = new Encoder (2,3,false);
+		m_wrist = new CANTalon (14);
 
 		m_drivetrain = new Drivetrain (0,1,2,3);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0);
+
+		m_shoulderPID = new PIDController(0.1,0.0,0.0, m_shoulderEncode, m_arm);
+		m_wristPID = new PIDController(0.1,0.0,0.0, m_wristEncode, m_wrist);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
@@ -71,8 +81,7 @@ public:
 
 	void TeleopPeriodic()
 	{
-		m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
-		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+		teleopArm();
 	}
 
 	void TestPeriodic()
@@ -95,6 +104,12 @@ public:
 		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
 
+	}
+
+	void teleopArm(){
+
+		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
+
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
 			m_arm->rollerSet(1);
 		}
@@ -106,14 +121,14 @@ public:
 		}
 
 
-		if (m_operator->GetRawButton(AdvancedJoystick::kTriggerL)){
-			m_arm->intakeSet(1);
+		if (m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger)){
+			m_arm->wristSet(1);
 		}
-		else if (m_operator->GetRawButton(AdvancedJoystick::kTriggerR)){
-			m_arm->intakeSet(-1);
+		else if (m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger)){
+			m_arm->wristSet(-1);
 		}
 		else{
-			m_arm->intakeSet(0);
+			m_arm->wristSet(0);
 		}
 	}
 
