@@ -155,6 +155,7 @@ private:
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
 			m_gyro->Reset();
+			m_gyroTime->Reset();
 		}
 
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
