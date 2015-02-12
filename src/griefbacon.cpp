@@ -128,6 +128,17 @@ public:
 			m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
 		else
 			m_elev->Set(0);
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
+			m_elev->Set(kBottom);
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+			m_elev->Set(kLMid);
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
+			m_elev->Set(kUMid);
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
+			m_elev->Set(kTop);
+		else
+			m_elev->Set(0);
 	}
 
 	void TeleopDrive() {

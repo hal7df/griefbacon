@@ -15,7 +15,9 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 	m_binExt = binExt;
 	m_elevEncode = encode;
 
-	m_Elepid = new PIDController(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
+	m_pid = new PIDController(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
+
+	m_elevEncode->SetDistancePerPulse(250);
 }
 
 Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
@@ -26,7 +28,9 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 	m_binExt = new Relay (binExt);
 	m_elevEncode = new Encoder (encode,encode++,false);
 
-	m_Elepid = new PIDController (ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
+	m_pid = new PIDController (ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
+
+	m_elevEncode->SetDistancePerPulse(250);
 }
 
 Elevator::~Elevator() {
@@ -44,7 +48,26 @@ void Elevator::Set (Relay::Value direction)
 	m_binExt->Set(direction);
 }
 
+void Elevator::Set (pos_t position)
+{
+	switch (position){
+	case kBottom:
+		m_pid->SetSetpoint(ELEVATOR_BOTTOM);
+		break;
+	case kTop:
+		m_pid->SetSetpoint(ELEVATOR_TOP);
+		break;
+	case kLMid:
+		m_pid->SetSetpoint(ELEVATOR_LMID);
+		break;
+	case kUMid:
+		m_pid->SetSetpoint(ELEVATOR_UMID);
+		break;
+	}
 
+	if (!m_pid->IsEnabled())
+		m_pid->Enable();
+}
 
 void Elevator::Update ()
 {
