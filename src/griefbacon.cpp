@@ -2,6 +2,7 @@
 #include "RobotUtils/RobotUtils.h"
 #include "DistancePIDWrapper.h"
 #include "FeedbackWrapper.h"
+#include "GyroWrapper.h"
 #include <cmath>
 
 
@@ -32,15 +33,13 @@ private:
 	RobotDrive* m_drive;
 
 	DistancePIDWrapper* m_distancePIDWrapper;
-
+	GyroWrapper* m_GyroWrapper;
 	FeedbackWrapper* m_FeedbackWrapper;
 	BackgroundDebugger* m_debug;
 
 	Timer* m_timer;
 
-	Timer* m_driftTime;
-
-	Timer* m_inbetween;
+	Timer* m_gyroTime;
 
 	double m_speed;
 
@@ -53,18 +52,6 @@ private:
 	double m_angle;
 
 	int m_etaFlag;
-
-	double m_ratioTracker;
-
-	int m_averageDenom;
-
-	double m_driftRatio;
-
-	bool m_initReset;
-
-	bool m_GyroDriftDone;
-	
-	double m_gyroHolder;
 
 	public:
 	griefbacon()
@@ -117,21 +104,9 @@ private:
 
 		m_timer = new Timer;
 
-		m_driftTime = new Timer;
+		m_gyroTime = new Timer;
 
-		m_inbetween = new Timer;
-
-		m_initReset = false;
-
-		m_ratioTracker = 0.0;
-
-		m_averageDenom = 1;
-
-		m_GyroDriftDone = false;
-
-		m_driftRatio = 0.0;
-		
-		m_gyroHolder = 0.0;
+		m_GyroWrapper = new GyroWrapper(m_gyro, m_gyroTime);
 
 		m_debug = new BackgroundDebugger;
 	}
@@ -139,6 +114,11 @@ private:
 	void RobotInit()
 	{
 
+	}
+
+	void DisabledPeriodic()
+	{
+		m_GyroWrapper->GyroRatio();
 	}
 
 	void AutonomousInit()
@@ -159,13 +139,6 @@ private:
 
 	void TeleopPeriodic()
 	{
-		if(!m_GyroDriftDone){
-			m_driftRatio = GyroRatio();
-			if(m_GyroDriftDone){
-				m_inbetween->Start();
-				m_inbetween->Reset();
-			}
-		}
 
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
 		{
@@ -206,13 +179,6 @@ private:
 
 		PrintData();
 
-		if(m_inbetween->Get() >= 5.0){
-			m_inbetween->Stop();
-			m_initReset = false;
-			m_GyroDriftDone = false;
-		}
-
-
 	}
 
 	void TestPeriodic()
@@ -223,7 +189,7 @@ private:
 	/** MISCELLANEOUS FUNCTIONS **/
 	void PrintData ()
 	{
-		SmartDashboard::PutNumber("m_driftRatio", m_driftRatio);
+		SmartDashboard::PutNumber("m_driftRatio", m_GyroWrapper->GetRatio());
 		SmartDashboard::PutNumber("Feedback PID",m_FeedbackPID->Get()/5);
 		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
 		SmartDashboard::PutNumber("Current Angle", m_gyro->GetAngle());
@@ -307,30 +273,6 @@ private:
 		}
 	}
 
-	double GyroRatio(){
-
-		if (m_initReset == false){
-		m_driftTime->Start();
-		m_driftTime->Reset();
-		m_gyroHolder = m_gyro->GetAngle();
-		m_initReset = true;
-		}
-
-		if (m_driftTime->Get() >= m_averageDenom)
-		m_ratioTracker = ((double)m_gyro->GetAngle - m_gyroHolder) + m_ratioTracker;
-		m_averageDenom++;
-
-		if(m_driftTime->HasPeriodPassed(5.0)){
-			m_GyroDriftDone = true;
-		}
-		return (m_ratioTracker / (m_averageDenom - 2));
-		//Minus 2 because one is to compensate for it starting at one, another to get rid of the original angle outlier.
-	}
-
-	/*double dirftComp() {
-
-
-	} */
 };
 
 START_ROBOT_CLASS(griefbacon);
