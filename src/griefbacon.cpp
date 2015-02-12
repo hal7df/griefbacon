@@ -317,13 +317,14 @@ private:
 		}
 
 		if (m_driftTime->Get() >= m_averageDenom)
-		m_ratioTracker = (double)m_gyro->GetAngle() + m_ratioTracker;
+		m_ratioTracker = ((double)m_gyro->GetAngle - m_gyroHolder) + m_ratioTracker;
 		m_averageDenom++;
 
 		if(m_driftTime->HasPeriodPassed(5.0)){
 			m_GyroDriftDone = true;
 		}
-		return((m_ratioTracker / (m_averageDenom - 1)) - m_gyroHolder);
+		return (m_ratioTracker / (m_averageDenom - 2));
+		//Minus 2 because one is to compensate for it starting at one, another to get rid of the original angle outlier.
 	}
 
 	/*double dirftComp() {
