@@ -11,7 +11,7 @@
 #include "RobotUtils/HotSubsystem.h"
 #include "WPILIB.h"
 
-class Arm: public HotSubsystem {
+class Arm: public HotSubsystem, public PIDOutput {
 public:
 	friend class HotSubsystemHandler;
 	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR);
@@ -22,6 +22,7 @@ public:
 	void rollerSet(double speed);
 	void intakeSet(double speed);
 
+	void PIDWrite(float input);
 
 protected:
 	void Update();

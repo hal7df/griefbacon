@@ -43,6 +43,11 @@ void Arm::intakeSet(double speed){
 	m_intakeR->Set(speed);
 }
 
+void Arm::PIDWrite(float input){
+	m_pickSL->Set(input);
+	m_pickSR->Set(-input);
+}
+
 void Arm::PrintData()
 {
 
