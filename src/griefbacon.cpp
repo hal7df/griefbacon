@@ -140,6 +140,8 @@ private:
 	void TeleopPeriodic()
 	{
 
+		m_gyroTime->Start();
+
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
 		{
 			m_encodeL->Reset();
