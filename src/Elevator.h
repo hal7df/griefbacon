@@ -12,20 +12,22 @@
 #include "RobotUtils/RobotUtils.h"
 #include "WPILib.h"
 
-#define ELEVATOR_P 0.1
-#define ELEVATOR_I 0.0
+#define ELEVATOR_P 8.0
+#define ELEVATOR_I 0.01
 #define ELEVATOR_D 0.0
 
-#define ELEVATOR_BOTTOM 0
-#define ELEVATOR_TOP 100
-#define ELEVATOR_LMID 33
-#define ELEVATOR_UMID 66
+#define ELEVATOR_BOTTOM 0.0
+#define ELEVATOR_TOP 1.0
+#define ELEVATOR_LMID 0.43
+#define ELEVATOR_UMID 0.76
+#define ELEVATOR_CARRY 0.177
 
 enum pos_t {
 	kBottom,
 	kTop,
 	kLMid,
-	kUMid
+	kUMid,
+	kCarry
 };
 
 class Elevator: public HotSubsystem, public PIDOutput {
@@ -42,10 +44,13 @@ public:
 	void Set (pos_t position);
 
 	void Enable () { m_pid->Enable(); }
-	void Disable (){ m_pid ->Disable();}
-	bool IsEnabled(){return m_pid -> IsEnabled();}
+	void Disable () { if (IsEnabled()) m_pid->Disable(); }
+	bool IsEnabled() { return m_pid->IsEnabled(); }
+	void Reset () { m_elevEncode->Reset(); }
 
 	void PIDWrite (float input) { Set((double)input); }
+
+	void GetPID (bool get) { f_getPID = get; }
 protected:
 	void Update();
 	void PrintData();
@@ -55,6 +60,8 @@ private:
 	Relay* m_binExt;
 	Encoder* m_elevEncode;
 	PIDController* m_pid;
+
+	bool f_getPID;
 };
 
 #endif /* SRC_ELEVATOR_H_ */

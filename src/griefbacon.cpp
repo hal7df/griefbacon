@@ -122,21 +122,28 @@ public:
 	void TeleopElevator ()
 	{
 		//Manual Control
-		if (m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.1)
+		if ((m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.1) && !m_elev->IsEnabled())
 			m_elev->Set(-m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
-		else if (m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.1)
+		else if (m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.1 && !m_elev->IsEnabled())
 			m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
-		else
+		else if (!m_elev->IsEnabled())
 			m_elev->Set(0);
 
-		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
-			m_elev->Set(kBottom);
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
+			m_elev->Reset();
+
+		m_elev->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA) && m_operator->GetRawButton(AdvancedJoystick::kButtonBack))
+			m_elev->Set(kCarry);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			m_elev->Set(kLMid);
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
 			m_elev->Set(kUMid);
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
+			m_elev->Set(kLMid);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
 			m_elev->Set(kTop);
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
+			m_elev->Set(kBottom);
 		else
 			m_elev->Disable();
 	}

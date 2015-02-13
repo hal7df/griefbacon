@@ -17,7 +17,9 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 
 	m_pid = new PIDController(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
 
-	m_elevEncode->SetDistancePerPulse(250);
+	m_elevEncode->SetDistancePerPulse(1./1270.);
+
+	f_getPID = false;
 }
 
 Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
@@ -26,11 +28,13 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 	m_lElevator = new Victor (lElevator);
 	m_rElevator = new Victor (rElevator);
 	m_binExt = new Relay (binExt);
-	m_elevEncode = new Encoder (encode,encode++,false);
+	m_elevEncode = new Encoder (encode,encode++,true);
 
 	m_pid = new PIDController (ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
 
-	m_elevEncode->SetDistancePerPulse(250);
+	m_elevEncode->SetDistancePerPulse(1./1270.);
+
+	f_getPID = false;
 }
 
 Elevator::~Elevator() {
@@ -63,6 +67,9 @@ void Elevator::Set (pos_t position)
 	case kUMid:
 		m_pid->SetSetpoint(ELEVATOR_UMID);
 		break;
+	case kCarry:
+		m_pid ->SetSetpoint(ELEVATOR_CARRY);
+		break;
 	}
 
 	if (!m_pid->IsEnabled())
@@ -76,7 +83,16 @@ void Elevator::Update ()
 
 void Elevator::PrintData()
 {
-	SmartDashboard::PutNumber("Left Elevator",m_lElevator->Get());
-	SmartDashboard::PutNumber("Right Elevator",m_rElevator->Get());
-	SmartDashboard::PutNumber("Elevator Distance",m_elevEncode->GetDistance());
+	if (f_getPID)
+		m_pid->SetPID(SmartDashboard::GetNumber("Elevator P"),SmartDashboard::GetNumber("Elevator I"),SmartDashboard::GetNumber("Elevator D"));
+	else
+	{
+		SmartDashboard::PutNumber("Left Elevator",m_lElevator->Get());
+		SmartDashboard::PutNumber("Right Elevator",m_rElevator->Get());
+		SmartDashboard::PutNumber("Elevator Distance",m_elevEncode->GetDistance());
+		SmartDashboard::PutNumber("Elevator P",m_pid->GetP());
+		SmartDashboard::PutNumber("Elevator I",m_pid->GetI());
+		SmartDashboard::PutNumber("Elevator D",m_pid->GetD());
+		SmartDashboard::PutNumber("Elevator PID Output",m_pid->Get());
+	}
 }
