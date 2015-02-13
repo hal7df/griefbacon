@@ -18,5 +18,5 @@ FeedbackWrapper::~FeedbackWrapper() {
 }
 
 double FeedbackWrapper::PIDGet() {
-	return((m_encodeL->GetRate() - m_encodeR->GetRate()) / 2);
+	return((m_encodeL->GetRate() - (m_encodeR->GetRate())) / 2400);
 }

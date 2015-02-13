@@ -8,7 +8,7 @@
 #ifndef FEEDBACKWRAPPER_H_
 #define FEEDBACKWRAPPER_H_
 
-#define FEED_P -0.1
+#define FEED_P 0.1
 #define FEED_I 0.0
 #define FEED_D 0.0
 
