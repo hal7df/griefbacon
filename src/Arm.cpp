@@ -23,6 +23,10 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_shoulderEncode->SetDistancePerPulse(1.0);
 	m_wristEncode = new Encoder (6,7,false);
 	m_wristEncode->SetDistancePerPulse(1.0);
+
+	m_wristPid = new PIDController(WRIST_P,WRIST_I,WRIST_D,m_wristEncode,m_pickW);
+	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
+
 }
 
 Arm::~Arm() {
@@ -48,9 +52,50 @@ void Arm::intakeSet(double speed){
 	m_intakeR->Set(speed);
 }
 
+void Arm::shoulderSetSetpoint(int point){
+	m_shoulderPid->SetSetpoint(point);
+}
+
+void Arm::wristSetSetpoint(int point){
+	m_wristPid->SetSetpoint(point);
+}
+
+void Arm::Enable(int pid){
+	switch(pid){
+	case 0:
+		m_wristPid->Enable();
+		m_shoulderPid->Enable();
+		break;
+
+	case 1:
+		m_shoulderPid->Enable();
+		break;
+
+	case 2:
+		m_wristPid->Enable();
+		break;
+	}
+}
+void Arm::Disable(int pid){
+	switch(pid){
+	case 0:
+		m_wristPid->Disable();
+		m_shoulderPid->Disable();
+		break;
+
+	case 1:
+		m_shoulderPid->Disable();
+		break;
+
+	case 2:
+		m_wristPid->Disable();
+		break;
+	}
+}
+
+
 void Arm::PIDWrite(float input){
-	m_pickSL->Set(input);
-	m_pickSR->Set(-input);
+	shoulderSet((double)input);
 }
 
 void Arm::PrintData()

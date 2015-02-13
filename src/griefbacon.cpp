@@ -147,6 +147,37 @@ public:
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 
+	void armSetPoints(){
+		if (m_operator->GetPOV() == 180){
+			m_arm->shoulderSetSetpoint(SHOULDER_GROUND);
+			m_arm->wristSetSetpoint(WRIST_GROUND);
+			m_arm->Enable();
+		}
+		else if(m_operator ->GetPOV() == 225){
+			m_arm->shoulderSetSetpoint(SHOULDER_TWOTOTE);
+			m_arm->wristSetSetpoint(WRIST_TWOTOTE);
+			m_arm->Enable();
+
+		}
+		else if(m_operator ->GetPOV() == 270){
+			m_arm->shoulderSetSetpoint(SHOULDER_MID);
+			m_arm->wristSetSetpoint(WRIST_MID);
+			m_arm->Enable();
+		}
+		else if(m_operator ->GetPOV() == 315){
+			m_arm->shoulderSetSetpoint(SHOULDER_CAN);
+			m_arm->wristSetSetpoint(WRIST_CAN);
+			m_arm->Enable();
+		}
+		else if(m_operator ->GetPOV() == 0){
+			m_arm->shoulderSetSetpoint(SHOULDER_PACKAGE);
+			m_arm->wristSetSetpoint(WRIST_PACKAGE);
+			m_arm->Enable();
+		}
+		else
+			m_arm->Disable();
+	}
+
 	void PrintData() {
 		SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
 		SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
