@@ -7,7 +7,7 @@
 
 #include "GyroWrapper.h"
 
-GyroWrapper::GyroWrapper(Gyro* gyro, Timer* gyroTime) {
+GyroWrapper::GyroWrapper(Gyro* gyro, Timer* gyroTime): HotSubsystem("Gyro") {
 	// TODO Auto-generated constructor stub
 	m_gyro = gyro;
 
@@ -46,4 +46,13 @@ void GyroWrapper::GyroRatio() {
 
 double GyroWrapper::PIDGet() {
 	return ((double)m_gyro->GetAngle() + (m_driftRatio * m_gyroTime->Get()));
+}
+void GyroWrapper::Update ()
+{
+
+}
+
+void GyroWrapper::PrintData(){
+	SmartDashboard::PutNumber("Gyro_wDriftRatio",(double)m_gyro->GetAngle() + (m_driftRatio * m_gyroTime->Get()));
+	SmartDashboard::PutNumber("DriftRatio",m_driftRatio);
 }

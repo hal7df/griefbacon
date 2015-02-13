@@ -10,9 +10,12 @@
 
 #include "WPILib.h"
 #include "PIDSource.h"
+#include "RobotUtils/HotSubsystem.h"
+#include "RobotUtils/RobotUtils.h"
 
-class GyroWrapper: public PIDSource {
+class GyroWrapper: public HotSubsystem, public PIDSource {
 public:
+	friend class HotSubsystemHandler;
 	GyroWrapper(Gyro* gyro, Timer* gyroTime);
 	virtual ~GyroWrapper();
 
@@ -20,7 +23,9 @@ public:
 	double GetRatio() { return m_driftRatio; }
 
 	void GyroRatio();
-
+protected:
+	void Update();
+	void PrintData();
 private:
 	Gyro* m_gyro;
 

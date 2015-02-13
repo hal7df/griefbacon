@@ -33,12 +33,14 @@ private:
 
 	RobotDrive* m_drive;
 
+	HotSubsystemHandler* m_subsys;
 	DistancePIDWrapper* m_distancePIDWrapper;
 	GyroWrapper* m_GyroWrapper;
 	FeedbackWrapper* m_FeedbackWrapper;
 	BackgroundDebugger* m_debug;
 	Drivetrain* m_drivetrain;
 	Arm* m_arm;
+	Elevator* m_elev;
 public:
 
 	Timer* m_timer;
@@ -82,7 +84,6 @@ public:
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Add(m_arm);
-	}
 		m_encodeR = new Encoder(0,1);
 		m_encodeL = new Encoder(2,3);
 
@@ -146,14 +147,6 @@ public:
 
 	void TeleopPeriodic()
 	{
-
-
-
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
-		{
-			m_encodeL->Reset();
-			m_encodeR->Reset();
-		}
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
@@ -180,44 +173,16 @@ public:
 
 		m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
-
+		m_debug->LogData("Encoder Rate", m_FeedbackWrapper->PIDGet());
+		m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
 			m_arm->rollerSet(1);
-		{
-			m_debug->LogData("Encoder Rate", m_FeedbackWrapper->PIDGet());
-			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		}
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_arm->rollerSet(-0.5);
 		}
 		else{
 			m_arm->rollerSet(0);
-		}
-
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
-		{
-			m_gyro->Reset();
-			m_gyroTime->Reset();
-		}
-
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
-			ETA(2.4, 12.0, 0.0);
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
-			m_etaFlag = 0;
-		}
-
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
-			m_FeedbackPID->SetSetpoint(3);
-			m_FeedbackPID->Enable();
-			m_turnPID->Enable();
-			m_drive->ArcadeDrive(m_FeedbackPID->Get(), m_turnPID->Get());
-		}
-
-		else{
-			m_drive->ArcadeDrive(-m_driver->GetRawAxis(AdvancedJoystick::kLeftY), -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-			m_turnPID->Disable();
-			m_FeedbackPID->Disable();
 		}
 
 		PrintData();
@@ -289,7 +254,11 @@ public:
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 
-	void PrintData() {
+
+
+	/** MISCELLANEOUS FUNCTIONS **/
+	void PrintData ()
+	{
 		SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
 		SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
@@ -302,12 +271,7 @@ public:
 
 		SmartDashboard::PutNumber("Driver Raw Left Y",m_driver->GetJoystick()->GetRawAxis(1));
 		SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
-	}
-};
 
-	/** MISCELLANEOUS FUNCTIONS **/
-	void PrintData ()
-	{
 		SmartDashboard::PutNumber("m_driftRatio", m_GyroWrapper->GetRatio());
 		SmartDashboard::PutNumber("Feedback PID",m_FeedbackPID->Get()/5);
 		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
