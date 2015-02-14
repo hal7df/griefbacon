@@ -26,6 +26,7 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 
 	m_wristPid = new PIDController(WRIST_P,WRIST_I,WRIST_D,m_wristEncode,m_pickW);
 	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
+	f_getPID = false;
 
 }
 
@@ -51,6 +52,56 @@ void Arm::intakeSet(double speed){
 	m_intakeL->Set(speed);
 	m_intakeR->Set(speed);
 }
+
+void Arm::shoulderSetPos (sPos_t position)
+{
+	switch (position){
+	case ksGround:
+		m_shoulderPid->SetSetpoint(SHOULDER_GROUND);
+		break;
+	case ksTwoTote:
+		m_shoulderPid->SetSetpoint(SHOULDER_TWOTOTE);
+		break;
+	case ksMid:
+		m_shoulderPid->SetSetpoint(SHOULDER_MID);
+		break;
+	case ksCan:
+		m_shoulderPid->SetSetpoint(SHOULDER_CAN);
+		break;
+	case ksPackage:
+		m_shoulderPid ->SetSetpoint(SHOULDER_PACKAGE);
+		break;
+	}
+
+	if (!m_shoulderPid->IsEnabled())
+		m_shoulderPid->Enable();
+}
+
+
+void Arm::wristSetPos (wPos_t position)
+{
+	switch (position){
+	case kwGround:
+		m_wristPid->SetSetpoint(WRIST_GROUND);
+		break;
+	case kwTwoTote:
+		m_wristPid->SetSetpoint(WRIST_TWOTOTE);
+		break;
+	case kwMid:
+		m_wristPid->SetSetpoint(WRIST_MID);
+		break;
+	case kwCan:
+		m_wristPid->SetSetpoint(WRIST_CAN);
+		break;
+	case kwPackage:
+		m_wristPid ->SetSetpoint(WRIST_PACKAGE);
+		break;
+}
+
+	if (!m_wristPid->IsEnabled())
+		m_wristPid->Enable();
+}
+
 
 void Arm::shoulderSetSetpoint(int point){
 	m_shoulderPid->SetSetpoint(point);
@@ -100,16 +151,28 @@ void Arm::PIDWrite(float input){
 
 void Arm::PrintData()
 {
-	SmartDashboard::PutNumber("Arm Shoulder Left",m_pickSL->Get());
-	SmartDashboard::PutNumber("Arm Shoulder Right",m_pickSR->Get());
-	SmartDashboard::PutNumber("Arm Wrist",m_pickW->Get());
-	SmartDashboard::PutNumber("Arm Roller Left",m_pickRL->Get());
-	SmartDashboard::PutNumber("Arm Roller Right",m_pickRR->Get());
-	SmartDashboard::PutNumber("Arm Intake Left",m_intakeL->Get());
-	SmartDashboard::PutNumber("Arm Intake Right",m_intakeR->Get());
+	if (f_getPID)
+	{
+		m_shoulderPid->SetPID(SmartDashboard::GetNumber("Shoulder P"),SmartDashboard::GetNumber("Shoulder I"),SmartDashboard::GetNumber("Shoulder D"));
+		m_wristPid->SetPID(SmartDashboard::GetNumber("Wrist P"),SmartDashboard::GetNumber("Wrist I"),SmartDashboard::GetNumber("Wrist D"));
+	}
+	else
+	{
+		SmartDashboard::PutNumber("Arm Shoulder Left",m_pickSL->Get());
+		SmartDashboard::PutNumber("Arm Shoulder Right",m_pickSR->Get());
+		SmartDashboard::PutNumber("Arm Wrist",m_pickW->Get());
+		SmartDashboard::PutNumber("Arm Roller Left",m_pickRL->Get());
+		SmartDashboard::PutNumber("Arm Roller Right",m_pickRR->Get());
+		SmartDashboard::PutNumber("Arm Intake Left",m_intakeL->Get());
+		SmartDashboard::PutNumber("Arm Intake Right",m_intakeR->Get());
 
-	SmartDashboard::PutNumber("Shoulder Encoder",m_shoulderEncode->GetDistance());
-	SmartDashboard::PutNumber("Wrist Encoder",m_wristEncode->GetDistance());
+		SmartDashboard::PutNumber("Shoulder Encoder",m_shoulderEncode->GetDistance());
+		SmartDashboard::PutNumber("Wrist Encoder",m_wristEncode->GetDistance());
+
+		SmartDashboard::PutNumber("Shoulder PID Output",m_shoulderPid->Get());
+		SmartDashboard::PutNumber("Wrist PID Output",m_wristPid->Get());
+
+	}
 }
 
 void Arm::Update()

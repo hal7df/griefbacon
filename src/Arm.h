@@ -11,11 +11,11 @@
 #include "RobotUtils/HotSubsystem.h"
 #include "WPILib.h"
 
-#define WRIST_P 0.0
+#define WRIST_P 1.0
 #define WRIST_I 0.0
 #define WRIST_D 0.0
 
-#define SHOULDER_P 0.0
+#define SHOULDER_P 1.0
 #define SHOULDER_I 0.0
 #define SHOULDER_D 0.0
 
@@ -31,6 +31,22 @@
 #define WRIST_CAN 0.0
 #define WRIST_PACKAGE 0.0
 
+enum sPos_t {
+	ksGround,
+	ksTwoTote,
+	ksMid,
+	ksCan,
+	ksPackage
+};
+
+enum wPos_t {
+	kwGround,
+	kwTwoTote,
+	kwMid,
+	kwCan,
+	kwPackage
+};
+
 class Arm: public HotSubsystem, public PIDOutput {
 public:
 	friend class HotSubsystemHandler;
@@ -39,11 +55,13 @@ public:
 
 	void shoulderSet(double speed);
 	void wristSet(double speed);
+	void shoulderSetPos (sPos_t position);
+	void wristSetPos (wPos_t position);
 	void rollerSet(double speed);
 	void intakeSet(double speed);
 
 	void PIDWrite(float input);
-
+	void GetPID (bool get) { f_getPID = get; }
 	void Enable(int pid = 0);
 	void Disable(int pid = 0);
 
@@ -71,6 +89,7 @@ private:
 
 	PIDController* m_shoulderPid;
 	PIDController* m_wristPid;
+	bool f_getPID;
 };
 
 #endif /* SRC_ARM_H_ */
