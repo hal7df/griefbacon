@@ -19,10 +19,12 @@ private:
 	AdvancedJoystick* m_driver;
 	AdvancedJoystick* m_operator;
 
-	Talon* m_dummy;
-	Talon* m_dummy2;
-	Talon* m_dummy3;
+	CANTalon* m_wrist;
+
+	Encoder* m_lEncode;
 	Gyro* m_gyro;
+	Encoder* m_shoulderEncode;
+	Encoder* m_wristEncode;
 
 	Encoder* m_encodeL;
 	Encoder* m_encodeR;
@@ -32,6 +34,9 @@ private:
 	PIDController* m_FeedbackPID;
 
 	RobotDrive* m_drive;
+
+	PIDController* m_shoulderPID;
+	PIDController* m_wristPID;
 
 	HotSubsystemHandler* m_subsys;
 	DistancePIDWrapper* m_distancePIDWrapper;
@@ -70,15 +75,16 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_dummy = new Talon(5);
-		m_dummy2 = new Talon(6);
-		m_dummy3 = new Talon(7);
+		m_wrist = new CANTalon (14);
 
 		m_drivetrain = new Drivetrain (0,1,2,3);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 
 		m_gyro = new Gyro(0);
+
+		m_shoulderPID = new PIDController(0.1,0.0,0.0, m_shoulderEncode, m_arm);
+		m_wristPID = new PIDController(0.1,0.0,0.0, m_wristEncode, m_wrist);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
@@ -147,6 +153,7 @@ public:
 
 	void TeleopPeriodic()
 	{
+
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
@@ -254,11 +261,38 @@ public:
 		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 	}
 
+	void armSetPoints(){
+		if (m_operator->GetPOV() == 180){
+			m_arm->shoulderSetSetpoint(SHOULDER_GROUND);
+			m_arm->wristSetSetpoint(WRIST_GROUND);
+			m_arm->Enable();
+		}
+		else if(m_operator ->GetPOV() == 225){
+			m_arm->shoulderSetSetpoint(SHOULDER_TWOTOTE);
+			m_arm->wristSetSetpoint(WRIST_TWOTOTE);
+			m_arm->Enable();
 
+		}
+		else if(m_operator ->GetPOV() == 270){
+			m_arm->shoulderSetSetpoint(SHOULDER_MID);
+			m_arm->wristSetSetpoint(WRIST_MID);
+			m_arm->Enable();
+		}
+		else if(m_operator ->GetPOV() == 315){
+			m_arm->shoulderSetSetpoint(SHOULDER_CAN);
+			m_arm->wristSetSetpoint(WRIST_CAN);
+			m_arm->Enable();
+		}
+		else if(m_operator ->GetPOV() == 0){
+			m_arm->shoulderSetSetpoint(SHOULDER_PACKAGE);
+			m_arm->wristSetSetpoint(WRIST_PACKAGE);
+			m_arm->Enable();
+		}
+		else
+			m_arm->Disable();
+	}
 
-	/** MISCELLANEOUS FUNCTIONS **/
-	void PrintData ()
-	{
+	void PrintData() {
 		SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
 		SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
