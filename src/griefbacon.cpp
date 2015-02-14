@@ -142,6 +142,11 @@ public:
 		PrintData();
 	}
 
+	void TestInit ()
+	{
+
+	}
+
 	void TestPeriodic()
 	{
 		TeleopDrive();

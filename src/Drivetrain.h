@@ -11,7 +11,7 @@
 #define RATIO_1 26.11001704;
 #define RATIO_2 2.986676441;
 
-#include <RobotUtils/HotSubsystem.h>
+#include "RobotUtils/HotSubsystem.h"
 #include "WPILib.h"
 #include <cmath>
 
@@ -19,11 +19,11 @@ class Drivetrain: public HotSubsystem {
 public:
 
 	friend class HotSubsystemHandler;
-	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode1, int lEncode2, int rEncode1, int rEncode2);
+	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode);
 	virtual ~Drivetrain();
 
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
-	void ETA();
+	void ETA(double time, double distance, double angle);
 
 protected:
 

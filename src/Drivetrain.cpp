@@ -7,7 +7,7 @@
 
 #include "Drivetrain.h"
 
-Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode1, int lEncode2, int rEncode1, int rEncode2) :
+Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode) :
 	HotSubsystem("drivetrain")
 {
 	// TODO Auto-generated constructor stub
@@ -15,8 +15,9 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_lDrive2 = new Talon (lDrive2);
 	m_rDrive1 = new Talon (rDrive1);
 	m_rDrive2 = new Talon (rDrive2);
-	m_lEncode = new Encoder (lEncode1, lEncode2);
-	m_rEncode = new Encoder (rEncode1, rEncode2);
+
+	m_lEncode = new Encoder (lEncode,lEncode++,false);
+	m_rEncode = new Encoder (rEncode, rEncode++,true);
 
 	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
@@ -36,6 +37,9 @@ void Drivetrain::PrintData() {
 	SmartDashboard::PutNumber("Left Drive 2",m_lDrive2->Get());
 	SmartDashboard::PutNumber("Right Drive 1",m_rDrive1->Get());
 	SmartDashboard::PutNumber("Right Drive 2",m_rDrive2->Get());
+
+	SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
+	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
 }
 
 void Drivetrain::ETA(double time, double distance, double angle)
