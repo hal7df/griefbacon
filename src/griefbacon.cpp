@@ -132,7 +132,7 @@ public:
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_elev->Reset();
 
-		m_elev->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
+		m_elev->SetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA) && m_operator->GetRawButton(AdvancedJoystick::kButtonBack))
 			m_elev->Set(kCarry);
