@@ -29,6 +29,14 @@ void Drivetrain::Update() {
 
 }
 
+void Drivetrain::PIDWrite(float input){
+	m_drive->TankDrive(input, input);
+}
+
+float Drivetrain::PIDGet() {
+	return (m_lEncode->GetDistance() + m_rEncode->GetDistance()) /2;
+}
+
 void Drivetrain::PrintData() {
 	SmartDashboard::PutNumber("Left Drive 1",m_lDrive1->Get());
 	SmartDashboard::PutNumber("Left Drive 2",m_lDrive2->Get());

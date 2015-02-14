@@ -11,7 +11,7 @@
 #include <RobotUtils/HotSubsystem.h>
 #include "WPILib.h"
 
-class Drivetrain: public HotSubsystem {
+class Drivetrain: public HotSubsystem, public PIDSource, public PIDOutput {
 public:
 
 	friend class HotSubsystemHandler;
@@ -19,6 +19,10 @@ public:
 	virtual ~Drivetrain();
 
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
+
+	void PIDWrite(float input);
+	float PIDGet();
+
 
 protected:
 
