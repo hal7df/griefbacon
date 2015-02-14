@@ -16,6 +16,7 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 	m_elevEncode = encode;
 
 	m_pid = new PIDController(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
+	//m_pid->SetOutputRange(-0.5,0.5);
 
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 

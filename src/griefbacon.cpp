@@ -199,7 +199,11 @@ public:
 			m_elev->Set(0);
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
+		{
 			m_elev->Reset();
+			m_arm->wReset();
+			m_arm->sReset();
+		}
 
 		m_elev->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 		m_arm->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
@@ -223,9 +227,43 @@ public:
 	}
 
 	void TeleopArm(){
-
-			m_arm->shoulderSet(-m_operator->GetRawAxis(AdvancedJoystick::kRightY));
-
+		if (m_operator->GetPOV() == 180){
+				m_arm->shoulderSetPos(ksGround);
+				m_arm->wristSetPos(kwGround);
+				m_arm->sEnable();
+				m_arm->wEnable();
+			}
+			else if(m_operator ->GetPOV() == 225){
+				m_arm->shoulderSetPos(ksTwoTote);
+				m_arm->wristSetPos(kwTwoTote);
+				m_arm->sEnable();
+				m_arm->wEnable();
+			}
+			else if(m_operator ->GetPOV() == 270){
+				m_arm->shoulderSetPos(ksDriving);
+				m_arm->wristSetPos(kwDriving);
+				m_arm->sEnable();
+				m_arm->wEnable();
+			}
+			else if(m_operator ->GetPOV() == 315){
+				m_arm->shoulderSetPos(ksCanStack);
+				m_arm->wristSetPos(kwCanStack);
+				m_arm->sEnable();
+				m_arm->wEnable();
+			}
+			else if(m_operator ->GetPOV() == 0){
+				m_arm->shoulderSetPos(ksPackage);
+				m_arm->wristSetPos(kwPackage);
+				m_arm->sEnable();
+				m_arm->wEnable();
+			}
+			else
+			{
+				m_arm->sDisable();
+				m_arm->wDisable();
+				m_arm->shoulderSet(m_operator->GetRawAxis(AdvancedJoystick::kRightY));
+				m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+			}
 			if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
 				m_arm->rollerSet(1);
 			}
@@ -236,8 +274,17 @@ public:
 				m_arm->rollerSet(0);
 			}
 
+			if (m_driver->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.2){
+				m_arm->intakeSet(-m_driver->GetRawAxis(AdvancedJoystick::kRightTrigger));
+			}
+			else if (m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.2){
+				m_arm->intakeSet(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger));
+			}
+			else
+			{
+				m_arm->intakeSet(0);
+			}
 
-			m_arm->wristSet(m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		}
 
 	void TestDrive() {
@@ -245,37 +292,10 @@ public:
 	}
 
 	void armSetPoints(){
-		if (m_operator->GetPOV() == 180){
-			m_arm->shoulderSetSetpoint(SHOULDER_GROUND);
-			m_arm->wristSetSetpoint(WRIST_GROUND);
-			m_arm->Enable();
-		}
-		else if(m_operator ->GetPOV() == 225){
-			m_arm->shoulderSetSetpoint(SHOULDER_TWOTOTE);
-			m_arm->wristSetSetpoint(WRIST_TWOTOTE);
-			m_arm->Enable();
-
-		}
-		else if(m_operator ->GetPOV() == 270){
-			m_arm->shoulderSetSetpoint(SHOULDER_MID);
-			m_arm->wristSetSetpoint(WRIST_MID);
-			m_arm->Enable();
-		}
-		else if(m_operator ->GetPOV() == 315){
-			m_arm->shoulderSetSetpoint(SHOULDER_CAN);
-			m_arm->wristSetSetpoint(WRIST_CAN);
-			m_arm->Enable();
-		}
-		else if(m_operator ->GetPOV() == 0){
-			m_arm->shoulderSetSetpoint(SHOULDER_PACKAGE);
-			m_arm->wristSetSetpoint(WRIST_PACKAGE);
-			m_arm->Enable();
-		}
-		else
-			m_arm->Disable();
-	}
+			}
 
 	void PrintData() {
+		SmartDashboard::PutNumber("Operator POV",m_operator ->GetPOV());
 		SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
 		SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 		SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));

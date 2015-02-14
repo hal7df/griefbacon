@@ -48,7 +48,7 @@ public:
 	bool IsEnabled() { return m_pid->IsEnabled(); }
 	void Reset () { m_elevEncode->Reset(); }
 
-	void PIDWrite (float input) { Set((double)input); }
+	void PIDWrite (float input) { Set((double)input*0.7); }
 
 	void GetPID (bool get) { f_getPID = get; }
 protected:

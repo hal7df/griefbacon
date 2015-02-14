@@ -20,9 +20,9 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_intakeR = new CANTalon (intakeR);
 
 	m_shoulderEncode = new Encoder (4,5,false);
-	m_shoulderEncode->SetDistancePerPulse(1.0);
+	m_shoulderEncode->SetDistancePerPulse(1./732.25);
 	m_wristEncode = new Encoder (6,7,false);
-	m_wristEncode->SetDistancePerPulse(1.0);
+	m_wristEncode->SetDistancePerPulse(1./2613.);
 
 	m_wristPid = new PIDController(WRIST_P,WRIST_I,WRIST_D,m_wristEncode,m_pickW);
 	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
@@ -32,15 +32,16 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 
 Arm::~Arm() {
 	// TODO Auto-generated destructor stub
+
 }
 
 void Arm::shoulderSet(double speed){
-	m_pickSL->Set(speed);
-	m_pickSR->Set(-speed);
+	m_pickSL->Set(-speed);
+	m_pickSR->Set(speed);
 }
 
 void Arm::wristSet(double speed){
-	m_pickW->Set(speed);
+	m_pickW->Set(-speed);
 }
 
 void Arm::rollerSet(double speed){
@@ -49,7 +50,7 @@ void Arm::rollerSet(double speed){
 }
 
 void Arm::intakeSet(double speed){
-	m_intakeL->Set(speed);
+	m_intakeL->Set(-speed);
 	m_intakeR->Set(speed);
 }
 
@@ -62,11 +63,11 @@ void Arm::shoulderSetPos (sPos_t position)
 	case ksTwoTote:
 		m_shoulderPid->SetSetpoint(SHOULDER_TWOTOTE);
 		break;
-	case ksMid:
-		m_shoulderPid->SetSetpoint(SHOULDER_MID);
+	case ksDriving:
+		m_shoulderPid->SetSetpoint(SHOULDER_DRIVING);
 		break;
-	case ksCan:
-		m_shoulderPid->SetSetpoint(SHOULDER_CAN);
+	case ksCanStack:
+		m_shoulderPid->SetSetpoint(SHOULDER_CANSTACK);
 		break;
 	case ksPackage:
 		m_shoulderPid ->SetSetpoint(SHOULDER_PACKAGE);
@@ -87,11 +88,11 @@ void Arm::wristSetPos (wPos_t position)
 	case kwTwoTote:
 		m_wristPid->SetSetpoint(WRIST_TWOTOTE);
 		break;
-	case kwMid:
-		m_wristPid->SetSetpoint(WRIST_MID);
+	case kwDriving:
+		m_wristPid->SetSetpoint(WRIST_DRIVING);
 		break;
-	case kwCan:
-		m_wristPid->SetSetpoint(WRIST_CAN);
+	case kwCanStack:
+		m_wristPid->SetSetpoint(WRIST_CANSTACK);
 		break;
 	case kwPackage:
 		m_wristPid ->SetSetpoint(WRIST_PACKAGE);
@@ -110,40 +111,6 @@ void Arm::shoulderSetSetpoint(int point){
 void Arm::wristSetSetpoint(int point){
 	m_wristPid->SetSetpoint(point);
 }
-
-void Arm::Enable(int pid){
-	switch(pid){
-	case 0:
-		m_wristPid->Enable();
-		m_shoulderPid->Enable();
-		break;
-
-	case 1:
-		m_shoulderPid->Enable();
-		break;
-
-	case 2:
-		m_wristPid->Enable();
-		break;
-	}
-}
-void Arm::Disable(int pid){
-	switch(pid){
-	case 0:
-		m_wristPid->Disable();
-		m_shoulderPid->Disable();
-		break;
-
-	case 1:
-		m_shoulderPid->Disable();
-		break;
-
-	case 2:
-		m_wristPid->Disable();
-		break;
-	}
-}
-
 
 void Arm::PIDWrite(float input){
 	shoulderSet((double)input);
@@ -171,7 +138,17 @@ void Arm::PrintData()
 
 		SmartDashboard::PutNumber("Shoulder PID Output",m_shoulderPid->Get());
 		SmartDashboard::PutNumber("Wrist PID Output",m_wristPid->Get());
+		SmartDashboard::PutNumber("Shoulder PID SetPoint",m_shoulderPid->GetSetpoint());
+		SmartDashboard::PutNumber("Wrist PID SetPoint",m_wristPid->GetSetpoint());
+		SmartDashboard::PutNumber("Shoulder PID Input",m_shoulderEncode->PIDGet());
+		SmartDashboard::PutNumber("Wrist PID Input",m_wristEncode->PIDGet());
 
+		SmartDashboard::PutNumber("Shoulder P",m_shoulderPid->GetP());
+		SmartDashboard::PutNumber("Wrist P",m_wristPid->GetP());
+		SmartDashboard::PutNumber("Shoulder I",m_shoulderPid->GetI());
+		SmartDashboard::PutNumber("Wrist I",m_wristPid->GetI());
+		SmartDashboard::PutNumber("Shoulder D",m_shoulderPid->GetD());
+		SmartDashboard::PutNumber("Wrist D",m_wristPid->GetD());
 	}
 }
 

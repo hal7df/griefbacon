@@ -11,7 +11,7 @@
 #include "RobotUtils/HotSubsystem.h"
 #include "WPILib.h"
 
-#define WRIST_P 1.0
+#define WRIST_P -1.0
 #define WRIST_I 0.0
 #define WRIST_D 0.0
 
@@ -19,31 +19,31 @@
 #define SHOULDER_I 0.0
 #define SHOULDER_D 0.0
 
-#define SHOULDER_GROUND 0.0
-#define SHOULDER_TWOTOTE 0.0
-#define SHOULDER_MID 0.0
-#define SHOULDER_CAN 0.0
+#define SHOULDER_GROUND 0.919
+#define SHOULDER_TWOTOTE 0.831
+#define SHOULDER_DRIVING 0.109
+#define SHOULDER_CANSTACK 0.2
 #define SHOULDER_PACKAGE 0.0
 
-#define WRIST_GROUND 0.0
-#define WRIST_TWOTOTE 0.0
-#define WRIST_MID 0.0
-#define WRIST_CAN 0.0
+#define WRIST_GROUND -0.216
+#define WRIST_TWOTOTE -0.293
+#define WRIST_DRIVING -0.488
+#define WRIST_CANSTACK 0.0
 #define WRIST_PACKAGE 0.0
 
 enum sPos_t {
 	ksGround,
 	ksTwoTote,
-	ksMid,
-	ksCan,
+	ksDriving,
+	ksCanStack,
 	ksPackage
 };
 
 enum wPos_t {
 	kwGround,
 	kwTwoTote,
-	kwMid,
-	kwCan,
+	kwDriving,
+	kwCanStack,
 	kwPackage
 };
 
@@ -62,11 +62,16 @@ public:
 
 	void PIDWrite(float input);
 	void GetPID (bool get) { f_getPID = get; }
-	void Enable(int pid = 0);
-	void Disable(int pid = 0);
+	void sEnable () { m_shoulderPid->Enable(); }
+	void sDisable () { if (sIsEnabled()) m_shoulderPid->Disable(); }
+	void wEnable () { m_wristPid->Enable(); }
+	void wDisable () { if (wIsEnabled()) m_wristPid->Disable(); }
 
-	bool ShoulderIsEnabled(){return m_shoulderPid -> IsEnabled();}
-	bool WristIsEnabled(){return m_wristPid -> IsEnabled();}
+	void sReset () {  m_shoulderEncode->Reset(); }
+	void wReset () {  m_wristEncode->Reset(); }
+
+	bool sIsEnabled(){return m_shoulderPid -> IsEnabled();}
+	bool wIsEnabled(){return m_wristPid -> IsEnabled();}
 
 	void shoulderSetSetpoint(int point);
 	void wristSetSetpoint(int point);
