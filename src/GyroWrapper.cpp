@@ -14,6 +14,7 @@ GyroWrapper::GyroWrapper(Gyro* gyro, Timer* gyroTime): HotSubsystem("Gyro") {
 	m_driftTime = new Timer;
 
 	m_gyroTime = new Timer;
+	m_gyroTime->Start();
 
 	m_driftRatio = 0.0;
 
@@ -47,6 +48,14 @@ void GyroWrapper::GyroRatio() {
 double GyroWrapper::PIDGet() {
 	return ((double)m_gyro->GetAngle() + (m_driftRatio * m_gyroTime->Get()));
 }
+
+void GyroWrapper::Reset() {
+	m_gyro->Reset();
+	m_gyroTime->Stop();
+	m_gyroTime->Start();
+	m_gyroTime->Reset();
+}
+
 void GyroWrapper::Update ()
 {
 

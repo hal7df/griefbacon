@@ -49,15 +49,9 @@ public:
 
 	double m_speed;
 
-	double m_ratio1;
-
-	double m_ratio2;
-
 	double m_distance;
 
 	double m_angle;
-
-	int m_etaFlag;
 
 	public:
 	griefbacon()
@@ -74,7 +68,7 @@ public:
 		m_dummy2 = new Talon(6);
 		m_dummy3 = new Talon(7);
 
-		m_drivetrain = new Drivetrain (0,1,2,3);
+		m_drivetrain = new Drivetrain (0,1,2,3,0,1,2,3);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 
@@ -96,11 +90,6 @@ public:
 		m_FeedbackWrapper = new FeedbackWrapper(m_encodeL, m_encodeR);
 		m_FeedbackPID = new PIDController(0.1,0.0,0.0, m_FeedbackWrapper, m_dummy3);
 		m_speed = .4;
-
-		m_ratio1 = 26.11001704;
-
-		m_ratio2 = 2.986676441;
-
 
 		//Ratio: y=(.1955321253)(259.3608864)^x
 
@@ -155,7 +144,7 @@ public:
 
 	void TestPeriodic()
 	{
-		TestDrive();
+		TeleopDrive();
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
 			m_elev->Set(Relay::kForward);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -250,12 +239,6 @@ public:
 			m_arm->wristSet(m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		}
 
-	void TestDrive() {
-		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-	}
-
-
-
 	/** MISCELLANEOUS FUNCTIONS **/
 	void PrintData ()
 	{
@@ -308,52 +291,6 @@ public:
 		SmartDashboard::PutNumber("m_FeedbackPID",m_FeedbackPID->Get());
 		SmartDashboard::PutNumber("m_timer", m_timer->Get());
 
-	}
-
-	void ETA(double time, double distance, double angle)
-	{
-		double speedSC;
-		double speed;
-		speed = distance / time;
-		speedSC = pow(speed/m_ratio1, 1/m_ratio2);
-		switch(m_etaFlag){
-			case 0:
-				m_encodeL->Reset();
-				m_encodeR->Reset();
-				m_timer->Reset();
-				m_timer->Start();
-				m_timer->Reset();
-				m_turnPID->SetSetpoint(angle);
-				m_FeedbackPID->SetSetpoint(speed);
-				m_distancePID->SetSetpoint(distance);
-				m_etaFlag++;
-				break;
-			case 1:
-				if(!m_timer->HasPeriodPassed(time * 0.9)){
-					m_drive->ArcadeDrive((speedSC + (m_FeedbackPID->Get()/5)), m_turnPID->Get());
-					m_FeedbackPID->Enable();
-					m_turnPID->Enable();
-				}
-				else
-					m_etaFlag++;
-				break;
-			case 2:
-				m_FeedbackPID->Disable();
-				m_timer->Stop();
-				m_drive->ArcadeDrive(m_distancePID->Get(), m_turnPID->Get());
-				m_distancePID->Enable();
-
-				if (m_encodeL->GetRate() == 0.0 && fabs(m_distancePID->Get()) <= 0.5) {
-					m_turnPID->Disable();
-					m_distancePID->Disable();
-					m_drive->ArcadeDrive(0.0,0.0);
-					m_etaFlag++;
-				}
-				break;
-			case 3:
-
-				break;
-		}
 	}
 
 };

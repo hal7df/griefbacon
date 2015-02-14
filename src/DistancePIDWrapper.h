@@ -17,15 +17,15 @@
 
 class DistancePIDWrapper: public PIDSource {
 public:
-	DistancePIDWrapper(Encoder* encodeL, Encoder* encodeR);
+	DistancePIDWrapper(Encoder* lEncode, Encoder* rEncode);
 	virtual ~DistancePIDWrapper();
 
 	//PIDOutput and PIDSource functions
 	double PIDGet();
 
 private:
-	Encoder* m_encodeL;
-	Encoder* m_encodeR;
+	Encoder* m_lEncode;
+	Encoder* m_rEncode;
 };
 
 #endif /* DistancePIDWrapper_H_ */

@@ -7,10 +7,10 @@
 
 #include "DistancePIDWrapper.h"
 
-DistancePIDWrapper::DistancePIDWrapper(Encoder* encodeL, Encoder* encodeR) {
+DistancePIDWrapper::DistancePIDWrapper(Encoder* lEncode, Encoder* rEncode) {
 	// TODO Auto-generated constructor stub
-	m_encodeL = encodeL;
-	m_encodeR = encodeR;
+	m_lEncode = lEncode;
+	m_rEncode = rEncode;
 
 }
 
@@ -19,5 +19,5 @@ DistancePIDWrapper::~DistancePIDWrapper() {
 }
 
 double DistancePIDWrapper::PIDGet () {
-	return((m_encodeL->GetDistance() - m_encodeR->GetDistance()) / 2400);
+	return((m_lEncode->GetDistance() - m_rEncode->GetDistance()) / 2400);
 }

@@ -21,6 +21,7 @@ public:
 
 	double PIDGet();
 	double GetRatio() { return m_driftRatio; }
+	void Reset();
 
 	void GyroRatio();
 protected:
@@ -30,7 +31,6 @@ private:
 	Gyro* m_gyro;
 
 	Timer* m_driftTime;
-
 	Timer* m_gyroTime;
 
 	double m_driftRatio;
