@@ -29,9 +29,9 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
 
-	m_gyro = new Gyro(gyro);
+	m_GyroWrapper = new GyroWrapper(gyro);
 
-	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_gyro, this);
+	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_GyroWrapper, this);
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
 	m_FeedbackPID = new PIDController(FEEDBACK_P,FEEDBACK_I,FEEDBACK_D, m_FeedbackWrapper, this);
 
@@ -73,9 +73,8 @@ void Drivetrain::PrintData() {
 	SmartDashboard::PutNumber("Encoder Rate Average", ((m_lEncode->GetRate() / 1200) - (m_rEncode->GetRate() / 1200)) / 2);
 
 	SmartDashboard::PutNumber("Feedback PID",m_FeedbackPID->Get()/5);
-	SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
-	SmartDashboard::PutNumber("Current Angle", m_gyro->GetAngle());
-	SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
+	SmartDashboard::PutNumber("Angle", m_GyroWrapper->GetAngle());
+	SmartDashboard::PutNumber("Rate", m_GyroWrapper->GetRate());
 	SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
 	SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
 

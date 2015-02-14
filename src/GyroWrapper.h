@@ -20,6 +20,8 @@ public:
 	virtual ~GyroWrapper();
 
 	double PIDGet();
+	double GetAngle() { return PIDGet(); }
+	double GetRate() { return m_gyro->GetRate(); }
 	double GetRatio() { return m_driftRatio; }
 	void Reset();
 

@@ -27,6 +27,7 @@
 #include "WPILib.h"
 #include "FeedbackWrapper.h"
 #include "DistancePIDWrapper.h"
+#include "GyroWrapper.h"
 #include <cmath>
 
 
@@ -44,6 +45,9 @@ public:
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
+
+	GyroWrapper* GetGyroWrapper () {return m_GyroWrapper; }
+	void ResetRatio () { m_GyroWrapper->GyroRatio(); }
 
 protected:
 
@@ -65,7 +69,7 @@ private:
 	FeedbackWrapper* m_FeedbackWrapper;
 	DistancePIDWrapper* m_distancePIDWrapper;
 	Timer* m_timer;
-	Gyro* m_gyro;
+	GyroWrapper* m_GyroWrapper;
 	int m_etaFlag;
 };
 

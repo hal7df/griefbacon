@@ -23,7 +23,6 @@ private:
 	Drivetrain* m_drivetrain;
 	Arm* m_arm;
 	Elevator* m_elev;
-	GyroWrapper* m_GyroWrapper;
 public:
 
 	double m_speed;
@@ -46,13 +45,12 @@ public:
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2,0);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
-		m_GyroWrapper = new GyroWrapper(0);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Add(m_arm);
-		m_subsys->Add(m_GyroWrapper);
+		m_subsys->Add(m_drivetrain->GetGyroWrapper());
 
 		m_speed = .4;
 
@@ -123,6 +121,7 @@ public:
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
 			m_arm->rollerSet(1);
 		}
+
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_arm->rollerSet(-0.5);
 		}
@@ -179,7 +178,7 @@ public:
 			m_drivetrain->SetAngle(0.0);
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
-			m_GyroWrapper->GyroRatio();
+			m_drivetrain->ResetRatio();
 		}
 		else
 			m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
