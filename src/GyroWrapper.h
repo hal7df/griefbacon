@@ -16,7 +16,7 @@
 class GyroWrapper: public HotSubsystem, public PIDSource {
 public:
 	friend class HotSubsystemHandler;
-	GyroWrapper(Gyro* gyro, Timer* gyroTime);
+	GyroWrapper(int gyro);
 	virtual ~GyroWrapper();
 
 	double PIDGet();

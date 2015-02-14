@@ -7,7 +7,7 @@
 
 #include "Drivetrain.h"
 
-Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode) :
+Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode, int gyro) :
 	HotSubsystem("drivetrain")
 {
 	// TODO Auto-generated constructor stub
@@ -19,8 +19,21 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_lEncode = new Encoder (lEncode,lEncode++,false);
 	m_rEncode = new Encoder (rEncode, rEncode++,true);
 
+	m_FeedbackWrapper = new FeedbackWrapper(m_lEncode, m_rEncode);
+	m_distancePIDWrapper = new DistancePIDWrapper(m_lEncode, m_rEncode);
+
+	m_etaFlag = 0;
+
+	m_timer = new Timer;
+
 	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
+
+	m_gyro = new Gyro(gyro);
+
+	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_gyro, this);
+	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
+	m_FeedbackPID = new PIDController(FEEDBACK_P,FEEDBACK_I,FEEDBACK_D, m_FeedbackWrapper, this);
 
 }
 
@@ -40,6 +53,37 @@ void Drivetrain::PrintData() {
 
 	SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
 	SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
+
+	SmartDashboard::PutNumber("m_timer", m_timer->Get());
+	SmartDashboard::PutNumber("ETA:",  4.0 - m_timer->Get());
+	SmartDashboard::PutNumber("m_etaFlag", m_etaFlag);
+	SmartDashboard::PutNumber("Set Point", m_turnPID->GetSetpoint());
+
+	SmartDashboard::PutNumber("m_turnPID",m_turnPID->Get());
+	SmartDashboard::PutBoolean("m_turnPID IsEnabled", m_turnPID->IsEnabled());
+	SmartDashboard::PutNumber("m_FeedbackPID",m_FeedbackPID->Get());
+	SmartDashboard::PutNumber("Auto Drive P", m_distancePID->GetP());
+	SmartDashboard::PutNumber("Auto Drive I", m_distancePID->GetI());
+	SmartDashboard::PutNumber("Auto Drive D", m_distancePID->GetD());
+	SmartDashboard::PutNumber("Distance PIDGet", m_distancePID->Get());
+	SmartDashboard::PutNumber("Auto Drive Setpoint", m_distancePID->GetSetpoint());
+	SmartDashboard::PutBoolean("Auto Drive Enabled", m_distancePID->IsEnabled());
+	SmartDashboard::PutNumber("Encoder Rate Left", m_lEncode->GetRate() / 1200);
+	SmartDashboard::PutNumber("Encoder Rate Right", m_rEncode->GetRate() / 1200);
+	SmartDashboard::PutNumber("Encoder Rate Average", ((m_lEncode->GetRate() / 1200) - (m_rEncode->GetRate() / 1200)) / 2);
+
+	SmartDashboard::PutNumber("Feedback PID",m_FeedbackPID->Get()/5);
+	SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
+	SmartDashboard::PutNumber("Current Angle", m_gyro->GetAngle());
+	SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
+	SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
+	SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
+
+}
+
+void Drivetrain::PIDWrite(float output)
+{
+
 }
 
 void Drivetrain::ETA(double time, double distance, double angle)

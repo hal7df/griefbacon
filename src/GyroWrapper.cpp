@@ -7,9 +7,9 @@
 
 #include "GyroWrapper.h"
 
-GyroWrapper::GyroWrapper(Gyro* gyro, Timer* gyroTime): HotSubsystem("Gyro") {
+GyroWrapper::GyroWrapper(int gyro): HotSubsystem("Gyro") {
 	// TODO Auto-generated constructor stub
-	m_gyro = gyro;
+	m_gyro = new Gyro (gyro);
 
 	m_driftTime = new Timer;
 
@@ -58,7 +58,8 @@ void GyroWrapper::Reset() {
 
 void GyroWrapper::Update ()
 {
-
+	if (m_driftRatioCase < 2)
+		GyroRatio();
 }
 
 void GyroWrapper::PrintData(){
