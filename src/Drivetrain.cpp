@@ -8,7 +8,7 @@
 #include "Drivetrain.h"
 
 Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode, int gyro) :
-	HotSubsystem("drivetrain")
+	HotSubsystem("Drivetrain")
 {
 	// TODO Auto-generated constructor stub
 	m_lDrive1 = new Talon (lDrive1);

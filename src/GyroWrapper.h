@@ -36,6 +36,8 @@ private:
 	double m_driftRatio;
 
 	int m_driftRatioCase;
+
+	bool f_ratioReset;
 };
 
 #endif /* GYROWRAPPER_H_ */

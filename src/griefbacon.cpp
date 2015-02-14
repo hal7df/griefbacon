@@ -178,8 +178,11 @@ public:
 			m_drivetrain->SetDistance(2000.0);
 			m_drivetrain->SetAngle(0.0);
 		}
-
-		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
+			m_GyroWrapper->GyroRatio();
+		}
+		else
+			m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
 	}
 
