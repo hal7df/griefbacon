@@ -162,9 +162,26 @@ public:
 	}
 
 	void TeleopDrive() {
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)){
 			m_drivetrain->PIDWrite(.5);
+			//This function is DriveStraightForward
 		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
+			m_drivetrain->PIDWrite(-.5);
+			//This function is DriveStraightBackward
+		}
+
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
+			m_drivetrain->StraightDistance();
+			//AUTON POSSIBLY??
+		}
+
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+			m_drivetrain->ResetFlags();
+			m_drivetrain->ResetPIDs(); //EMERGENCY BRAKE FOR PIDs
+			//REMOVE AFTER IMPLEMENTATION********************FOR TESTING ONLY****************************
+		}
+
 		else if (m_drivetrain->IsEnabledDistance())
 			m_drivetrain->DisableDistance();
 

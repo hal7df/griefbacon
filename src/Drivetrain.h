@@ -46,13 +46,26 @@ public:
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
+
 	void EnableDistance () {m_distancePID->Enable(); }
 	void DisableDistance () {m_distancePID->Disable(); }
 	bool IsEnabledDistance () {return (m_distancePID->IsEnabled()); }
+	double GetDistancePID () {return (m_distancePIDWrapper->PIDGet()); }
+	double GetVelocityPID () {return (m_FeedbackWrapper->PIDGet()); }
+
+	void EnableAngle () {m_turnPID->Enable(); }
+	void DisableAngle () {m_turnPID->Disable(); }
+	bool IsEnabledAngle () {return (m_turnPID->IsEnabled()); }
+	double GetAnglePID () {return (m_GyroWrapper->GetAngle()); }
+
 	void ResetEncoders () {m_lEncode->Reset(); m_rEncode->Reset(); }
+	void StraightDistance ();
+	void ResetFlags () {f_setPID = false; f_DisabledDistance = false; }
 
 	GyroWrapper* GetGyroWrapper () {return m_GyroWrapper; }
 	void ResetRatio () { m_GyroWrapper->GyroRatio(); }
+
+	void ResetPIDs () {DisableDistance(); DisableAngle(); }
 
 protected:
 
@@ -77,8 +90,13 @@ private:
 	Timer* m_timer;
 	GyroWrapper* m_GyroWrapper;
 	int m_etaFlag;
+	int m_StraightDistanceCase;
+
+	float m_distancePIDSet;
+	float m_anglePIDSet;
 
 	bool f_setPID;
+	bool f_DisabledDistance;
 };
 
 #endif /* DRIVETRAIN_H_ */

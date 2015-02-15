@@ -29,6 +29,9 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 
 	m_timer = new Timer;
 
+	f_setPID = false;
+	f_DisabledDistance = false;
+
 	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
 
@@ -37,6 +40,11 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_GyroWrapper, m_dummy);
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
 	m_FeedbackPID = new PIDController(FEEDBACK_P,FEEDBACK_I,FEEDBACK_D, m_FeedbackWrapper, m_dummy);
+
+	m_distancePIDSet = 5.0;
+	m_anglePIDSet = 0.0;
+
+	m_StraightDistanceCase = 0;
 
 }
 
@@ -86,6 +94,9 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Rate", m_GyroWrapper->GetRate());
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
+		SmartDashboard::PutNumber("m_StraightDistanceCase", m_StraightDistanceCase);
+		SmartDashboard::PutBoolean("f_setPID", f_setPID);
+		SmartDashboard::PutBoolean("f_DisabledDistance", f_DisabledDistance);
 	}
 }
 
@@ -102,6 +113,37 @@ void Drivetrain::PIDWrite(float output)
 			m_drive->TankDrive(-(output + 0.1), -(output - 0.1));
 	else
 		m_drive->TankDrive(-output, -output);
+}
+
+void Drivetrain::StraightDistance()
+{
+	if(!f_setPID){
+		ResetEncoders();
+		m_StraightDistanceCase = 0;
+		f_setPID = true;
+	}
+
+	switch(m_StraightDistanceCase) {
+	case 0:
+		SetDistance(m_distancePIDSet);
+		SetAngle(m_anglePIDSet);
+		EnableDistance();
+		EnableAngle();
+
+		if(IsEnabledAngle())
+			m_StraightDistanceCase++;
+		break;
+	case 1:
+		if (GetDistancePID() >= (m_distancePIDSet * .95) && !f_DisabledDistance){
+			DisableDistance();
+			f_DisabledDistance = true;
+		}
+		if (GetVelocityPID() == 0.0){
+			DisableAngle();
+			m_StraightDistanceCase++;
+		}
+		break;
+	}
 }
 
 void Drivetrain::ETA(double time, double distance, double angle)
