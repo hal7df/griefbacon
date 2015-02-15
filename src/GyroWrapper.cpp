@@ -7,17 +7,20 @@
 
 #include "GyroWrapper.h"
 
-GyroWrapper::GyroWrapper(Gyro* gyro, Timer* gyroTime): HotSubsystem("Gyro") {
+GyroWrapper::GyroWrapper(int gyro): HotSubsystem("Gyro") {
 	// TODO Auto-generated constructor stub
-	m_gyro = gyro;
+	m_gyro = new Gyro (gyro);
 
 	m_driftTime = new Timer;
 
 	m_gyroTime = new Timer;
+	m_gyroTime->Start();
 
 	m_driftRatio = 0.0;
 
 	m_driftRatioCase = 0;
+
+	f_ratioReset = false;
 
 }
 
@@ -26,7 +29,10 @@ GyroWrapper::~GyroWrapper() {
 }
 
 void GyroWrapper::GyroRatio() {
-
+		if (!f_ratioReset) {
+			m_driftRatioCase = 0;
+			f_ratioReset = true;
+		}
 		switch(m_driftRatioCase){
 		case 0:
 			m_gyro->Reset();
@@ -45,11 +51,21 @@ void GyroWrapper::GyroRatio() {
 	}
 
 double GyroWrapper::PIDGet() {
+	f_ratioReset = false;
 	return ((double)m_gyro->GetAngle() + (m_driftRatio * m_gyroTime->Get()));
 }
+
+void GyroWrapper::Reset() {
+	m_gyro->Reset();
+	m_gyroTime->Stop();
+	m_gyroTime->Start();
+	m_gyroTime->Reset();
+}
+
 void GyroWrapper::Update ()
 {
-
+	if (m_driftRatioCase < 2)
+		GyroRatio();
 }
 
 void GyroWrapper::PrintData(){

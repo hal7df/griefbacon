@@ -16,7 +16,7 @@
 
 class FeedbackWrapper: public PIDSource {
 public:
-	FeedbackWrapper(Encoder* encodeL, Encoder* encodeR);
+	FeedbackWrapper(Encoder* lEncode, Encoder* rEncode);
 	virtual ~FeedbackWrapper();
 
 	double PIDGet();
@@ -24,8 +24,8 @@ public:
 
 
 private:
-	Encoder* m_encodeL;
-	Encoder* m_encodeR;
+	Encoder* m_lEncode;
+	Encoder* m_rEncode;
 };
 
 #endif /* FEEDBACKWRAPPER_H_ */

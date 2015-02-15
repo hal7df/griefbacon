@@ -7,10 +7,10 @@
 
 #include "FeedbackWrapper.h"
 
-FeedbackWrapper::FeedbackWrapper(Encoder* encodeL, Encoder* encodeR) {
+FeedbackWrapper::FeedbackWrapper(Encoder* lEncode, Encoder* rEncode) {
 	// TODO Auto-generated constructor stub
-	m_encodeL = encodeL;
-	m_encodeR = encodeR;
+	m_lEncode = lEncode;
+	m_rEncode = rEncode;
 }
 
 FeedbackWrapper::~FeedbackWrapper() {
@@ -18,5 +18,5 @@ FeedbackWrapper::~FeedbackWrapper() {
 }
 
 double FeedbackWrapper::PIDGet() {
-	return((m_encodeL->GetRate() - (m_encodeR->GetRate())) / 2400);
+	return((m_lEncode->GetRate() - (m_rEncode->GetRate())) / 2400);
 }

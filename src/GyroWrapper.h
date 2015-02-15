@@ -16,11 +16,14 @@
 class GyroWrapper: public HotSubsystem, public PIDSource {
 public:
 	friend class HotSubsystemHandler;
-	GyroWrapper(Gyro* gyro, Timer* gyroTime);
+	GyroWrapper(int gyro);
 	virtual ~GyroWrapper();
 
 	double PIDGet();
+	double GetAngle() { return PIDGet(); }
+	double GetRate() { return m_gyro->GetRate(); }
 	double GetRatio() { return m_driftRatio; }
+	void Reset();
 
 	void GyroRatio();
 protected:
@@ -30,12 +33,13 @@ private:
 	Gyro* m_gyro;
 
 	Timer* m_driftTime;
-
 	Timer* m_gyroTime;
 
 	double m_driftRatio;
 
 	int m_driftRatioCase;
+
+	bool f_ratioReset;
 };
 
 #endif /* GYROWRAPPER_H_ */
