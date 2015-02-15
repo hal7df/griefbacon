@@ -15,9 +15,12 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_lDrive2 = new Talon (lDrive2);
 	m_rDrive1 = new Talon (rDrive1);
 	m_rDrive2 = new Talon (rDrive2);
+	m_dummy = new Talon (9001);
 
 	m_lEncode = new Encoder (lEncode,lEncode++,false);
 	m_rEncode = new Encoder (rEncode, rEncode++,true);
+	m_lEncode->SetDistancePerPulse(1./1200.);
+	m_rEncode->SetDistancePerPulse(1./1200.);
 
 	m_FeedbackWrapper = new FeedbackWrapper(m_lEncode, m_rEncode);
 	m_distancePIDWrapper = new DistancePIDWrapper(m_lEncode, m_rEncode);
@@ -31,9 +34,9 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 
 	m_GyroWrapper = new GyroWrapper(gyro);
 
-	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_GyroWrapper, this);
+	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_GyroWrapper, m_dummy);
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
-	m_FeedbackPID = new PIDController(FEEDBACK_P,FEEDBACK_I,FEEDBACK_D, m_FeedbackWrapper, this);
+	m_FeedbackPID = new PIDController(FEEDBACK_P,FEEDBACK_I,FEEDBACK_D, m_FeedbackWrapper, m_dummy);
 
 }
 
@@ -82,7 +85,17 @@ void Drivetrain::PrintData() {
 
 void Drivetrain::PIDWrite(float output)
 {
+	if (output > 0.8)
+		output = 0.8;
+	else if (output < -0.8)
+		output = -0.8;
 
+	if (m_lEncode->GetDistance() + 5 > m_rEncode->GetDistance())
+		m_drive->TankDrive(output - 0.1, output + 0.1);
+	else if (m_rEncode->GetDistance() + 5 > m_lEncode->GetDistance())
+			m_drive->TankDrive(output + 0.1, output - 0.1);
+	else
+		m_drive->TankDrive(output, output);
 }
 
 void Drivetrain::ETA(double time, double distance, double angle)

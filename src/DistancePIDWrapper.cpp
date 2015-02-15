@@ -19,5 +19,5 @@ DistancePIDWrapper::~DistancePIDWrapper() {
 }
 
 double DistancePIDWrapper::PIDGet () {
-	return((m_lEncode->GetDistance() - m_rEncode->GetDistance()) / 2400);
+	return((m_lEncode->GetDistance() + m_rEncode->GetDistance()) / 2);
 }

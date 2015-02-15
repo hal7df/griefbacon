@@ -163,10 +163,13 @@ public:
 
 	void TeleopDrive() {
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
-			m_drivetrain->SetDistance(2000.0);
-			m_drivetrain->SetAngle(0.0);
+			m_drivetrain->SetDistance(2.0);
+			m_drivetrain->EnableDistance();
 		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
+		else if (m_drivetrain->IsEnabledDistance())
+			m_drivetrain->DisableDistance();
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
 			m_drivetrain->ResetRatio();
 		}
 		else

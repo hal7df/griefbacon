@@ -41,10 +41,13 @@ public:
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
 	void ETA(double time, double distance, double angle);
 
-	void PIDWrite (float input);
+	void PIDWrite (float output);
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
+	void EnableDistance () {m_distancePID->Enable(); }
+	void DisableDistance () {m_distancePID->Disable(); }
+	bool IsEnabledDistance () {return (m_distancePID->IsEnabled()); }
 
 	GyroWrapper* GetGyroWrapper () {return m_GyroWrapper; }
 	void ResetRatio () { m_GyroWrapper->GyroRatio(); }
@@ -60,6 +63,7 @@ private:
 	Talon* m_lDrive2;
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
+	Talon* m_dummy;
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
 	RobotDrive* m_drive;
