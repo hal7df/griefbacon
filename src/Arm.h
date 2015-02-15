@@ -11,12 +11,12 @@
 #include "RobotUtils/HotSubsystem.h"
 #include "WPILib.h"
 
-#define WRIST_P -1.0
-#define WRIST_I 0.0
+#define WRIST_P -16.0
+#define WRIST_I 0.01
 #define WRIST_D 0.0
 
-#define SHOULDER_P 1.0
-#define SHOULDER_I 0.0
+#define SHOULDER_P 8.0
+#define SHOULDER_I 0.01
 #define SHOULDER_D 0.0
 
 #define SHOULDER_GROUND 0.919

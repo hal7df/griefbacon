@@ -163,18 +163,21 @@ public:
 
 	void TeleopDrive() {
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
-			m_drivetrain->SetDistance(2.0);
-			m_drivetrain->EnableDistance();
+			m_drivetrain->PIDWrite(.5);
 		}
 		else if (m_drivetrain->IsEnabledDistance())
 			m_drivetrain->DisableDistance();
 
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
 			m_drivetrain->ResetRatio();
 		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart))
+			m_drivetrain->ResetEncoders();
+
 		else
 			m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
+		m_drivetrain->SetPID(m_driver->GetRawButton(AdvancedJoystick::kButtonBack));
 	}
 
 	void TeleopArm(){

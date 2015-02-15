@@ -42,12 +42,14 @@ public:
 	void ETA(double time, double distance, double angle);
 
 	void PIDWrite (float output);
+	void SetPID (bool set) { f_setPID = set; }
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
 	void EnableDistance () {m_distancePID->Enable(); }
 	void DisableDistance () {m_distancePID->Disable(); }
 	bool IsEnabledDistance () {return (m_distancePID->IsEnabled()); }
+	void ResetEncoders () {m_lEncode->Reset(); m_rEncode->Reset(); }
 
 	GyroWrapper* GetGyroWrapper () {return m_GyroWrapper; }
 	void ResetRatio () { m_GyroWrapper->GyroRatio(); }
@@ -75,6 +77,8 @@ private:
 	Timer* m_timer;
 	GyroWrapper* m_GyroWrapper;
 	int m_etaFlag;
+
+	bool f_setPID;
 };
 
 #endif /* DRIVETRAIN_H_ */
