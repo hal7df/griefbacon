@@ -61,7 +61,12 @@ public:
 
 	void DisabledPeriodic()
 	{
-
+		switch(m_autonChoice)
+		{
+		case kThreeTote:
+			SmartDashboard::PutString("Auton Mode","Three Tote");
+			break;
+		}
 	}
 
 	void AutonomousInit()
@@ -73,7 +78,17 @@ public:
 	{
 		ZeroAll();
 
-		switch (m_auton_t);
+		switch (m_autonChoice)
+		{
+
+		}
+	}
+
+	/** AUTONOMOUS FUNCTIONS **/
+
+	void AutonThreeTote ()
+	{
+
 	}
 	void TeleopInit()
 	{
