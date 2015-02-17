@@ -9,7 +9,9 @@ using namespace std;
 #include <cmath>
 
 
-//Add back in variables
+enum auton_t {
+	kThreeTote
+};
 
 class griefbacon: public IterativeRobot
 {
@@ -23,6 +25,7 @@ private:
 	Elevator* m_elev;
 
 	bool f_elevReset, f_shoulderReset, f_wristReset;
+	auton_t m_autonChoice;
 public:
 	griefbacon()
 	{
@@ -48,6 +51,7 @@ public:
 		f_shoulderReset = false;
 		f_wristReset = false;
 
+		m_autonChoice = kThreeTote;
 	}
 
 	void RobotInit()
@@ -67,7 +71,9 @@ public:
 
 	void AutonomousPeriodic()
 	{
+		ZeroAll();
 
+		switch (m_auton_t);
 	}
 	void TeleopInit()
 	{
@@ -291,11 +297,21 @@ public:
 		if (!f_wristReset)
 			m_arm->wristSet(-.1);
 
-		if (m_elev->GetRate() < .005)
+		if (m_elev->GetRate() < .005 && !f_elevReset)
 		{
-
+			m_elev->Reset();
+			f_elevReset = true;
 		}
-
+		if (m_arm->GetWristRate() < .01 && !f_elevReset)
+		{
+			m_arm->wReset();
+			f_wristReset = true;
+		}
+		if (m_arm->GetShoulderRate() < .01 && !f_elevReset)
+		{
+			m_arm->sReset();
+			f_shoulderReset = true;
+		}
 	}
 };
 
