@@ -75,6 +75,9 @@ public:
 
 	void shoulderSetSetpoint(int point);
 	void wristSetSetpoint(int point);
+	double GetWristRate(){ return m_wristEncode -> GetRate(); }
+	double GetShoulderRate(){ return m_shoulderEncode -> GetRate(); }
+
 
 protected:
 	void Update();

@@ -51,6 +51,8 @@ public:
 	void PIDWrite (float input) { Set((double)input*0.7); }
 
 	void GetPID (bool get) { f_getPID = get; }
+
+	double GetRate () {return m_elevEncode -> GetRate();}
 protected:
 	void Update();
 	void PrintData();

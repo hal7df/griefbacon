@@ -21,6 +21,8 @@ private:
 	Drivetrain* m_drivetrain;
 	Arm* m_arm;
 	Elevator* m_elev;
+
+	bool f_elevReset, f_shoulderReset, f_wristReset;
 public:
 	griefbacon()
 	{
@@ -41,6 +43,10 @@ public:
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Add(m_arm);
 		m_subsys->Add(m_drivetrain->GetGyroWrapper());
+
+		f_elevReset = false;
+		f_shoulderReset = false;
+		f_wristReset = false;
 
 	}
 
@@ -275,6 +281,21 @@ public:
 		SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
 
 		SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+	}
+	void ZeroAll ()
+	{
+		if (!f_elevReset)
+			m_elev->Set(-.1);
+		if (!f_shoulderReset)
+			m_arm->shoulderSet(-.1);
+		if (!f_wristReset)
+			m_arm->wristSet(-.1);
+
+		if (m_elev->GetRate() < .005)
+		{
+
+		}
+
 	}
 };
 
