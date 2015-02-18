@@ -54,7 +54,7 @@ public:
 	void GetPID (bool get) { f_getPID = get; }
 
 	double GetRate () {return m_elevEncode -> GetRate();}
-	double GetDistance () { return m_elevEncode -> GetRate(); }
+	double GetDistance () { return m_elevEncode -> GetDistance(); }
 protected:
 	void Update();
 	void PrintData();

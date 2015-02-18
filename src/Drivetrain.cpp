@@ -17,8 +17,8 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 
 	m_lEncode = new Encoder (lEncode,lEncode++,false);
 	m_rEncode = new Encoder (rEncode, rEncode++,true);
-	m_lEncode->SetDistancePerPulse(1./1200.);
-	m_rEncode->SetDistancePerPulse(1./1200.);
+	m_lEncode->SetDistancePerPulse(1./281.5);
+	m_rEncode->SetDistancePerPulse(1./281.5);
 
 	m_distancePIDWrapper = new DistancePIDWrapper(m_lEncode, m_rEncode);
 
@@ -40,6 +40,7 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 
 	m_distancePIDSet = 5.0;
 	m_anglePIDSet = 0.0;
+	m_speedLimit = 0.65;
 
 	m_StraightDistanceCase = 0;
 }
@@ -85,6 +86,8 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Distance PID Output", m_distancePID->Get());
 		SmartDashboard::PutNumber("Distance PID Setpoint", m_distancePID->GetSetpoint());
 		SmartDashboard::PutBoolean("Distance PID Enabled", m_distancePID->IsEnabled());
+		SmartDashboard::PutBoolean("Distance At Setpoint",DistanceAtSetpoint());
+		SmartDashboard::PutNumber("Distance Difference",fabs(m_distancePIDWrapper->PIDGet() - m_distancePID->GetSetpoint()));
 
 		SmartDashboard::PutNumber("Encoder Rate Left", m_lEncode->GetRate());
 		SmartDashboard::PutNumber("Encoder Rate Right", m_rEncode->GetRate());
@@ -94,6 +97,7 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
+		SmartDashboard::PutNumber("Average Drive Encoder",m_distancePIDWrapper->PIDGet());
 		SmartDashboard::PutNumber("m_StraightDistanceCase", m_StraightDistanceCase);
 		SmartDashboard::PutBoolean("f_setPID", f_setPID);
 		SmartDashboard::PutBoolean("f_DisabledDistance", f_DisabledDistance);
@@ -102,10 +106,10 @@ void Drivetrain::PrintData() {
 
 void Drivetrain::PIDWrite(float output)
 {
-	if (output > 0.8)
-		output = 0.8;
-	else if (output < -0.8)
-		output = -0.8;
+	if (output > m_speedLimit)
+		output = m_speedLimit;
+	else if (output < -m_speedLimit)
+		output = -m_speedLimit;
 
 	if (m_gyro->GetAngle() > 0.5)
 		m_drive->TankDrive(output+0.1,output-0.1);

@@ -79,7 +79,7 @@ void Elevator::Set (pos_t position)
 
 bool Elevator::AtSetpoint()
 {
-	return fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()) < 0.005;
+	return fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()) < 0.03;
 }
 
 void Elevator::Update ()
@@ -100,6 +100,9 @@ void Elevator::PrintData()
 		SmartDashboard::PutNumber("Elevator I",m_pid->GetI());
 		SmartDashboard::PutNumber("Elevator D",m_pid->GetD());
 		SmartDashboard::PutNumber("Elevator PID Output",m_pid->Get());
+
+		SmartDashboard::PutBoolean("Elevator At Setpoint",AtSetpoint());
+		SmartDashboard::PutNumber("Elevator Differance",fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()));
 	}
 }
 

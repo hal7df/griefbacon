@@ -23,6 +23,8 @@ private:
 	Arm* m_arm;
 	Elevator* m_elev;
 
+	Timer* m_resetTime;
+
 	bool f_elevReset, f_shoulderReset, f_wristReset;
 	auton_t m_autonChoice;
 	unsigned m_autonCase;
@@ -46,6 +48,8 @@ public:
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Add(m_arm);
+
+		m_resetTime = new Timer;
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -75,12 +79,23 @@ public:
 
 	void AutonomousInit()
 	{
+		m_autonCase = 0;
+		m_autonLoop = 0;
+		m_drivetrain->SetLimit(0.6);
 
+		f_elevReset = false;
+		f_shoulderReset = false;
+		f_wristReset = false;
+
+		m_resetTime->Stop();
+		m_resetTime->Start();
+		m_resetTime->Reset();
 	}
 
 	void AutonomousPeriodic()
 	{
 		ZeroAll();
+		PrintData();
 
 		switch (m_autonChoice)
 		{
@@ -110,18 +125,18 @@ public:
 			if (!m_arm->wIsEnabled())
 				m_arm->wEnable();
 
-			if (m_elev->AtSetpoint() && m_arm->WristAtSetpoint() && m_arm->ShoulderAtSetpoint())
+			if (m_elev->AtSetpoint())
 			{
-				m_arm->sDisable();
-				m_arm->wDisable();
 				m_elev->Disable();
 				m_autonCase++;
 			}
 			break;
 		case 2:
-			m_drivetrain->SetDistance(-0.083);
+			m_drivetrain->SetDistance(-0.25);
+
 			if (!m_drivetrain->IsEnabledDistance())
 				m_drivetrain->EnableDistance();
+
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
 				m_drivetrain-> DisableDistance();
@@ -129,30 +144,30 @@ public:
 			}
 				break;
 		case 3:
-			m_elev->Set(kTop);
-
-			if (m_elev->GetDistance() > ELEVATOR_LMID)
-			{
 				if (m_autonLoop < 2)
 				{
-					m_drivetrain->ResetEncoders();
-					m_autonCase++;
+					m_elev->Set(kTop);
+					if (m_elev->GetDistance() > ELEVATOR_UMID)
+					{
+						m_drivetrain->ResetEncoders();
+						m_autonCase++;
+					}
 				}
 				else
 				{
+					m_elev->Set(kCarry);
 					m_drivetrain->ResetEncoders();
 					m_autonCase = 6;
 				}
-			}
 			break;
 		case 4:
-			m_drivetrain->SetDistance(7);
+			m_drivetrain->SetDistance(6.5);
 			m_arm->clearCans(true);
 			m_drivetrain->EnableDistance();
 			if (m_drivetrain->GetDistancePID() > 4)
 			{
 				m_arm->clearCans(false);
-				m_arm->intakeSet(1);
+				m_arm->intakeSet(-1);
 			}
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
@@ -167,6 +182,7 @@ public:
 			{
 				if(m_autonLoop < 2)
 				{
+					m_drivetrain->ResetEncoders();
 					m_autonCase = 1;
 					m_autonLoop++;
 				}
@@ -276,12 +292,17 @@ public:
 
 	void TeleopDrive() {
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)){
-			m_drivetrain->PIDWrite(.5);
+			m_drivetrain->PIDWrite(-.5);
 			//This function is DriveStraightForward
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
-			m_drivetrain->PIDWrite(-.5);
+			m_drivetrain->PIDWrite(.5);
 			//This function is DriveStraightBackward
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+		{
+			m_drivetrain->SetDistance(1);
+			m_drivetrain->EnableDistance();
 		}
 
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
@@ -386,26 +407,33 @@ public:
 	void ZeroAll ()
 	{
 		if (!f_elevReset)
-			m_elev->Set(-.1);
+			m_elev->Set(-.3);
 		if (!f_shoulderReset)
-			m_arm->shoulderSet(-.1);
+			m_arm->shoulderSet(-.2);
 		if (!f_wristReset)
-			m_arm->wristSet(-.1);
+			m_arm->wristSet(.2);
 
-		if (m_elev->GetRate() < .005 && !f_elevReset)
+		if (m_resetTime->Get() > 0.1)
 		{
-			m_elev->Reset();
-			f_elevReset = true;
-		}
-		if (m_arm->GetWristRate() < .01 && !f_elevReset)
-		{
-			m_arm->wReset();
-			f_wristReset = true;
-		}
-		if (m_arm->GetShoulderRate() < .01 && !f_elevReset)
-		{
-			m_arm->sReset();
-			f_shoulderReset = true;
+			m_resetTime->Stop();
+			if (fabs(m_elev->GetRate()) < 0.15 && !f_elevReset)
+			{
+				m_elev->Reset();
+				f_elevReset = true;
+				m_elev->Set(0.0);
+			}
+			if (fabs(m_arm->GetWristRate()) < 0.04 && !f_wristReset)
+			{
+				m_arm->wReset();
+				f_wristReset = true;
+				m_arm->wristSet(0.0);
+			}
+			if (fabs(m_arm->GetShoulderRate()) < 0.04 && !f_shoulderReset)
+			{
+				m_arm->sReset();
+				f_shoulderReset = true;
+				m_arm->shoulderSet(0.0);
+			}
 		}
 	}
 };

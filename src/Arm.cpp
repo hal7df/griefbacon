@@ -36,11 +36,11 @@ Arm::~Arm() {
 }
 bool Arm::ShoulderAtSetpoint()
 {
-	return fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()) < 0.005;
+	return fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()) < 0.05;
 }
 bool Arm::WristAtSetpoint()
 {
-	return fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()) < 0.005;
+	return fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()) < 0.05;
 }
 
 void Arm::shoulderSet(double speed){
@@ -123,7 +123,7 @@ void Arm::wristSetSetpoint(int point){
 void Arm::clearCans(bool on) {
 	if (on)
 	{
-		m_intakeL->Set(1.0);
+		m_intakeL->Set(0.2);
 		m_intakeR->Set(1.0);
 	}
 	else
@@ -170,6 +170,11 @@ void Arm::PrintData()
 		SmartDashboard::PutNumber("Wrist I",m_wristPid->GetI());
 		SmartDashboard::PutNumber("Shoulder D",m_shoulderPid->GetD());
 		SmartDashboard::PutNumber("Wrist D",m_wristPid->GetD());
+
+		SmartDashboard::PutBoolean("Wrist At Setpoint",WristAtSetpoint());
+		SmartDashboard::PutBoolean("Shoulder At Setpoint",ShoulderAtSetpoint());
+		SmartDashboard::PutNumber("Wrist Difference",fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()));
+		SmartDashboard::PutNumber("Shoulder Difference",fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()));
 	}
 }
 

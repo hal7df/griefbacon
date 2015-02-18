@@ -15,9 +15,9 @@
 #define GYRO_I 0.0
 #define GYRO_D 0.01
 
-#define DISTANCE_P 0.16
+#define DISTANCE_P -2.5
 #define DISTANCE_I 0.0
-#define DISTANCE_D 0.0
+#define DISTANCE_D -0.1
 
 #define FEEDBACK_P 0.1
 #define FEEDBACK_I 0.0
@@ -46,7 +46,7 @@ public:
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
 
-	bool DistanceAtSetpoint () { return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.01; }
+	bool DistanceAtSetpoint () { return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.2; }
 
 	void EnableDistance () {m_distancePID->Enable(); }
 	void DisableDistance () {m_distancePID->Disable(); }
@@ -63,6 +63,8 @@ public:
 
 	void ResetPIDs () {DisableDistance(); DisableAngle(); }
 
+	void SetLimit (float lim) { m_speedLimit = lim; }
+	float GetLimit () { return m_speedLimit; }
 protected:
 
 	void Update();
@@ -96,6 +98,7 @@ private:
 
 	float m_distancePIDSet;
 	float m_anglePIDSet;
+	float m_speedLimit;
 
 	bool f_setPID;
 	bool f_DisabledDistance;
