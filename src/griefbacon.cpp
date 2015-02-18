@@ -133,8 +133,16 @@ public:
 
 			if (m_elev->GetDistance() > ELEVATOR_LMID)
 			{
-				m_drivetrain->ResetEncoders();
-				m_autonCase++;
+				if (m_autonLoop < 2)
+				{
+					m_drivetrain->ResetEncoders();
+					m_autonCase++;
+				}
+				else
+				{
+					m_drivetrain->ResetEncoders();
+					m_autonCase = 6;
+				}
 			}
 			break;
 		case 4:
@@ -162,8 +170,6 @@ public:
 					m_autonCase = 1;
 					m_autonLoop++;
 				}
-				else
-					m_autonCase++;
 			}
 			break;
 		case 6:
