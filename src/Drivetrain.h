@@ -19,6 +19,10 @@
 #define DISTANCE_I 0.0
 #define DISTANCE_D 0.0
 
+#define ANGLE_P 0.16
+#define ANGLE_I 0.0
+#define ANGLE_D 0.0
+
 #define FEEDBACK_P 0.1
 #define FEEDBACK_I 0.0
 #define FEEDBACK_D 0.0
@@ -29,7 +33,6 @@
 #include "DistancePIDWrapper.h"
 #include "GyroWrapper.h"
 #include <cmath>
-
 
 class Drivetrain: public HotSubsystem, public PIDOutput {
 public:
@@ -46,6 +49,8 @@ public:
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
+
+	bool DistanceAtSetpoint () { return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.01; }
 
 	void EnableDistance () {m_distancePID->Enable(); }
 	void DisableDistance () {m_distancePID->Disable(); }
@@ -79,16 +84,24 @@ private:
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
 	Talon* m_dummy;
+
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
+
 	RobotDrive* m_drive;
+
 	PIDController* m_turnPID;
+	PIDController* m_anglePID;
 	PIDController* m_distancePID;
 	PIDController* m_FeedbackPID;
+
 	FeedbackWrapper* m_FeedbackWrapper;
 	DistancePIDWrapper* m_distancePIDWrapper;
+
 	Timer* m_timer;
+
 	GyroWrapper* m_GyroWrapper;
+
 	int m_etaFlag;
 	int m_StraightDistanceCase;
 

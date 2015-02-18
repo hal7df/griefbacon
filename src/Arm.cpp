@@ -34,6 +34,14 @@ Arm::~Arm() {
 	// TODO Auto-generated destructor stub
 
 }
+bool Arm::ShoulderAtSetpoint()
+{
+	return fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()) < 0.005;
+}
+bool Arm::WristAtSetpoint()
+{
+	return fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()) < 0.005;
+}
 
 void Arm::shoulderSet(double speed){
 	m_pickSL->Set(-speed);
@@ -110,6 +118,19 @@ void Arm::shoulderSetSetpoint(int point){
 
 void Arm::wristSetSetpoint(int point){
 	m_wristPid->SetSetpoint(point);
+}
+
+void Arm::clearCans(bool on) {
+	if (on)
+	{
+		m_intakeL->Set(1.0);
+		m_intakeR->Set(1.0);
+	}
+	else
+	{
+		m_intakeL->Set(0.0);
+		m_intakeR->Set(0.0);
+	}
 }
 
 void Arm::PIDWrite(float input){

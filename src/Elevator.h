@@ -47,16 +47,20 @@ public:
 	void Disable () { if (IsEnabled()) m_pid->Disable(); }
 	bool IsEnabled() { return m_pid->IsEnabled(); }
 	void Reset () { m_elevEncode->Reset(); }
+	bool AtSetpoint ();
 
 	void PIDWrite (float input) { Set((double)input*0.7); }
 
 	void GetPID (bool get) { f_getPID = get; }
 
 	double GetRate () {return m_elevEncode -> GetRate();}
+	double GetDistance () { return m_elevEncode -> GetRate(); }
 protected:
 	void Update();
 	void PrintData();
 private:
+	double GetPosition (pos_t position);
+
 	Victor* m_lElevator;
 	Victor* m_rElevator;
 	Relay* m_binExt;

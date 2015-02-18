@@ -45,7 +45,6 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_anglePIDSet = 0.0;
 
 	m_StraightDistanceCase = 0;
-
 }
 
 Drivetrain::~Drivetrain() {

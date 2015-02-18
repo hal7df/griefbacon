@@ -77,6 +77,11 @@ void Elevator::Set (pos_t position)
 		m_pid->Enable();
 }
 
+bool Elevator::AtSetpoint()
+{
+	return fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()) < 0.005;
+}
+
 void Elevator::Update ()
 {
 
@@ -96,4 +101,31 @@ void Elevator::PrintData()
 		SmartDashboard::PutNumber("Elevator D",m_pid->GetD());
 		SmartDashboard::PutNumber("Elevator PID Output",m_pid->Get());
 	}
+}
+
+double Elevator::GetPosition (pos_t position)
+{
+	double pos;
+	switch (position)
+	{
+	case kBottom:
+		pos = ELEVATOR_BOTTOM;
+		break;
+	case kCarry:
+		pos = ELEVATOR_CARRY;
+		break;
+	case kLMid:
+		pos = ELEVATOR_LMID;
+		break;
+	case kUMid:
+		pos = ELEVATOR_UMID;
+		break;
+	case kTop:
+		pos = ELEVATOR_TOP;
+		break;
+	default:
+		pos = -1.0;
+	}
+
+	return pos;
 }

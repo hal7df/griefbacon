@@ -60,6 +60,11 @@ public:
 	void rollerSet(double speed);
 	void intakeSet(double speed);
 
+	void clearCans (bool on);
+
+	bool WristAtSetpoint ();
+	bool ShoulderAtSetpoint ();
+
 	void PIDWrite(float input);
 	void GetPID (bool get) { f_getPID = get; }
 	void sEnable () { m_shoulderPid->Enable(); }
