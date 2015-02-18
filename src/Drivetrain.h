@@ -19,10 +19,6 @@
 #define DISTANCE_I 0.0
 #define DISTANCE_D 0.0
 
-#define ANGLE_P 0.16
-#define ANGLE_I 0.0
-#define ANGLE_D 0.0
-
 #define FEEDBACK_P 0.1
 #define FEEDBACK_I 0.0
 #define FEEDBACK_D 0.0
@@ -31,7 +27,8 @@
 #include "WPILib.h"
 #include "FeedbackWrapper.h"
 #include "DistancePIDWrapper.h"
-#include "GyroWrapper.h"
+#include "AngleOutputWrapper.h"
+#include "ADXRS453Z.h"
 #include <cmath>
 
 class Drivetrain: public HotSubsystem, public PIDOutput {
@@ -42,7 +39,6 @@ public:
 	virtual ~Drivetrain();
 
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
-	void ETA(double time, double distance, double angle);
 
 	void PIDWrite (float output);
 	void SetPID (bool set) { f_setPID = set; }
@@ -56,19 +52,14 @@ public:
 	void DisableDistance () {m_distancePID->Disable(); }
 	bool IsEnabledDistance () {return (m_distancePID->IsEnabled()); }
 	double GetDistancePID () {return (m_distancePIDWrapper->PIDGet()); }
-	double GetVelocityPID () {return (m_FeedbackWrapper->PIDGet()); }
 
 	void EnableAngle () {m_turnPID->Enable(); }
 	void DisableAngle () {m_turnPID->Disable(); }
 	bool IsEnabledAngle () {return (m_turnPID->IsEnabled()); }
-	double GetAnglePID () {return (m_GyroWrapper->GetAngle()); }
+	double GetAnglePID () {return (m_gyro->GetAngle()); }
 
 	void ResetEncoders () {m_lEncode->Reset(); m_rEncode->Reset(); }
-	void StraightDistance ();
 	void ResetFlags () {f_setPID = false; f_DisabledDistance = false; }
-
-	GyroWrapper* GetGyroWrapper () {return m_GyroWrapper; }
-	void ResetRatio () { m_GyroWrapper->GyroRatio(); }
 
 	void ResetPIDs () {DisableDistance(); DisableAngle(); }
 
@@ -91,16 +82,14 @@ private:
 	RobotDrive* m_drive;
 
 	PIDController* m_turnPID;
-	PIDController* m_anglePID;
 	PIDController* m_distancePID;
-	PIDController* m_FeedbackPID;
 
-	FeedbackWrapper* m_FeedbackWrapper;
 	DistancePIDWrapper* m_distancePIDWrapper;
+	AngleOutputWrapper* m_angleOut;
 
 	Timer* m_timer;
 
-	GyroWrapper* m_GyroWrapper;
+	ADXRS453Z* m_gyro;
 
 	int m_etaFlag;
 	int m_StraightDistanceCase;

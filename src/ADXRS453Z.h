@@ -15,7 +15,7 @@ const float CALIBRATE_PERIOD = 15.0; //seconds
 
 int ADXRS453ZUpdateFunction(int pointer_val);
 
-class ADXRS453Z {
+class ADXRS453Z: public PIDSource {
 	public:
 		ADXRS453Z();
 		float GetRate();
@@ -25,6 +25,8 @@ class ADXRS453Z {
 		float Offset();
 		void Start();
 		void Stop();
+
+		double PIDGet() { return GetAngle(); }
 	private:
 		void UpdateData();
 		void Calibrate();

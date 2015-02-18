@@ -3,7 +3,6 @@
 #include "Elevator.h"
 #include "Arm.h"
 #include "Drivetrain.h"
-#include "GyroWrapper.h"
 
 using namespace std;
 #include <cmath>
@@ -47,7 +46,6 @@ public:
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Add(m_arm);
-		m_subsys->Add(m_drivetrain->GetGyroWrapper());
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -65,6 +63,8 @@ public:
 
 	void DisabledPeriodic()
 	{
+		PrintData();
+
 		switch(m_autonChoice)
 		{
 		case kThreeTote:
@@ -173,7 +173,7 @@ public:
 			}
 			break;
 		case 6:
-
+			break;
 		}
 	}
 	void TeleopInit()
@@ -284,11 +284,6 @@ public:
 			//This function is DriveStraightBackward
 		}
 
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
-			m_drivetrain->StraightDistance();
-			//AUTON POSSIBLY??
-		}
-
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_drivetrain->ResetFlags();
 			m_drivetrain->ResetPIDs(); //EMERGENCY BRAKE FOR PIDs
@@ -297,10 +292,6 @@ public:
 
 		else if (m_drivetrain->IsEnabledDistance())
 			m_drivetrain->DisableDistance();
-
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonBack) && m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
-			m_drivetrain->ResetRatio();
-		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_drivetrain->ResetEncoders();
 
@@ -388,6 +379,9 @@ public:
 		SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
 
 		SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+
+		SmartDashboard::PutNumber("Auton Case",m_autonCase);
+		SmartDashboard::PutNumber("Auton Loop",m_autonLoop);
 	}
 	void ZeroAll ()
 	{
