@@ -1,4 +1,6 @@
 #Built executables
 Debug/
 sysProps.xml
+
+#Settings files that are always changing
 .settings/
