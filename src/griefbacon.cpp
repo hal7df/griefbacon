@@ -12,6 +12,10 @@ enum auton_t {
 	kThreeTote
 };
 
+enum auton2_t {
+	kTouCan
+};
+
 class griefbacon: public IterativeRobot
 {
 private:
@@ -29,6 +33,7 @@ private:
 	auton_t m_autonChoice;
 	unsigned m_autonCase;
 	unsigned m_autonLoop;
+	unsigned m_auton2Case;
 public:
 	griefbacon()
 	{
@@ -58,6 +63,7 @@ public:
 		m_autonChoice = kThreeTote;
 		m_autonCase= 0;
 		m_autonLoop = 0;
+		m_auton2Case = 0;
 	}
 
 	void RobotInit()
@@ -101,6 +107,9 @@ public:
 		{
 		case kThreeTote:
 			AutonThreeTote();
+			break;
+		case kTouCan:
+			AutonTouCan();
 			break;
 		}
 	}
@@ -297,6 +306,36 @@ public:
 				m_autonCase++;
 			}
 			break;
+		}
+	}
+	void AutonTouCan()
+	{
+		switch (m_auton2Case)
+		{
+		case 0:
+			if (f_elevReset && f_shoulderReset && f_wristReset)
+							m_auton2Case++;
+		break;
+		case 1:
+			m_elev->Set(kCarry);
+			m_arm->shoulderSetPos(ksDriving);
+			m_arm->wristSetPos(kwDriving);
+
+			if (!m_arm->sIsEnabled())
+				m_arm->sEnable();
+			if (!m_arm->wIsEnabled())
+				m_arm->wEnable();
+			if (m_elev->AtSetpoint())
+			{
+				m_elev->Disable();
+				m_auton2Case++;
+			}
+		break;
+		case 2:
+			m_drivetrain->EnableDistance();
+			m_drivetrain->SetDistance();
+
+
 		}
 	}
 	void TeleopInit()
