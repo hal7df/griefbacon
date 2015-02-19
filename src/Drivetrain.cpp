@@ -41,6 +41,7 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_distancePIDSet = 5.0;
 	m_anglePIDSet = 0.0;
 	m_speedLimit = 0.65;
+	m_correctLimit = 0.1;
 
 	m_StraightDistanceCase = 0;
 }
@@ -112,9 +113,9 @@ void Drivetrain::PIDWrite(float output)
 		output = -m_speedLimit;
 
 	if (m_gyro->GetAngle() > 0.5)
-		m_drive->TankDrive(output+0.1,output-0.1);
+		m_drive->TankDrive(output+m_correctLimit,output-m_correctLimit);
 	else if (m_gyro->GetAngle() < -0.5)
-		m_drive->TankDrive(output-0.1,output+0.1);
+		m_drive->TankDrive(output-m_correctLimit,output+m_correctLimit);
 	else
 		m_drive->TankDrive(output,output);
 }

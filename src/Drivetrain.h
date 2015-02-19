@@ -65,6 +65,8 @@ public:
 
 	void SetLimit (float lim) { m_speedLimit = lim; }
 	float GetLimit () { return m_speedLimit; }
+	void SetCorrLimit (float lim) { m_correctLimit = lim; }
+	float GetCorrLimit () { return m_correctLimit; }
 protected:
 
 	void Update();
@@ -99,6 +101,7 @@ private:
 	float m_distancePIDSet;
 	float m_anglePIDSet;
 	float m_speedLimit;
+	float m_correctLimit;
 
 	bool f_setPID;
 	bool f_DisabledDistance;
