@@ -40,6 +40,7 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 
 	m_distancePIDSet = 5.0;
 	m_anglePIDSet = 0.0;
+	m_angleHeading = 0.0;
 	m_speedLimit = 0.65;
 	m_correctLimit = 0.1;
 
@@ -59,6 +60,11 @@ void Drivetrain::PrintData() {
 	{
 		m_distancePID->SetPID(SmartDashboard::GetNumber("Distance P"), SmartDashboard::GetNumber("Distance I"), SmartDashboard::GetNumber("Distance D"));
 		m_turnPID->SetPID(SmartDashboard::GetNumber("Turn P"), SmartDashboard::GetNumber("Turn I"), SmartDashboard::GetNumber("Turn D"));
+
+		m_speedLimit = SmartDashboard::GetNumber("Speed Limit");
+		m_angleHeading = SmartDashboard::GetNumber("Set Heading");
+		m_distancePID->SetSetpoint(SmartDashboard::GetNumber("Distance PID Setpoint"));
+		m_correctLimit = SmartDashboard::GetNumber("Angle Compensation Limit");
 	}
 	else
 	{
@@ -94,6 +100,10 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Encoder Rate Right", m_rEncode->GetRate());
 		SmartDashboard::PutNumber("Encoder Rate Average", ((m_lEncode->GetRate()) + (m_rEncode->GetRate())) / 2);
 
+		SmartDashboard::PutNumber("Set Heading",m_angleHeading);
+		SmartDashboard::PutNumber("Speed Limit",m_speedLimit);
+		SmartDashboard::PutNumber("Angle Compensation Limit",m_correctLimit);
+
 		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
 		SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
@@ -112,9 +122,9 @@ void Drivetrain::PIDWrite(float output)
 	else if (output < -m_speedLimit)
 		output = -m_speedLimit;
 
-	if (m_gyro->GetAngle() > 0.5)
+	if ((m_gyro->GetAngle() - m_angleHeading) > 0.5)
 		m_drive->TankDrive(output+m_correctLimit,output-m_correctLimit);
-	else if (m_gyro->GetAngle() < -0.5)
+	else if ((m_gyro->GetAngle() - m_angleHeading) < -0.5)
 		m_drive->TankDrive(output-m_correctLimit,output+m_correctLimit);
 	else
 		m_drive->TankDrive(output,output);

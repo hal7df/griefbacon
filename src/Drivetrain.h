@@ -44,7 +44,10 @@ public:
 	void SetPID (bool set) { f_setPID = set; }
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
-	void SetAngle (float angle) {m_turnPID->SetSetpoint(angle); }
+	void SetAngleHeading (float angle) {m_angleHeading = angle; }
+	float GetAngleHeading () {return (m_angleHeading); }
+
+	void ResetGyroAngle() {m_gyro->Reset(); }
 
 	bool DistanceAtSetpoint () { return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.2; }
 
@@ -67,6 +70,7 @@ public:
 	float GetLimit () { return m_speedLimit; }
 	void SetCorrLimit (float lim) { m_correctLimit = lim; }
 	float GetCorrLimit () { return m_correctLimit; }
+
 protected:
 
 	void Update();
@@ -102,6 +106,7 @@ private:
 	float m_anglePIDSet;
 	float m_speedLimit;
 	float m_correctLimit;
+	float m_angleHeading;
 
 	bool f_setPID;
 	bool f_DisabledDistance;

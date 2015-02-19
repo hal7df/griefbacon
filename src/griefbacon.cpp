@@ -82,6 +82,8 @@ public:
 		m_autonCase = 0;
 		m_autonLoop = 0;
 		m_drivetrain->SetLimit(0.6);
+		m_drivetrain->ResetEncoders();
+		m_drivetrain->ResetGyroAngle();
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -100,7 +102,7 @@ public:
 		switch (m_autonChoice)
 		{
 		case kThreeTote:
-			AutonThreeTote();
+			JayAutonThreeTote();
 			break;
 		}
 	}
@@ -244,6 +246,11 @@ public:
 					m_elev->Set(kCarry);
 					m_drivetrain->ResetEncoders();
 					m_autonCase = 6;
+					m_drivetrain->SetAngleHeading(-90.0);
+					m_drivetrain->SetLimit(0.4);
+					m_drivetrain->SetCorrLimit(0.5);
+					m_drivetrain->SetDistance(-7.);
+					m_drivetrain->EnableDistance();
 				}
 			break;
 		case 4:
@@ -251,12 +258,12 @@ public:
 			m_arm->clearCans(true);
 			m_drivetrain->SetLimit(0.4);
 			m_drivetrain->EnableDistance();
-			if(m_drivetrain->GetDistancePID() > 1)
-				m_drivetrain->SetLimit(0.8);
+			if(m_drivetrain->GetDistancePID() > 0.5)
+				m_drivetrain->SetLimit(0.65);
 			if (m_drivetrain->GetDistancePID() > 4)
 			{
 				m_arm->clearCans(false);
-				m_arm->intakeSet(-1);
+				m_arm->intakeSet(-0.7);
 			}
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
@@ -278,22 +285,22 @@ public:
 			}
 			break;
 		case 6:
-			m_drivetrain->SetAngle(-90.0)
-			m_drivetrain->SetLimit(0.6);
-			m_drivetrain->SetCorrLimit(0.25);
-			m_drivetrain->SetDistance(-6.);
-			m_drivetrain->EnableDistance();
-			if(m_drivetrain->GetDistancePID() > 1.5)
-				m_drivetrain->SetAngle(0.0);
-			if(m_drivetrain->GetDistancePID() > 3)
-			{
-				m_arm->intakeSet(1);
-				m_elev->Set(kBottom);
-			}
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
-				m_drivetrain-> DisableDistance();
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->SetDistance(-4.0);
+				m_drivetrain->SetAngleHeading(0.0);
+				m_elev->Set(kBottom);
+				m_arm->intakeSet(1);
+				m_autonCase++;
+			}
+			break;
+		case 7:
+			if (m_drivetrain->DistanceAtSetpoint())
+			{
+				m_drivetrain->DisableDistance();
 				m_arm->intakeSet(0);
+				SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
 				m_autonCase++;
 			}
 			break;
@@ -306,7 +313,6 @@ public:
 
 	void TeleopPeriodic()
 	{
-
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
@@ -408,14 +414,12 @@ public:
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
 		{
-			m_drivetrain->SetDistance(1);
 			m_drivetrain->EnableDistance();
 		}
 
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_drivetrain->ResetFlags();
-			m_drivetrain->ResetPIDs(); //EMERGENCY BRAKE FOR PIDs
-			//REMOVE AFTER IMPLEMENTATION********************FOR TESTING ONLY****************************
+			m_drivetrain->ResetGyroAngle();
 		}
 
 		else if (m_drivetrain->IsEnabledDistance())
