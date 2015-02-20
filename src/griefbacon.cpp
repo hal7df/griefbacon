@@ -114,17 +114,20 @@ public:
 
 	void AutonomousPeriodic()
 	{
-		ZeroAll();
-		PrintData();
-
-		switch (m_autonChoice)
+		if (!m_elev->GetEStop())
 		{
-		case kThreeTote:
-			AutonThreeTote();
-			break;
-		case kTwoCan:
-			AutonTwoCan();
-			break;
+			ZeroAll();
+			PrintData();
+
+			switch (m_autonChoice)
+			{
+			case kThreeTote:
+				AutonThreeTote();
+				break;
+			case kTwoCan:
+				AutonTwoCan();
+				break;
+			}
 		}
 	}
 

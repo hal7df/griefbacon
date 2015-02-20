@@ -11,6 +11,7 @@
 #include "RobotUtils/HotSubsystem.h"
 #include "RobotUtils/RobotUtils.h"
 #include "WPILib.h"
+#include <semaphore.h>
 
 #define ELEVATOR_P 8.0
 #define ELEVATOR_I 0.01
@@ -43,9 +44,9 @@ public:
 	void Set (Relay::Value direction);
 	void Set (pos_t position);
 
-	void Enable () { m_pid->Enable(); }
-	void Disable () { if (IsEnabled()) m_pid->Disable(); }
-	bool IsEnabled() { return m_pid->IsEnabled(); }
+	void Enable ();
+	void Disable ();
+	bool IsEnabled () { return m_pid->IsEnabled(); }
 	void Reset () { m_elevEncode->Reset(); }
 	bool AtSetpoint ();
 
@@ -55,6 +56,9 @@ public:
 
 	double GetRate () {return m_elevEncode -> GetRate();}
 	double GetDistance () { return m_elevEncode -> GetDistance(); }
+
+	bool GetEStop () { return f_elevEStop(); }
+	void ResetEStop ();
 protected:
 	void Update();
 	void PrintData();
@@ -68,7 +72,13 @@ private:
 	Encoder* m_elevEncode;
 	PIDController* m_pid;
 
+	Timer* m_stopTime;
+	sem_t m_semaphore;
+
 	bool f_setPID;
+	bool f_elevEStop;
+	bool f_eStopRunning;
+	bool f_setpointChanged;
 };
 
 #endif /* SRC_ELEVATOR_H_ */

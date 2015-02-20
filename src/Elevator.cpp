@@ -16,11 +16,16 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 	m_elevEncode = encode;
 
 	m_pid = new PIDController(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D, m_elevEncode, this);
-	//m_pid->SetOutputRange(-0.5,0.5);
 
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 
+	m_stopTime = new Timer;
+	sem_init(&m_semaphore,0,1);
+
 	f_setPID = false;
+	f_elevEStop = false;
+	f_eStopRunning = false;
+	f_setpointChanged = false;
 }
 
 Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
@@ -35,7 +40,13 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 
+	m_stopTime = new Timer;
+	sem_init(&m_semaphore,0,1);
+
 	f_setPID = false;
+	f_elevEStop = false;
+	f_eStopRunning = false;
+	f_setpointChanged = false;
 }
 
 Elevator::~Elevator() {
@@ -73,8 +84,27 @@ void Elevator::Set (pos_t position)
 		break;
 	}
 
-	if (!m_pid->IsEnabled())
+	f_setpointChanged = true;
+
+	m_pid->Enable();
+}
+
+void Elevator::Enable()
+{
+	//BEGIN SEMAPHORE REGION
+	sem_wait(&m_semaphore);
+
+	if (!IsEnabled() && !f_elevEStop)
 		m_pid->Enable();
+
+	sem_post(&m_semaphore);
+	//END SEMAPHORE REGION
+}
+
+void Elevator::Disable()
+{
+	if (IsEnabled())
+		m_pid->Disable();
 }
 
 bool Elevator::AtSetpoint()
@@ -84,7 +114,18 @@ bool Elevator::AtSetpoint()
 
 void Elevator::Update ()
 {
-
+	if (DriverStation::GetInstance()->IsAutonomous())
+	{
+		ElevatorEStop();
+		f_eStopRunning = true;
+	}
+	else if (f_eStopRunning)
+	{
+		f_elevEStop = false;
+		f_eStopRunning = false;
+		m_stopTime->Stop();
+		m_stopTime->Reset();
+	}
 }
 
 void Elevator::PrintData()
@@ -131,4 +172,25 @@ double Elevator::GetPosition (pos_t position)
 	}
 
 	return pos;
+}
+
+void Elevator::ElevatorEStop()
+{
+	if (m_stopTime->HasPeriodPassed(1.5) && !AtSetpoint() && IsEnabled())
+	{
+		//BEGIN SEMAPHORE REGION
+		sem_wait(&m_semaphore);
+
+		f_elevEStop = true;
+		m_pid->Disable();
+		m_stopTime->Stop();
+
+		sem_post(&m_semaphore);
+	}
+
+	if (f_setpointChanged)
+	{
+		m_stopTime->Reset();
+		f_setpointChanged = false;
+	}
 }
