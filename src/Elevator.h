@@ -57,7 +57,7 @@ public:
 	double GetRate () {return m_elevEncode -> GetRate();}
 	double GetDistance () { return m_elevEncode -> GetDistance(); }
 
-	bool GetEStop () { return f_elevEStop(); }
+	bool GetEStop () { return f_elevEStop; }
 	void ResetEStop ();
 protected:
 	void Update();
