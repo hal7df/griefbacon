@@ -50,7 +50,7 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 }
 
 Elevator::~Elevator() {
-	// TODO Auto-generated destructor stub
+	sem_destroy(&m_semaphore);
 }
 
 void Elevator::Set (double speed)
