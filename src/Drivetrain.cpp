@@ -117,10 +117,10 @@ void Drivetrain::PIDWrite(float output)
 		output = -m_speedLimit;
 
 	/*
-	if (fabs(m_gyro->GetAngle() - m_angleHeading) > 100)
+	if (fabs(m_gyro->GetAngle() - m_angleHeading) > 90)
 		driveComp = m_correctLimit;
 	else
-		driveComp = m_correctLimit * sqrt(fabs(m_gyro->GetAngle() - m_angleHeading) / 100);
+		driveComp = m_correctLimit * sqrt(fabs(m_gyro->GetAngle() - m_angleHeading) / 90);
 	 */
 
 	if ((m_gyro->GetAngle() - m_angleHeading) > 0.5)
