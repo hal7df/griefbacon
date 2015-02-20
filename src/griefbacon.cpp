@@ -9,12 +9,10 @@ using namespace std;
 
 
 enum auton_t {
-	kThreeTote
+	kThreeTote,
+	kTwoCan
 };
 
-enum auton2_t {
-	kTouCan
-};
 
 class griefbacon: public IterativeRobot
 {
@@ -33,7 +31,7 @@ private:
 	auton_t m_autonChoice;
 	unsigned m_autonCase;
 	unsigned m_autonLoop;
-	unsigned m_auton2Case;
+
 public:
 	griefbacon()
 	{
@@ -63,7 +61,6 @@ public:
 		m_autonChoice = kThreeTote;
 		m_autonCase= 0;
 		m_autonLoop = 0;
-		m_auton2Case = 0;
 	}
 
 	void RobotInit()
@@ -71,14 +68,30 @@ public:
 		m_subsys->Start();
 	}
 
+	void DisabledInit()
+	{
+		m_drivetrain->DisableDistance();
+		m_elev->Disable();
+		m_arm->wDisable();
+		m_arm->sDisable();
+	}
+
 	void DisabledPeriodic()
 	{
 		PrintData();
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
+			m_autonChoice = kThreeTote;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+			m_autonChoice = kTwoCan;
 
 		switch(m_autonChoice)
 		{
 		case kThreeTote:
 			SmartDashboard::PutString("Auton Mode","Three Tote");
+			break;
+		case kTwoCan:
+			SmartDashboard::PutString("Auton Mode","Two Can Clear");
 			break;
 		}
 	}
@@ -88,6 +101,8 @@ public:
 		m_autonCase = 0;
 		m_autonLoop = 0;
 		m_drivetrain->SetLimit(0.6);
+		m_drivetrain->ResetEncoders();
+		m_drivetrain->ResetGyroAngle();
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -108,8 +123,8 @@ public:
 		case kThreeTote:
 			AutonThreeTote();
 			break;
-		case kTouCan:
-			AutonTouCan();
+		case kTwoCan:
+			AutonTwoCan();
 			break;
 		}
 	}
@@ -253,6 +268,11 @@ public:
 					m_elev->Set(kCarry);
 					m_drivetrain->ResetEncoders();
 					m_autonCase = 6;
+					m_drivetrain->SetAngleHeading(-90.0);
+					m_drivetrain->SetLimit(0.4);
+					m_drivetrain->SetCorrLimit(0.5);
+					m_drivetrain->SetDistance(-7.);
+					m_drivetrain->EnableDistance();
 				}
 			break;
 		case 4:
@@ -260,12 +280,12 @@ public:
 			m_arm->clearCans(true);
 			m_drivetrain->SetLimit(0.4);
 			m_drivetrain->EnableDistance();
-			if(m_drivetrain->GetDistancePID() > 1)
-				m_drivetrain->SetLimit(0.8);
+			if(m_drivetrain->GetDistancePID() > 0.5)
+				m_drivetrain->SetLimit(0.65);
 			if (m_drivetrain->GetDistancePID() > 4)
 			{
 				m_arm->clearCans(false);
-				m_arm->intakeSet(-1);
+				m_arm->intakeSet(-0.7);
 			}
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
@@ -287,37 +307,36 @@ public:
 			}
 			break;
 		case 6:
-			m_drivetrain->SetAngle(-90.0)
-			m_drivetrain->SetLimit(0.6);
-			m_drivetrain->SetCorrLimit(0.25);
-			m_drivetrain->SetDistance(-6.);
-			m_drivetrain->EnableDistance();
-			if(m_drivetrain->GetDistancePID() > 1.5)
-				m_drivetrain->SetAngle(0.0);
-			if(m_drivetrain->GetDistancePID() > 3)
-			{
-				m_arm->intakeSet(1);
-				m_elev->Set(kBottom);
-			}
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
-				m_drivetrain-> DisableDistance();
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->SetDistance(-4.0);
+				m_drivetrain->SetAngleHeading(0.0);
+				m_elev->Set(kBottom);
+				m_arm->intakeSet(1);
+				m_autonCase++;
+			}
+			break;
+		case 7:
+			if (m_drivetrain->DistanceAtSetpoint())
+			{
+				m_drivetrain->DisableDistance();
 				m_arm->intakeSet(0);
+				SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
 				m_autonCase++;
 			}
 			break;
 		}
 	}
-	void AutonTouCan()
+	void AutonTwoCan()
 	{
-		switch (m_auton2Case)
+		switch (m_autonCase)
 		{
 		case 0:
 			if (f_elevReset && f_shoulderReset && f_wristReset)
-							m_auton2Case++;
-		break;
+				m_autonCase++;
+			break;
 		case 1:
-			m_elev->Set(kCarry);
 			m_arm->shoulderSetPos(ksDriving);
 			m_arm->wristSetPos(kwDriving);
 
@@ -325,27 +344,59 @@ public:
 				m_arm->sEnable();
 			if (!m_arm->wIsEnabled())
 				m_arm->wEnable();
-			if (m_elev->AtSetpoint())
-			{
-				m_elev->Disable();
-				m_auton2Case++;
-			}
-		break;
+
+			m_autonCase++;
+			break;
 		case 2:
-			m_drivetrain->EnableDistance();
-			m_drivetrain->SetDistance();
+			m_drivetrain->SetDistance(-12.);
+			if (!m_drivetrain->IsEnabledDistance())
+				m_drivetrain->EnableDistance();
 
+			if (m_drivetrain->DistanceAtSetpoint())
+			{
+				m_arm->shoulderSetPos(ksTwoTote);
+				m_arm->wristSetPos(kwTwoTote);
+				m_autonCase++;
+			}
+			break;
+		case 3:
+			if (m_arm->ShoulderAtSetpoint())
+				m_autonCase++;
+			break;
+		case 4:
+			m_drivetrain->SetAngleHeading(90.0);
 
+			if (m_drivetrain->AtAngleHeading())
+			{
+				m_drivetrain->SetAngleHeading(-90.0);
+				m_autonCase++;
+			}
+			break;
+		case 5:
+			if (m_drivetrain->AtAngleHeading())
+			{
+				m_drivetrain->SetAngleHeading(0.);
+				m_arm->wristSetPos(kwDriving);
+				m_arm->shoulderSetPos(ksDriving);
+				m_autonCase++;
+			}
+			break;
+		case 6:
+			m_arm->wDisable();
+			m_arm->sDisable();
+			m_autonCase++;
 		}
 	}
 	void TeleopInit()
 	{
-
+		m_drivetrain->DisableDistance();
+		m_elev->Disable();
+		m_arm->wDisable();
+		m_arm->sDisable();
 	}
 
 	void TeleopPeriodic()
 	{
-
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
@@ -447,14 +498,12 @@ public:
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
 		{
-			m_drivetrain->SetDistance(1);
 			m_drivetrain->EnableDistance();
 		}
 
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_drivetrain->ResetFlags();
-			m_drivetrain->ResetPIDs(); //EMERGENCY BRAKE FOR PIDs
-			//REMOVE AFTER IMPLEMENTATION********************FOR TESTING ONLY****************************
+			m_drivetrain->ResetGyroAngle();
 		}
 
 		else if (m_drivetrain->IsEnabledDistance())
