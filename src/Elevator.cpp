@@ -182,6 +182,10 @@ void Elevator::PrintData()
 
 		SmartDashboard::PutBoolean("Elevator E-Stop",f_elevEStop);
 		SmartDashboard::PutNumber("Elevator E-Stop Timer",m_stopTime->Get());
+
+		SmartDashboard::PutNumber("Elevator Stack Case",m_stackCase);
+		SmartDashboard::PutNumber("Elevator Stack Finish",GetPosition(m_stackFin));
+		SmartDashboard::PutBoolean("Stacking",Stacking());
 	}
 }
 
