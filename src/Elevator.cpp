@@ -20,7 +20,7 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 
-	f_getPID = false;
+	f_setPID = false;
 }
 
 Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
@@ -35,7 +35,7 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 
-	f_getPID = false;
+	f_setPID = false;
 }
 
 Elevator::~Elevator() {
@@ -89,7 +89,7 @@ void Elevator::Update ()
 
 void Elevator::PrintData()
 {
-	if (f_getPID)
+	if (f_setPID)
 		m_pid->SetPID(SmartDashboard::GetNumber("Elevator P"),SmartDashboard::GetNumber("Elevator I"),SmartDashboard::GetNumber("Elevator D"));
 	else
 	{

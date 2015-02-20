@@ -7,7 +7,7 @@
 
 #include "Drivetrain.h"
 
-Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode, int gyro) :
+Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode) :
 	HotSubsystem("Drivetrain")
 {
 	m_lDrive1 = new Talon (lDrive1);
@@ -21,8 +21,6 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_rEncode->SetDistancePerPulse(1./281.5);
 
 	m_distancePIDWrapper = new DistancePIDWrapper(m_lEncode, m_rEncode);
-
-	m_etaFlag = 0;
 
 	m_timer = new Timer;
 
@@ -38,13 +36,10 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_gyro, m_angleOut);
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
 
-	m_distancePIDSet = 5.0;
-	m_anglePIDSet = 0.0;
 	m_angleHeading = 0.0;
 	m_speedLimit = 0.65;
 	m_correctLimit = 0.1;
 
-	m_StraightDistanceCase = 0;
 }
 
 Drivetrain::~Drivetrain() {
@@ -78,7 +73,6 @@ void Drivetrain::PrintData() {
 
 		SmartDashboard::PutNumber("m_timer", m_timer->Get());
 		SmartDashboard::PutNumber("ETA:",  4.0 - m_timer->Get());
-		SmartDashboard::PutNumber("m_etaFlag", m_etaFlag);
 
 		SmartDashboard::PutNumber("Turn PID Set Point", m_turnPID->GetSetpoint());
 		SmartDashboard::PutNumber("Turn PID output",m_turnPID->Get());
@@ -109,7 +103,6 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
 		SmartDashboard::PutNumber("Average Drive Encoder",m_distancePIDWrapper->PIDGet());
-		SmartDashboard::PutNumber("m_StraightDistanceCase", m_StraightDistanceCase);
 		SmartDashboard::PutBoolean("f_setPID", f_setPID);
 		SmartDashboard::PutBoolean("f_DisabledDistance", f_DisabledDistance);
 	}
@@ -117,10 +110,18 @@ void Drivetrain::PrintData() {
 
 void Drivetrain::PIDWrite(float output)
 {
+	//float driveComp;
 	if (output > m_speedLimit)
 		output = m_speedLimit;
 	else if (output < -m_speedLimit)
 		output = -m_speedLimit;
+
+	/*
+	if (fabs(m_gyro->GetAngle() - m_angleHeading) > 100)
+		driveComp = m_correctLimit;
+	else
+		driveComp = m_correctLimit * sqrt(fabs(m_gyro->GetAngle() - m_angleHeading) / 100);
+	 */
 
 	if ((m_gyro->GetAngle() - m_angleHeading) > 0.5)
 		m_drive->TankDrive(output+m_correctLimit,output-m_correctLimit);

@@ -49,9 +49,9 @@ public:
 	void Reset () { m_elevEncode->Reset(); }
 	bool AtSetpoint ();
 
-	void PIDWrite (float input) { Set((double)input*0.7); }
+	void PIDWrite (float input) { Set((double)input*0.8); }
 
-	void GetPID (bool get) { f_getPID = get; }
+	void SetPID (bool set) { f_setPID = set; }
 
 	double GetRate () {return m_elevEncode -> GetRate();}
 	double GetDistance () { return m_elevEncode -> GetDistance(); }
@@ -60,6 +60,7 @@ protected:
 	void PrintData();
 private:
 	double GetPosition (pos_t position);
+	void ElevatorEStop();
 
 	Victor* m_lElevator;
 	Victor* m_rElevator;
@@ -67,7 +68,7 @@ private:
 	Encoder* m_elevEncode;
 	PIDController* m_pid;
 
-	bool f_getPID;
+	bool f_setPID;
 };
 
 #endif /* SRC_ELEVATOR_H_ */

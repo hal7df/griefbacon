@@ -43,7 +43,7 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_drivetrain = new Drivetrain (0,1,2,3,0,2,0);
+		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 
@@ -102,7 +102,6 @@ public:
 		m_autonLoop = 0;
 		m_drivetrain->SetLimit(0.6);
 		m_drivetrain->ResetEncoders();
-		m_drivetrain->ResetGyroAngle();
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -282,15 +281,14 @@ public:
 			m_drivetrain->EnableDistance();
 			if(m_drivetrain->GetDistancePID() > 0.5)
 				m_drivetrain->SetLimit(0.65);
-			if (m_drivetrain->GetDistancePID() > 4)
+			if (m_drivetrain->GetDistancePID() > 2)
 			{
 				m_arm->clearCans(false);
-				m_arm->intakeSet(-0.7);
+				m_arm->intakeSet(-1.0);
 			}
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
 				m_drivetrain-> DisableDistance();
-				m_arm->intakeSet(0);
 				m_autonCase++;
 			}
 			break;
@@ -470,7 +468,7 @@ public:
 			m_arm->sReset();
 		}
 
-		m_elev->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
+		m_elev->SetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 		m_arm->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA) && m_operator->GetRawButton(AdvancedJoystick::kButtonBack))

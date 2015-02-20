@@ -35,7 +35,7 @@ class Drivetrain: public HotSubsystem, public PIDOutput {
 public:
 
 	friend class HotSubsystemHandler;
-	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode, int gyro);
+	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode);
 	virtual ~Drivetrain();
 
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
@@ -84,7 +84,6 @@ private:
 	Talon* m_lDrive2;
 	Talon* m_rDrive1;
 	Talon* m_rDrive2;
-	Talon* m_dummy;
 
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
@@ -101,11 +100,6 @@ private:
 
 	ADXRS453Z* m_gyro;
 
-	int m_etaFlag;
-	int m_StraightDistanceCase;
-
-	float m_distancePIDSet;
-	float m_anglePIDSet;
 	float m_speedLimit;
 	float m_correctLimit;
 	float m_angleHeading;
