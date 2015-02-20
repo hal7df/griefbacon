@@ -10,6 +10,7 @@
 
 #include "RobotUtils/HotSubsystem.h"
 #include "WPILib.h"
+#include <semaphore.h>
 
 #define WRIST_P -16.0
 #define WRIST_I 0.01
@@ -67,9 +68,9 @@ public:
 
 	void PIDWrite(float input);
 	void GetPID (bool get) { f_getPID = get; }
-	void sEnable () { m_shoulderPid->Enable(); }
+	void sEnable ();
 	void sDisable () { if (sIsEnabled()) m_shoulderPid->Disable(); }
-	void wEnable () { m_wristPid->Enable(); }
+	void wEnable ();
 	void wDisable () { if (wIsEnabled()) m_wristPid->Disable(); }
 
 	void sReset () {  m_shoulderEncode->Reset(); }
@@ -83,12 +84,19 @@ public:
 	double GetWristRate(){ return m_wristEncode -> GetRate(); }
 	double GetShoulderRate(){ return m_shoulderEncode -> GetRate(); }
 
+	bool GetEStop() { return f_wEStop || f_sEStop; }
+	bool GetWEstop(){ return f_wEStop; }
+	bool GetSEstop(){ return f_sEStop; }
+
+	void ResetEStop();
 
 protected:
 	void Update();
 	void PrintData();
 
 private:
+	void EStopCheck();
+
 	CANTalon* m_pickSL;
 	CANTalon* m_pickSR;
 	CANTalon* m_pickW;
@@ -103,6 +111,15 @@ private:
 	PIDController* m_shoulderPid;
 	PIDController* m_wristPid;
 	bool f_getPID;
+
+	bool f_eStopRunning;
+	bool f_wSetpointChanged;
+	bool f_sSetpointChanged;
+	bool f_wEStop;
+	bool f_sEStop;
+	Timer* m_wStopTime;
+	Timer* m_sStopTime;
+	sem_t m_semaphore;
 };
 
 #endif /* SRC_ARM_H_ */

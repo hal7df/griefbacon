@@ -28,10 +28,18 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
 	f_getPID = false;
 
+	sem_init(&m_semaphore,0,1);
+	m_wStopTime = new Timer;
+	m_sStopTime = new Timer;
+	f_sEStop = false;
+	f_wEStop = false;
+	f_eStopRunning = false;
+	f_wSetpointChanged = false;
+	f_sSetpointChanged = false;
 }
 
 Arm::~Arm() {
-	// TODO Auto-generated destructor stub
+	sem_destroy(&m_semaphore);
 
 }
 bool Arm::ShoulderAtSetpoint()
@@ -82,10 +90,28 @@ void Arm::shoulderSetPos (sPos_t position)
 		break;
 	}
 
+	f_sSetpointChanged = true;
+
 	if (!m_shoulderPid->IsEnabled())
 		m_shoulderPid->Enable();
 }
 
+void Arm::sEnable ()
+{
+	int lock;
+	//BEGIN SEMAPHORE REGION
+	if (f_eStopRunning)
+		sem_wait(&m_semaphore);
+
+	if (!sIsEnabled() && !GetEStop())
+		m_shoulderPid->Enable();
+
+	lock = sem_getvalue(&m_semaphore, &lock);
+
+	if (lock == 0)
+		sem_post(&m_semaphore);
+	//END SEMAPHORE REGION
+}
 
 void Arm::wristSetPos (wPos_t position)
 {
@@ -105,12 +131,30 @@ void Arm::wristSetPos (wPos_t position)
 	case kwPackage:
 		m_wristPid ->SetSetpoint(WRIST_PACKAGE);
 		break;
-}
+	}
+
+	f_wSetpointChanged = true;
 
 	if (!m_wristPid->IsEnabled())
 		m_wristPid->Enable();
 }
 
+void Arm::wEnable()
+{
+	int lock;
+	//BEGIN SEMAPHORE REGION
+	if (f_eStopRunning)
+		sem_wait(&m_semaphore);
+
+	if (!wIsEnabled() && !GetEStop())
+		m_wristPid->Enable();
+
+	sem_getvalue(&m_semaphore, &lock);
+
+	if (lock == 0)
+		sem_post(&m_semaphore);
+	//END SEMAPHORE REGION
+}
 
 void Arm::shoulderSetSetpoint(int point){
 	m_shoulderPid->SetSetpoint(point);
@@ -175,10 +219,91 @@ void Arm::PrintData()
 		SmartDashboard::PutBoolean("Shoulder At Setpoint",ShoulderAtSetpoint());
 		SmartDashboard::PutNumber("Wrist Difference",fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()));
 		SmartDashboard::PutNumber("Shoulder Difference",fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()));
+
+		SmartDashboard::PutBoolean("Wrist E-Stop",f_wEStop);
+		SmartDashboard::PutBoolean("Shoulder E-Stop",f_sEStop);
+
+		SmartDashboard::PutNumber("Wrist E-Stop Timer",m_wStopTime->Get());
+		SmartDashboard::PutNumber("Shoulder E-Stop Timer",m_sStopTime->Get());
 	}
 }
 
 void Arm::Update()
 {
+	if (DriverStation::GetInstance()->IsAutonomous())
+	{
 
+		if (!f_eStopRunning)
+		{
+			m_wStopTime->Start();
+			m_sStopTime->Start();
+		}
+		EStopCheck();
+		f_eStopRunning = true;
+	}
+	else if (f_eStopRunning)
+	{
+		f_wEStop = false;
+		f_sEStop = false;
+		f_eStopRunning = false;
+		m_wStopTime->Stop();
+		m_wStopTime->Reset();
+		m_sStopTime->Stop();
+		m_sStopTime->Reset();
+	}
+}
+void Arm::EStopCheck()
+{
+	if (m_wStopTime->HasPeriodPassed(3) && !WristAtSetpoint() && wIsEnabled())
+	{
+		//BEGIN SEMAPHORE REGION
+		sem_wait (&m_semaphore);
+
+		f_wEStop = true;
+		m_wristPid->Disable();
+		m_shoulderPid->Disable();
+		m_wStopTime->Stop();
+		m_sStopTime->Stop();
+
+		sem_post(&m_semaphore);
+		//END SEMAPHORE REGION
+	}
+	if (m_sStopTime->HasPeriodPassed(1.5) && !ShoulderAtSetpoint() && sIsEnabled())
+	{
+		//BEGIN SEMAPHORE REGION
+		sem_wait(&m_semaphore);
+
+		f_sEStop = true;
+		m_shoulderPid->Disable();
+		m_wristPid->Disable();
+		m_sStopTime->Stop();
+		m_wStopTime->Stop();
+
+		sem_post(&m_semaphore);
+		//END SEMAPHORE REGION
+	}
+
+	if (f_wSetpointChanged)
+	{
+		m_wStopTime->Reset();
+		f_wSetpointChanged = false;
+	}
+	if (f_sSetpointChanged)
+	{
+		m_sStopTime->Reset();
+		f_sSetpointChanged = false;
+	}
+}
+
+void Arm::ResetEStop()
+{
+	f_wEStop = false;
+	f_sEStop = false;
+	f_eStopRunning = false;
+	f_wSetpointChanged = false;
+	f_sSetpointChanged = false;
+	m_wStopTime->Stop();
+	m_wStopTime->Reset();
+	m_sStopTime->Stop();
+	m_sStopTime->Reset();
 }

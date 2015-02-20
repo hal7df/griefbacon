@@ -114,10 +114,10 @@ public:
 
 	void AutonomousPeriodic()
 	{
-		if (!m_elev->GetEStop())
+		PrintData();
+		if (!m_elev->GetEStop() && !m_arm->GetEStop())
 		{
 			ZeroAll();
-			PrintData();
 
 			switch (m_autonChoice)
 			{
@@ -394,6 +394,9 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
+
+		m_elev->ResetEStop();
+		m_arm->ResetEStop();
 	}
 
 	void TeleopPeriodic()
@@ -456,14 +459,6 @@ public:
 	/** SPECIALIZED FUNCTIONS **/
 	void TeleopElevator ()
 	{
-		//Manual Control
-		if ((m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.1) && !m_elev->IsEnabled())
-			m_elev->Set(-m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
-		else if (m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.1 && !m_elev->IsEnabled())
-			m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
-		else if (!m_elev->IsEnabled())
-			m_elev->Set(0);
-
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
 		{
 			m_elev->Reset();
@@ -474,21 +469,55 @@ public:
 		m_elev->SetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 		m_arm->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 
-		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA) && m_operator->GetRawButton(AdvancedJoystick::kButtonBack))
-			m_elev->Set(kBottom);
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			m_elev->Set(kUMid);
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
-			m_elev->Set(kLMid);
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
-			m_elev->Set(kTop);
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
-			m_elev->Set(kCarry);
+		//STACKING MODE
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
+		{
+			if (m_operator->GetButtonPress(AdvancedJoystick::kButtonRB))
+				m_elev->Stack(m_elev->GetSetpoint());
+			else if (!m_elev->Stacking())
+			{
+				if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+					m_elev->Set(kUMid);
+				else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
+					m_elev->Set(kLMid);
+				else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
+					m_elev->Set(kTop);
+
+				if (m_elev->GetSetpoint() == kBottom || m_elev->GetSetpoint() == kCarry)
+					m_elev->Set(kUMid);
+			}
+		}
+		//POSITION MODE
 		else
-			m_elev->Disable();
+		{
+			m_elev->AbortStack();
+			if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
+				m_elev->Set(kBottom);
+			else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+				m_elev->Set(kUMid);
+			else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
+				m_elev->Set(kLMid);
+			else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
+				m_elev->Set(kTop);
+			else if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
+				m_elev->Set(kCarry);
+			else
+			{
+				m_elev->Disable();
+
+				//Manual Control
+				if (m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.1)
+					m_elev->Set(-m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
+				else if (m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.1)
+					m_elev->Set(m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
+				else
+					m_elev->Set(0);
+			}
+		}
 	}
 
 	void TeleopDrive() {
+		/*
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX)){
 			m_drivetrain->PIDWrite(-.5);
 			//This function is DriveStraightForward
@@ -497,11 +526,10 @@ public:
 			m_drivetrain->PIDWrite(.5);
 			//This function is DriveStraightBackward
 		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+		else*/ if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
 			m_drivetrain->EnableDistance();
 		}
-
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
 			m_drivetrain->ResetFlags();
 			m_drivetrain->ResetGyroAngle();
@@ -556,10 +584,10 @@ public:
 				m_arm->shoulderSet(m_operator->GetRawAxis(AdvancedJoystick::kRightY));
 				m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 			}
-			if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB)){
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonA)){
 				m_arm->rollerSet(1);
 			}
-			else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
 				m_arm->rollerSet(-0.5);
 			}
 			else{

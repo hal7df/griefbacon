@@ -20,8 +20,13 @@ Elevator::Elevator(Victor* lElevator, Victor* rElevator, Relay* binExt, Encoder*
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 
 	m_stopTime = new Timer;
+	m_stackTime = new Timer;
 	sem_init(&m_semaphore,0,1);
 
+	m_stackCase = 3;
+	m_stackFin = kCarry;
+
+	f_stacking = false;
 	f_setPID = false;
 	f_elevEStop = false;
 	f_eStopRunning = false;
@@ -41,8 +46,13 @@ Elevator::Elevator(int lElevator, int rElevator, int binExt, int encode)
 	m_elevEncode->SetDistancePerPulse(1./1270.);
 
 	m_stopTime = new Timer;
+	m_stackTime = new Timer;
 	sem_init(&m_semaphore,0,1);
 
+	m_stackCase = 3;
+	m_stackFin = kCarry;
+
+	f_stacking = false;
 	f_setPID = false;
 	f_elevEStop = false;
 	f_eStopRunning = false;
@@ -89,6 +99,12 @@ void Elevator::Set (pos_t position)
 	m_pid->Enable();
 }
 
+void Elevator::Stack (pos_t finish)
+{
+	m_stackFin = finish;
+	m_stackCase = 0;
+}
+
 void Elevator::Enable()
 {
 	//BEGIN SEMAPHORE REGION
@@ -112,10 +128,21 @@ bool Elevator::AtSetpoint()
 	return fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()) < 0.03;
 }
 
+void Elevator::ResetEStop()
+{
+	f_elevEStop = false;
+	f_eStopRunning = false;
+	f_setpointChanged = false;
+	m_stopTime->Stop();
+	m_stopTime->Reset();
+}
+
 void Elevator::Update ()
 {
 	if (DriverStation::GetInstance()->IsAutonomous())
 	{
+		if (!f_eStopRunning)
+			m_stopTime->Start();
 		ElevatorEStop();
 		f_eStopRunning = true;
 	}
@@ -125,6 +152,14 @@ void Elevator::Update ()
 		f_eStopRunning = false;
 		m_stopTime->Stop();
 		m_stopTime->Reset();
+	}
+
+	if (m_stackCase < 3)
+		Stack_internal();
+	else if (m_stackTime->Get() != 0.0)
+	{
+		m_stackTime->Stop();
+		m_stackTime->Reset();
 	}
 }
 
@@ -143,7 +178,10 @@ void Elevator::PrintData()
 		SmartDashboard::PutNumber("Elevator PID Output",m_pid->Get());
 
 		SmartDashboard::PutBoolean("Elevator At Setpoint",AtSetpoint());
-		SmartDashboard::PutNumber("Elevator Differance",fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()));
+		SmartDashboard::PutNumber("Elevator Difference",fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()));
+
+		SmartDashboard::PutBoolean("Elevator E-Stop",f_elevEStop);
+		SmartDashboard::PutNumber("Elevator E-Stop Timer",m_stopTime->Get());
 	}
 }
 
@@ -174,6 +212,30 @@ double Elevator::GetPosition (pos_t position)
 	return pos;
 }
 
+pos_t GetSetpoint (double position)
+{
+	pos_t buf;
+	switch (position)
+	{
+	case ELEVATOR_BOTTOM:
+		buf = kBottom;
+		break;
+	case ELEVATOR_TOP:
+		buf = kTop;
+		break;
+	case ELEVATOR_LMID:
+		buf = kLMid;
+		break;
+	case ELEVATOR_UMID:
+		buf = kUMid;
+		break;
+	case ELEVATOR_CARRY:
+		buf = kCarry;
+		break;
+	}
+	return buf;
+}
+
 void Elevator::ElevatorEStop()
 {
 	if (m_stopTime->HasPeriodPassed(1.5) && !AtSetpoint() && IsEnabled())
@@ -194,3 +256,38 @@ void Elevator::ElevatorEStop()
 		f_setpointChanged = false;
 	}
 }
+
+void Elevator::Stack_internal()
+{
+	switch (m_stackCase)
+	{
+	case 0:
+		Set(kBottom);
+
+		if (AtSetpoint())
+		{
+			m_stackCase++;
+			m_stackTime->Stop();
+			m_stackTime->Start();
+			m_stackTime->Reset();
+		}
+		break;
+	case 1:
+		if (m_stackTime->HasPeriodPassed(.5))
+		{
+			m_stackCase++;
+			m_stackTime->Stop();
+			m_stackTime->Reset();
+		}
+		break;
+	case 2:
+		Set(m_stackFin);
+
+		if (AtSetpoint())
+		{
+			m_stackCase++;
+		}
+		break;
+	}
+}
+

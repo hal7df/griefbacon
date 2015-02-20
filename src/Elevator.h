@@ -45,12 +45,15 @@ public:
 	void Set (pos_t position);
 
 	void Stack (pos_t finish);
+	void AbortStack () { m_stackCase = 3; }
+	bool Stacking () { return m_stackCase < 3; }
 
 	void Enable ();
 	void Disable ();
 	bool IsEnabled () { return m_pid->IsEnabled(); }
 	void Reset () { m_elevEncode->Reset(); }
 	bool AtSetpoint ();
+	pos_t GetSetpoint () { return GetSetpoint(m_pid->GetSetpoint()); }
 
 	void PIDWrite (float input) { Set((double)input*0.8); }
 
@@ -66,6 +69,8 @@ protected:
 	void PrintData();
 private:
 	double GetPosition (pos_t position);
+	pos_t GetSetpoint (double position);
+	void Stack_internal();
 	void ElevatorEStop();
 
 	Victor* m_lElevator;
@@ -75,9 +80,14 @@ private:
 	PIDController* m_pid;
 
 	Timer* m_stopTime;
+	Timer* m_stackTime;
+
 	sem_t m_semaphore;
 
 	unsigned m_stackCase;
+	pos_t m_stackFin;
+
+	bool f_stacking;
 
 	bool f_setPID;
 	bool f_elevEStop;
