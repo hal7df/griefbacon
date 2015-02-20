@@ -44,6 +44,8 @@ public:
 	void Set (Relay::Value direction);
 	void Set (pos_t position);
 
+	void Stack (pos_t finish);
+
 	void Enable ();
 	void Disable ();
 	bool IsEnabled () { return m_pid->IsEnabled(); }
@@ -74,6 +76,8 @@ private:
 
 	Timer* m_stopTime;
 	sem_t m_semaphore;
+
+	unsigned m_stackCase;
 
 	bool f_setPID;
 	bool f_elevEStop;
