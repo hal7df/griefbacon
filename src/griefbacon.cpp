@@ -553,12 +553,12 @@ public:
 				m_arm->sEnable();
 				m_arm->wEnable();
 			}
-			else if(m_operator ->GetPOV() == 225){
-				m_arm->shoulderSetPos(ksTwoTote);
-				m_arm->wristSetPos(kwTwoTote);
-				m_arm->sEnable();
-				m_arm->wEnable();
-			}
+			//else if(m_operator ->GetPOV() == 225){
+				//m_arm->shoulderSetPos(ksTwoTote);
+				//m_arm->wristSetPos(kwTwoTote);
+				//m_arm->sEnable();
+				//m_arm->wEnable();
+			//}
 			else if(m_operator ->GetPOV() == 270){
 				m_arm->shoulderSetPos(ksDriving);
 				m_arm->wristSetPos(kwDriving);
