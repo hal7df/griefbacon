@@ -25,7 +25,6 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_timer = new Timer;
 
 	f_setPID = false;
-	f_DisabledDistance = false;
 
 	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
@@ -37,13 +36,53 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
 
 	m_angleHeading = 0.0;
-	m_speedLimit = 0.65;
+	m_speedLimit = 1.0;
 	m_correctLimit = 0.1;
 
+	m_lastMultiplier = 0.0;
+	m_maxThrottle = DRIVE_MAX_THROTTLE;
 }
 
 Drivetrain::~Drivetrain() {
 	// TODO Auto-generated destructor stub
+}
+
+void Drivetrain::SetDistance (float distance)
+{
+	m_distancePID->SetSetpoint(distance);
+
+	if (distance != m_distancePID->GetSetpoint())
+		m_lastMultiplier = 0.0;
+}
+
+void Drivetrain::PIDWrite(float output)
+{
+	//float driveComp;
+
+	if (m_lastMultiplier < 1.0)
+	{
+		output *= m_lastMultiplier;
+		m_lastMultiplier += m_maxThrottle;
+	}
+
+	if (output > m_speedLimit)
+		output = m_speedLimit;
+	else if (output < -m_speedLimit)
+		output = -m_speedLimit;
+
+	/*
+	if (fabs(m_gyro->GetAngle() - m_angleHeading) > 90)
+		driveComp = m_correctLimit;
+	else
+		driveComp = m_correctLimit * sqrt(fabs(m_gyro->GetAngle() - m_angleHeading) / 90);
+	 */
+
+	if ((m_gyro->GetAngle() - m_angleHeading) > 0.5)
+		m_drive->TankDrive(output+m_correctLimit,output-m_correctLimit);
+	else if ((m_gyro->GetAngle() - m_angleHeading) < -0.5)
+		m_drive->TankDrive(output-m_correctLimit,output+m_correctLimit);
+	else
+		m_drive->TankDrive(output,output);
 }
 
 void Drivetrain::Update() {
@@ -60,6 +99,10 @@ void Drivetrain::PrintData() {
 		m_angleHeading = SmartDashboard::GetNumber("Set Heading");
 		m_distancePID->SetSetpoint(SmartDashboard::GetNumber("Distance PID Setpoint"));
 		m_correctLimit = SmartDashboard::GetNumber("Angle Compensation Limit");
+		m_maxThrottle = SmartDashboard::GetNumber("Max Throttle Delta");
+
+		if (SmartDashboard::GetNumber("Throttle Multiplier") == 0.0)
+			m_lastMultiplier = 0.0;
 	}
 	else
 	{
@@ -70,9 +113,6 @@ void Drivetrain::PrintData() {
 
 		SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());
-
-		SmartDashboard::PutNumber("m_timer", m_timer->Get());
-		SmartDashboard::PutNumber("ETA:",  4.0 - m_timer->Get());
 
 		SmartDashboard::PutNumber("Turn PID Set Point", m_turnPID->GetSetpoint());
 		SmartDashboard::PutNumber("Turn PID output",m_turnPID->Get());
@@ -98,35 +138,14 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Speed Limit",m_speedLimit);
 		SmartDashboard::PutNumber("Angle Compensation Limit",m_correctLimit);
 
+		SmartDashboard::PutNumber("Max Throttle Delta",m_maxThrottle);
+		SmartDashboard::PutNumber("Throttle Multiplier",m_lastMultiplier);
+
 		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
 		SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
 		SmartDashboard::PutNumber("Average Drive Encoder",m_distancePIDWrapper->PIDGet());
-		SmartDashboard::PutBoolean("f_setPID", f_setPID);
-		SmartDashboard::PutBoolean("f_DisabledDistance", f_DisabledDistance);
+		SmartDashboard::PutBoolean("Setting PIDs", f_setPID);
 	}
-}
-
-void Drivetrain::PIDWrite(float output)
-{
-	//float driveComp;
-	if (output > m_speedLimit)
-		output = m_speedLimit;
-	else if (output < -m_speedLimit)
-		output = -m_speedLimit;
-
-	/*
-	if (fabs(m_gyro->GetAngle() - m_angleHeading) > 90)
-		driveComp = m_correctLimit;
-	else
-		driveComp = m_correctLimit * sqrt(fabs(m_gyro->GetAngle() - m_angleHeading) / 90);
-	 */
-
-	if ((m_gyro->GetAngle() - m_angleHeading) > 0.5)
-		m_drive->TankDrive(output+m_correctLimit,output-m_correctLimit);
-	else if ((m_gyro->GetAngle() - m_angleHeading) < -0.5)
-		m_drive->TankDrive(output-m_correctLimit,output+m_correctLimit);
-	else
-		m_drive->TankDrive(output,output);
 }

@@ -23,6 +23,8 @@
 #define FEEDBACK_I 0.0
 #define FEEDBACK_D 0.0
 
+#define DRIVE_MAX_THROTTLE 0.2
+
 #include "RobotUtils/HotSubsystem.h"
 #include "WPILib.h"
 #include "FeedbackWrapper.h"
@@ -43,13 +45,11 @@ public:
 	void PIDWrite (float output);
 	void SetPID (bool set) { f_setPID = set; }
 
-	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
+	void SetDistance (float distance);
 
 	void SetAngleHeading (float angle) {m_angleHeading = angle; }
 	float GetAngleHeading () {return (m_angleHeading); }
 	bool AtAngleHeading () { return fabs(m_gyro->GetAngle() - m_angleHeading) < 0.1; }
-
-	void ResetGyroAngle() {m_gyro->Reset(); }
 
 	bool DistanceAtSetpoint () { return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.2; }
 
@@ -64,14 +64,17 @@ public:
 	double GetAnglePID () {return (m_gyro->GetAngle()); }
 
 	void ResetEncoders () {m_lEncode->Reset(); m_rEncode->Reset(); }
-	void ResetFlags () {f_setPID = false; f_DisabledDistance = false; }
-
+	void ResetFlags () {f_setPID = false; }
 	void ResetPIDs () {DisableDistance(); DisableAngle(); }
+	void ResetGyroAngle() {m_gyro->Reset(); }
+	void ResetRamp () { m_lastMultiplier = 0.0; }
 
 	void SetLimit (float lim) { m_speedLimit = lim; }
 	float GetLimit () { return m_speedLimit; }
 	void SetCorrLimit (float lim) { m_correctLimit = lim; }
 	float GetCorrLimit () { return m_correctLimit; }
+	void SetMaxThrottleDelta (float delta) { m_maxThrottle = delta; }
+	float GetMaxThrottleDelta () { return m_maxThrottle; }
 
 protected:
 
@@ -104,8 +107,10 @@ private:
 	float m_correctLimit;
 	float m_angleHeading;
 
+	float m_lastMultiplier;
+	float m_maxThrottle;
+
 	bool f_setPID;
-	bool f_DisabledDistance;
 };
 
 #endif /* DRIVETRAIN_H_ */
