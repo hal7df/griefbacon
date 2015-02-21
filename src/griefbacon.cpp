@@ -483,7 +483,7 @@ public:
 				else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
 					m_elev->Set(kTop);
 
-				if ((m_elev->GetDistance() - ELEVATOR_LMID) < -0.03)
+				if ((m_elev->GetDistance() - ELEVATOR_LMID) < -0.1)
 					m_elev->Set(kUMid);
 			}
 		}

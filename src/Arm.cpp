@@ -19,6 +19,10 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_intakeL = new CANTalon (intakeL);
 	m_intakeR = new CANTalon (intakeR);
 
+	m_pickSL->SetVoltageRampRate(0.2);
+	m_pickSR->SetVoltageRampRate(0.2);
+	m_pickW->SetVoltageRampRate(0.2);
+
 	m_shoulderEncode = new Encoder (4,5,false);
 	m_shoulderEncode->SetDistancePerPulse(1./732.25);
 	m_wristEncode = new Encoder (6,7,false);
