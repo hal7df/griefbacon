@@ -559,13 +559,13 @@ public:
 				//m_arm->sEnable();
 				//m_arm->wEnable();
 			//}
-			else if(m_operator ->GetPOV() == 0){
+			else if(m_operator ->GetPOV() == 270){
 				m_arm->shoulderSetPos(ksDriving);
 				m_arm->wristSetPos(kwDriving);
 				m_arm->sEnable();
 				m_arm->wEnable();
 			}
-			else if(m_operator ->GetPOV() == 270){
+			else if(m_operator ->GetPOV() == 0){
 				m_arm->shoulderSetPos(ksCanStack);
 				m_arm->wristSetPos(kwCanStack);
 				m_arm->sEnable();
