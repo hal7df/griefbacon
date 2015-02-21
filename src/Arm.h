@@ -16,7 +16,7 @@
 #define WRIST_D 0.0
 
 #define SHOULDER_P -8.0
-#define SHOULDER_I 0.01
+#define SHOULDER_I -0.01
 #define SHOULDER_D 0.0
 
 #define SHOULDER_GROUND -0.919

@@ -10,7 +10,8 @@ using namespace std;
 
 enum auton_t {
 	kThreeTote,
-	kTwoCan
+	kTwoCan,
+	kRoboThreeTote
 };
 
 
@@ -84,6 +85,8 @@ public:
 			m_autonChoice = kThreeTote;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
 			m_autonChoice = kTwoCan;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
+			m_autonChoice = kRoboThreeTote;
 
 		switch(m_autonChoice)
 		{
@@ -92,6 +95,9 @@ public:
 			break;
 		case kTwoCan:
 			SmartDashboard::PutString("Auton Mode","Two Can Clear");
+			break;
+		case kRoboThreeTote:
+			SmartDashboard::PutString("Auton Mode", "Robonauts Three Tote");
 			break;
 		}
 	}
@@ -124,6 +130,9 @@ public:
 			break;
 		case kTwoCan:
 			AutonTwoCan();
+			break;
+		case kRoboThreeTote:
+			AutonRoboThreeTote();
 			break;
 		}
 	}
@@ -385,6 +394,171 @@ public:
 			m_autonCase++;
 		}
 	}
+
+	void AutonRoboThreeTote() {
+		switch(m_autonCase){
+		case 0:
+			if (f_elevReset && f_shoulderReset && f_wristReset)
+				m_autonCase++;
+			break;
+		case 1:
+			m_arm->shoulderSetPos(ksDriving);
+			m_arm->wristSetPos(kwDriving);
+			m_elev->Set(kCarry);
+
+			if (!m_arm->sIsEnabled())
+					m_arm->sEnable();
+			if (!m_arm->wIsEnabled())
+					m_arm->wEnable();
+			if (m_elev->AtSetpoint())
+					m_elev->Disable();
+
+			if (m_arm->sIsEnabled() && m_arm->wIsEnabled() && m_elev->AtSetpoint())
+				m_autonCase++;
+			break;
+		case 2:
+			m_drivetrain->SetDistance(-0.25);
+			m_drivetrain->SetLimit(.4);
+
+			if (!m_drivetrain->IsEnabledDistance())
+				m_drivetrain->EnableDistance();
+
+			if(m_drivetrain->DistanceAtSetpoint())
+			{
+				m_drivetrain->DisableDistance();
+				m_autonCase++;
+			}
+			break;
+		case 3:
+				m_elev->Set(kTop);
+				if (m_elev->GetDistance() > ELEVATOR_UMID)
+				{
+					m_drivetrain->ResetEncoders();
+					m_drivetrain->SetAngleHeading(48.5);
+					m_drivetrain->SetCorrLimit(0.5);
+					m_drivetrain->SetDistance(0.0);
+					m_drivetrain->EnableDistance();
+					m_drivetrain->SetLimit(.55);
+					m_autonCase++;
+				}
+		break;
+		case 4:
+			if (m_drivetrain->AtAngleHeading()){
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->SetDistance(3.627);
+				m_autonCase++;
+			}
+			break;
+		case 5:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->SetAngleHeading(0.0);
+			}
+			if (m_drivetrain->AtAngleHeading()){
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->SetDistance(2.513);
+				m_autonCase++;
+			}
+			break;
+		case 6:
+			if (m_drivetrain->DistanceAtSetpoint()) {
+				m_drivetrain->SetAngleHeading(-30.0);
+				m_autonCase++;
+			}
+			break;
+		case 7:
+			if (m_drivetrain->AtAngleHeading()) {
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->SetLimit(.4);
+				m_arm->intakeSet(.55);
+				m_drivetrain->SetDistance(1.65);
+				m_autonCase++;
+			}
+			break;
+		case 8:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_elev->Set(kBottom);
+				if (m_elev->AtSetpoint()){
+					m_elev->Set(kCarry);
+					m_drivetrain->SetDistance(0.0);
+					m_autonCase++;
+				}
+			}
+			break;
+		case 9:
+			if (m_drivetrain->GetDistancePID() < 1.5)
+				m_elev->Set(kTop);
+
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->SetAngleHeading(0.0);
+				m_autonCase++;
+			}
+			break;
+		case 10:
+			if (m_drivetrain->AtAngleHeading()){
+				m_drivetrain->SetDistance(5.739);
+				m_drivetrain->SetLimit(.55);
+				m_autonCase++;
+			}
+			break;
+		case 11:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->SetAngleHeading(-30.0);
+				m_autonCase++;
+			}
+			break;
+		case 12:
+			if (m_drivetrain->AtAngleHeading()){
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->SetLimit(.4);
+				m_arm->intakeSet(.55);
+				m_drivetrain->SetDistance(1.65);
+				m_autonCase++;
+			}
+			break;
+		case 13:
+			m_elev->Set(kBottom);
+				if (m_elev->AtSetpoint()){
+					m_elev->Set(kCarry);
+					m_drivetrain->SetDistance(1.255);
+					m_autonCase++;
+				}
+			break;
+		case 14:
+			if (m_drivetrain->DistanceAtSetpoint()) {
+					m_drivetrain->SetAngleHeading(-90.0);
+					m_drivetrain->SetLimit(.55);
+					if (m_drivetrain->AtAngleHeading()){
+						m_drivetrain->ResetEncoders();
+						m_drivetrain->SetDistance(-7.45);
+						m_autonCase++;
+					}
+
+			}
+			break;
+		case 15:
+			if (m_drivetrain->DistanceAtSetpoint()) {
+				m_drivetrain->SetLimit(.45);
+				m_drivetrain->SetAngleHeading(-180.0);
+				if (m_drivetrain->AtAngleHeading()){
+					m_drivetrain->ResetEncoders();
+					m_arm->rollerSet(1.0);
+					m_drivetrain->SetDistance(-2.6);
+					m_autonCase++;
+				}
+			}
+			break;
+		case 16:
+			if (m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain->DisableDistance();
+					m_arm->intakeSet(0.0);
+					SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
+					m_autonCase++;
+				}
+			break;
+		}
+	}
+
 	void TeleopInit()
 	{
 		m_drivetrain->DisableDistance();
