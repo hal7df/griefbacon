@@ -216,27 +216,20 @@ double Elevator::GetPosition (pos_t position)
 	return pos;
 }
 
-pos_t GetSetpoint (double position)
+pos_t Elevator::GetSetpoint (double position)
 {
 	pos_t buf;
-	switch (position)
-	{
-	case ELEVATOR_BOTTOM:
+	if (position == ELEVATOR_BOTTOM)
 		buf = kBottom;
-		break;
-	case ELEVATOR_TOP:
+	else if (position == ELEVATOR_TOP)
 		buf = kTop;
-		break;
-	case ELEVATOR_LMID:
+	else if (position == ELEVATOR_LMID)
 		buf = kLMid;
-		break;
-	case ELEVATOR_UMID:
+	else if (position == ELEVATOR_UMID)
 		buf = kUMid;
-		break;
-	case ELEVATOR_CARRY:
+	else if (position == ELEVATOR_CARRY)
 		buf = kCarry;
-		break;
-	}
+
 	return buf;
 }
 
@@ -277,7 +270,7 @@ void Elevator::Stack_internal()
 		}
 		break;
 	case 1:
-		if (m_stackTime->HasPeriodPassed(.5))
+		if (m_stackTime->HasPeriodPassed(.1))
 		{
 			m_stackCase++;
 			m_stackTime->Stop();

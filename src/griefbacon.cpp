@@ -483,7 +483,7 @@ public:
 				else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
 					m_elev->Set(kTop);
 
-				if (m_elev->GetSetpoint() == kBottom || m_elev->GetSetpoint() == kCarry)
+				if ((m_elev->GetDistance() - ELEVATOR_LMID) < -0.03)
 					m_elev->Set(kUMid);
 			}
 		}
@@ -530,7 +530,7 @@ public:
 		{
 			m_drivetrain->EnableDistance();
 		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
 			m_drivetrain->ResetFlags();
 			m_drivetrain->ResetGyroAngle();
 		}
@@ -584,10 +584,10 @@ public:
 				m_arm->shoulderSet(m_operator->GetRawAxis(AdvancedJoystick::kRightY));
 				m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 			}
-			if (m_driver->GetRawButton(AdvancedJoystick::kButtonA)){
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
 				m_arm->rollerSet(1);
 			}
-			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY)){
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
 				m_arm->rollerSet(-0.5);
 			}
 			else{
