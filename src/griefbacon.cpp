@@ -582,7 +582,7 @@ public:
 				m_arm->sDisable();
 				m_arm->wDisable();
 				m_arm->shoulderSet(m_operator->GetRawAxis(AdvancedJoystick::kRightY));
-				m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftX));
+				m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 			}
 			if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
 				m_arm->rollerSet(1);
