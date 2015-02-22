@@ -61,6 +61,10 @@ public:
 		m_autonChoice = kThreeTote;
 		m_autonCase= 0;
 		m_autonLoop = 0;
+
+		CameraServer* server = CameraServer::GetInstance();
+		server->SetQuality(50);
+		server->StartAutomaticCapture("cam0");
 	}
 
 	void RobotInit()
