@@ -17,11 +17,11 @@
 #define ELEVATOR_I 0.01
 #define ELEVATOR_D 0.0
 
-#define ELEVATOR_BOTTOM 0.0
-#define ELEVATOR_TOP 1.0
-#define ELEVATOR_LMID 0.43
-#define ELEVATOR_UMID 0.76
-#define ELEVATOR_CARRY 0.114
+#define ELEVATOR_BOTTOM 0.0000
+#define ELEVATOR_TOP 1.0000
+#define ELEVATOR_LMID 0.4300
+#define ELEVATOR_UMID 0.7600
+#define ELEVATOR_CARRY 0.11400
 
 enum pos_t {
 	kBottom,
