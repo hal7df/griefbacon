@@ -10,7 +10,8 @@ using namespace std;
 
 enum auton_t {
 	kThreeTote,
-	kTwoCan
+	kTwoCan,
+	kRoboThreeTote
 };
 
 
@@ -88,6 +89,8 @@ public:
 			m_autonChoice = kThreeTote;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
 			m_autonChoice = kTwoCan;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
+			m_autonChoice = kRoboThreeTote;
 
 		switch(m_autonChoice)
 		{
@@ -96,6 +99,9 @@ public:
 			break;
 		case kTwoCan:
 			SmartDashboard::PutString("Auton Mode","Two Can Clear");
+			break;
+		case kRoboThreeTote:
+			SmartDashboard::PutString("Auton Mode", "Robonauts Three Tote");
 			break;
 		}
 	}
@@ -132,6 +138,9 @@ public:
 				AutonTwoCan();
 				break;
 			}
+		case kRoboThreeTote:
+			AutonRoboThreeTote();
+			break;
 		}
 	}
 
@@ -392,6 +401,93 @@ public:
 			m_autonCase++;
 		}
 	}
+
+	void AutonRoboThreeTote() {
+		switch(m_autonCase){
+		//ReZero
+		case 0:
+			if (f_elevReset && f_shoulderReset && f_wristReset)
+				m_autonCase++;
+			break;
+		case 1:
+		//Set arm driving, elev top, once at set points turn on intake sucky in, set distance 3ft
+			m_arm->shoulderSetPos(ksDriving);
+			m_arm->wristSetPos(kwDriving);
+			m_elev->Set(kTop);
+
+			if (!m_arm->sIsEnabled())
+					m_arm->sEnable();
+			if (!m_arm->wIsEnabled())
+					m_arm->wEnable();
+			if (m_elev->AtSetpoint())
+					m_elev->Disable();
+
+			if (m_arm->sIsEnabled() && m_arm->wIsEnabled() && m_elev->AtSetpoint())
+			{
+				m_drivetrain->SetDistance(3);
+				m_drivetrain->SetLimit(.4);
+				m_drivetrain->EnableDistance();
+				m_arm->intakeSet(-1);
+				m_autonCase++;
+			}
+			break;
+		case 2:
+			//drive forward 3 ft
+			if(m_drivetrain->DistanceAtSetpoint())
+			{
+				m_drivetrain->DisableDistance();
+				m_autonCase++;
+			}
+			break;
+		case 3:
+			//put elev to ground, set, start driving back, bring elev up
+				m_elev->Set(kBottom);
+				if (m_elev->GetDistance() > ELEVATOR_BOTTOM)
+				{
+					m_elev->Set(kTop);
+					m_drivetrain->ResetEncoders();
+					m_drivetrain->SetDistance(-3.0);
+					m_drivetrain->SetLimit(.4);
+					m_drivetrain->EnableDistance();
+					m_autonCase++;
+				}
+				break;
+		case 4:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->DisableDistance();
+				m_drivetrain->SetTurnPIDHeading(-30.);
+				m_drivetrain->EnableAngle();
+				m_autonCase++;
+			}
+			break;
+		case 5:
+			if (m_drivetrain->TurnPIDatSetpoint()){
+				m_drivetrain->DisableAngle();
+				m_drivetrain->SetDistance(6);
+				m_drivetrain->ResetEncoders();
+				m_drivetrain->EnableDistance();
+				m_autonCase++;
+			}
+			break;
+		case 6:
+			if (m_drivetrain->DistanceAtSetpoint()) {
+				m_drivetrain->SetTurnPIDHeading(0.0);
+				m_drivetrain->EnableAngle();
+				m_autonCase++;
+			}
+			break;
+		case 7:
+			if (m_drivetrain->TurnPIDatSetpoint()) {
+				m_drivetrain->SetDistance(3);
+				m_drivetrain->SetLimit(.4);
+				m_drivetrain->EnableDistance();
+				m_arm->intakeSet(-1);
+				m_autonCase++;
+			}
+			break;
+		}
+	}
+
 	void TeleopInit()
 	{
 		m_drivetrain->DisableDistance();

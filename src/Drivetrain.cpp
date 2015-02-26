@@ -31,9 +31,9 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_drive->SetSafetyEnabled(false);
 
 	m_gyro = new ADXRS453Z;
-	m_angleOut = new AngleOutputWrapper (m_drive, m_distancePID);
+	m_angleOut = new AngleOutputWrapper (m_drive);
 
-	m_turnPID = new PIDController(GYRO_P, GYRO_I, GYRO_D, m_gyro, m_angleOut);
+	m_turnPID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D, m_gyro, m_angleOut);
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
 
 	m_angleHeading = 0.0;

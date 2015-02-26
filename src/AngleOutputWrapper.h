@@ -13,13 +13,12 @@
 
 class AngleOutputWrapper: public PIDOutput {
 public:
-	AngleOutputWrapper(RobotDrive* drive, PIDController* dStraight);
+	AngleOutputWrapper(RobotDrive* drive);
 	virtual ~AngleOutputWrapper();
 
 	void PIDWrite (float output);
 private:
 	RobotDrive* m_drive;
-	PIDController* m_dStraight;
 };
 
 #endif /* ANGLEOUTPUTWRAPPER_H_ */
