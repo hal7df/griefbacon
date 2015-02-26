@@ -7,9 +7,8 @@
 
 #include <AngleOutputWrapper.h>
 
-AngleOutputWrapper::AngleOutputWrapper(RobotDrive* drive, PIDController* dStraight) {
+AngleOutputWrapper::AngleOutputWrapper(RobotDrive* drive) {
 	m_drive = drive;
-	m_dStraight = dStraight;
 }
 
 AngleOutputWrapper::~AngleOutputWrapper() {
@@ -17,6 +16,5 @@ AngleOutputWrapper::~AngleOutputWrapper() {
 }
 
 void AngleOutputWrapper::PIDWrite(float output) {
-	if (!m_dStraight->IsEnabled())
 		m_drive->TankDrive(output,-output);
 }

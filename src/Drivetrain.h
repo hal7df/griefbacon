@@ -45,6 +45,11 @@ public:
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 
+	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle);}
+	float GetTurnPIDHeading () {return m_turnPID->GetSetpoint();}
+	bool TurnPIDatSetpoint () { return fabs(m_gyro->GetAngle() - m_turnPID->GetSetpoint()) < 0.2; }
+
+
 	void SetAngleHeading (float angle) {m_angleHeading = angle; }
 	float GetAngleHeading () {return (m_angleHeading); }
 	bool AtAngleHeading () { return fabs(m_gyro->GetAngle() - m_angleHeading) < 0.1; }

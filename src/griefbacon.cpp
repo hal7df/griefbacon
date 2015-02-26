@@ -397,14 +397,16 @@ public:
 
 	void AutonRoboThreeTote() {
 		switch(m_autonCase){
+		//ReZero
 		case 0:
 			if (f_elevReset && f_shoulderReset && f_wristReset)
 				m_autonCase++;
 			break;
 		case 1:
+		//Set arm driving, elev top, once at set points turn on intake sucky in, set distance 3ft
 			m_arm->shoulderSetPos(ksDriving);
 			m_arm->wristSetPos(kwDriving);
-			m_elev->Set(kCarry);
+			m_elev->Set(kTop);
 
 			if (!m_arm->sIsEnabled())
 					m_arm->sEnable();
@@ -414,15 +416,16 @@ public:
 					m_elev->Disable();
 
 			if (m_arm->sIsEnabled() && m_arm->wIsEnabled() && m_elev->AtSetpoint())
+			{
+				m_drivetrain->SetDistance(3);
+				m_drivetrain->SetLimit(.4);
+				m_drivetrain->EnableDistance();
+				m_arm->intakeSet(-1);
 				m_autonCase++;
+			}
 			break;
 		case 2:
-			m_drivetrain->SetDistance(-0.25);
-			m_drivetrain->SetLimit(.4);
-
-			if (!m_drivetrain->IsEnabledDistance())
-				m_drivetrain->EnableDistance();
-
+			//drive forward 3 ft
 			if(m_drivetrain->DistanceAtSetpoint())
 			{
 				m_drivetrain->DisableDistance();
@@ -430,131 +433,50 @@ public:
 			}
 			break;
 		case 3:
-				m_elev->Set(kTop);
-				if (m_elev->GetDistance() > ELEVATOR_UMID)
+			//put elev to ground, set, start driving back, bring elev up
+				m_elev->Set(kBottom);
+				if (m_elev->GetDistance() > ELEVATOR_BOTTOM)
 				{
+					m_elev->Set(kTop);
 					m_drivetrain->ResetEncoders();
-					m_drivetrain->SetAngleHeading(48.5);
-					m_drivetrain->SetCorrLimit(0.5);
-					m_drivetrain->SetDistance(0.0);
+					m_drivetrain->SetDistance(-3.0);
+					m_drivetrain->SetLimit(.4);
 					m_drivetrain->EnableDistance();
-					m_drivetrain->SetLimit(.55);
 					m_autonCase++;
 				}
-		break;
+				break;
 		case 4:
-			if (m_drivetrain->AtAngleHeading()){
-				m_drivetrain->ResetEncoders();
-				m_drivetrain->SetDistance(3.627);
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->DisableDistance();
+				m_drivetrain->SetTurnPIDHeading(-30.);
+				m_drivetrain->EnableAngle();
 				m_autonCase++;
 			}
 			break;
 		case 5:
-			if (m_drivetrain->DistanceAtSetpoint()){
-				m_drivetrain->SetAngleHeading(0.0);
-			}
-			if (m_drivetrain->AtAngleHeading()){
+			if (m_drivetrain->TurnPIDatSetpoint()){
+				m_drivetrain->DisableAngle();
+				m_drivetrain->SetDistance(6);
 				m_drivetrain->ResetEncoders();
-				m_drivetrain->SetDistance(2.513);
+				m_drivetrain->EnableDistance();
 				m_autonCase++;
 			}
 			break;
 		case 6:
 			if (m_drivetrain->DistanceAtSetpoint()) {
-				m_drivetrain->SetAngleHeading(-30.0);
+				m_drivetrain->SetTurnPIDHeading(0.0);
+				m_drivetrain->EnableAngle();
 				m_autonCase++;
 			}
 			break;
 		case 7:
-			if (m_drivetrain->AtAngleHeading()) {
-				m_drivetrain->ResetEncoders();
+			if (m_drivetrain->TurnPIDatSetpoint()) {
+				m_drivetrain->SetDistance(3);
 				m_drivetrain->SetLimit(.4);
-				m_arm->intakeSet(.55);
-				m_drivetrain->SetDistance(1.65);
+				m_drivetrain->EnableDistance();
+				m_arm->intakeSet(-1);
 				m_autonCase++;
 			}
-			break;
-		case 8:
-			if (m_drivetrain->DistanceAtSetpoint()){
-				m_elev->Set(kBottom);
-				if (m_elev->AtSetpoint()){
-					m_elev->Set(kCarry);
-					m_drivetrain->SetDistance(0.0);
-					m_autonCase++;
-				}
-			}
-			break;
-		case 9:
-			if (m_drivetrain->GetDistancePID() < 1.5)
-				m_elev->Set(kTop);
-
-			if (m_drivetrain->DistanceAtSetpoint()){
-				m_drivetrain->SetAngleHeading(0.0);
-				m_autonCase++;
-			}
-			break;
-		case 10:
-			if (m_drivetrain->AtAngleHeading()){
-				m_drivetrain->SetDistance(5.739);
-				m_drivetrain->SetLimit(.55);
-				m_autonCase++;
-			}
-			break;
-		case 11:
-			if (m_drivetrain->DistanceAtSetpoint()){
-				m_drivetrain->SetAngleHeading(-30.0);
-				m_autonCase++;
-			}
-			break;
-		case 12:
-			if (m_drivetrain->AtAngleHeading()){
-				m_drivetrain->ResetEncoders();
-				m_drivetrain->SetLimit(.4);
-				m_arm->intakeSet(.55);
-				m_drivetrain->SetDistance(1.65);
-				m_autonCase++;
-			}
-			break;
-		case 13:
-			m_elev->Set(kBottom);
-				if (m_elev->AtSetpoint()){
-					m_elev->Set(kCarry);
-					m_drivetrain->SetDistance(1.255);
-					m_autonCase++;
-				}
-			break;
-		case 14:
-			if (m_drivetrain->DistanceAtSetpoint()) {
-					m_drivetrain->SetAngleHeading(-90.0);
-					m_drivetrain->SetLimit(.55);
-					if (m_drivetrain->AtAngleHeading()){
-						m_drivetrain->ResetEncoders();
-						m_drivetrain->SetDistance(-7.45);
-						m_autonCase++;
-					}
-
-			}
-			break;
-		case 15:
-			if (m_drivetrain->DistanceAtSetpoint()) {
-				m_drivetrain->SetLimit(.45);
-				m_drivetrain->SetAngleHeading(-180.0);
-				if (m_drivetrain->AtAngleHeading()){
-					m_drivetrain->ResetEncoders();
-					m_arm->rollerSet(1.0);
-					m_drivetrain->SetDistance(-2.6);
-					m_autonCase++;
-				}
-			}
-			break;
-		case 16:
-			if (m_drivetrain->DistanceAtSetpoint())
-				{
-					m_drivetrain->DisableDistance();
-					m_arm->intakeSet(0.0);
-					SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
-					m_autonCase++;
-				}
 			break;
 		}
 	}
