@@ -23,6 +23,8 @@
 #define FEEDBACK_I 0.0
 #define FEEDBACK_D 0.0
 
+#define NAVX_ENABLED
+
 #include "RobotUtils/HotSubsystem.h"
 #include "navx/AHRS.h"
 #include "WPILib.h"
@@ -48,14 +50,18 @@ public:
 
 	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle);}
 	float GetTurnPIDHeading () {return m_turnPID->GetSetpoint();}
-	bool TurnPIDatSetpoint () { return fabs(m_gyro->GetAngle() - m_turnPID->GetSetpoint()) < 0.2; }
+	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 0.2; }
 
 
 	void SetAngleHeading (float angle) {m_angleHeading = angle; }
 	float GetAngleHeading () {return (m_angleHeading); }
-	bool AtAngleHeading () { return fabs(m_gyro->GetAngle() - m_angleHeading) < 0.1; }
+	bool AtAngleHeading () { return fabs(GetGyroAngle() - m_angleHeading) < 0.1; }
 
+#ifdef NAVX_ENABLED
+	void ResetGyroAngle() { m_gyro->ZeroYaw(); }
+#else
 	void ResetGyroAngle() {m_gyro->Reset(); }
+#endif
 
 	bool DistanceAtSetpoint () { return fabs(GetDistancePID() - m_distancePID->GetSetpoint()) < 0.2; }
 
@@ -66,8 +72,12 @@ public:
 
 	void EnableAngle () {m_turnPID->Enable(); }
 	void DisableAngle () {m_turnPID->Disable(); }
-	bool IsEnabledAngle () {return (m_turnPID->IsEnabled()); }
-	double GetAnglePID () {return (m_gyro->GetAngle()); }
+	bool IsEnabledAngle () { return (m_turnPID->IsEnabled()); }
+#ifdef NAVX_ENABLED
+	double GetGyroAngle () { return m_gyro->GetYaw(); }
+#else
+	double GetGyroAngle () { return (m_gyro->GetAngle()); }
+#endif
 
 	void ResetEncoders () {m_lEncode->Reset(); m_rEncode->Reset(); }
 	void ResetFlags () {f_setPID = false; f_DisabledDistance = false; }
@@ -85,6 +95,7 @@ protected:
 	void PrintData();
 
 private:
+	void GyroCal();
 
 	Talon* m_lDrive1;
 	Talon* m_lDrive2;
@@ -104,8 +115,12 @@ private:
 
 	Timer* m_timer;
 
+#ifdef NAVX_ENABLED
+	AHRS* m_gyro;
+	bool m_firstGyroIt;
+#else
 	ADXRS453Z* m_gyro;
-
+#endif
 	float m_speedLimit;
 	float m_correctLimit;
 	float m_angleHeading;

@@ -30,7 +30,13 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
 
+#ifdef NAVX_ENABLED
+	SerialPort* serial = new SerialPort (57600,SerialPort::kMXP);
+	m_gyro = new AHRS (serial,(uint8_t)50);
+	m_firstGyroIt = true;
+#else //ADXRS453Z
 	m_gyro = new ADXRS453Z;
+#endif
 	m_angleOut = new AngleOutputWrapper (m_drive);
 
 	m_turnPID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D, m_gyro, m_angleOut);
@@ -47,7 +53,11 @@ Drivetrain::~Drivetrain() {
 }
 
 void Drivetrain::Update() {
+#ifdef NAVX_ENABLED
+	GyroCal();
+#else
 	m_gyro->Update();
+#endif
 }
 
 void Drivetrain::PrintData() {
@@ -99,8 +109,10 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Speed Limit",m_speedLimit);
 		SmartDashboard::PutNumber("Angle Compensation Limit",m_correctLimit);
 
-		SmartDashboard::PutNumber("Angle", m_gyro->GetAngle());
+		SmartDashboard::PutNumber("Angle", GetGyroAngle());
+#ifndef NAVX_ENABLED
 		SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
+#endif
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("Right Encoder",m_rEncode->GetDistance());
 		SmartDashboard::PutNumber("Average Drive Encoder",m_distancePIDWrapper->PIDGet());
@@ -124,10 +136,20 @@ void Drivetrain::PIDWrite(float output)
 		driveComp = m_correctLimit * sqrt(fabs(m_gyro->GetAngle() - m_angleHeading) / 90);
 	 */
 
-	if ((m_gyro->GetAngle() - m_angleHeading) > 0.5)
+	if ((GetGyroAngle() - m_angleHeading) > 0.5)
 		m_drive->TankDrive(output+m_correctLimit,output-m_correctLimit);
-	else if ((m_gyro->GetAngle() - m_angleHeading) < -0.5)
+	else if ((GetGyroAngle() - m_angleHeading) < -0.5)
 		m_drive->TankDrive(output-m_correctLimit,output+m_correctLimit);
 	else
 		m_drive->TankDrive(output,output);
+}
+
+void Drivetrain::GyroCal()
+{
+	if (!m_gyro->IsCalibrating() && m_firstGyroIt)
+	{
+		Wait(0.3);
+		m_gyro->ZeroYaw();
+		m_firstGyroIt = false;
+	}
 }
