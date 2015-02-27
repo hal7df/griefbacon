@@ -137,10 +137,10 @@ public:
 			case kTwoCan:
 				AutonTwoCan();
 				break;
+			case kRoboThreeTote:
+				AutonRoboThreeTote();
+				break;
 			}
-		case kRoboThreeTote:
-			AutonRoboThreeTote();
-			break;
 		}
 	}
 
@@ -463,7 +463,7 @@ public:
 		case 5:
 			if (m_drivetrain->TurnPIDatSetpoint()){
 				m_drivetrain->DisableAngle();
-				m_drivetrain->SetDistance(6);
+				m_drivetrain->SetDistance(6.);
 				m_drivetrain->ResetEncoders();
 				m_drivetrain->EnableDistance();
 				m_autonCase++;
@@ -478,10 +478,72 @@ public:
 			break;
 		case 7:
 			if (m_drivetrain->TurnPIDatSetpoint()) {
-				m_drivetrain->SetDistance(3);
+				m_drivetrain->SetDistance(3.);
 				m_drivetrain->SetLimit(.4);
 				m_drivetrain->EnableDistance();
 				m_arm->intakeSet(-1);
+				m_autonCase++;
+			}
+			break;
+		case 8:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->DisableDistance();
+				m_elev->Set(kBottom);
+				m_autonCase++;
+			}
+			break;
+		case 9:
+			if (m_elev->AtSetpoint()){
+				m_elev->Set(kTop);
+				m_drivetrain->SetDistance(-3.0);
+				m_drivetrain->EnableDistance();
+				m_autonCase++;
+			}
+			break;
+		case 10:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->DisableDistance();
+				m_drivetrain->SetTurnPIDHeading(-30.0);
+				m_drivetrain->EnableAngle();
+				m_autonCase++;
+			}
+			break;
+		case 11:
+			if (m_drivetrain->AtAngleHeading()){
+				m_drivetrain->DisableAngle();
+				m_drivetrain->SetDistance(6.);
+				m_drivetrain->EnableDistance();
+				m_autonCase++;
+			}
+			break;
+		case 12:
+			if (m_drivetrain->DistanceAtSetpoint()) {
+				m_drivetrain->SetTurnPIDHeading(0.0);
+				m_drivetrain->EnableAngle();
+				m_autonCase++;
+			}
+			break;
+		case 13:
+			if (m_drivetrain->TurnPIDatSetpoint()) {
+				m_drivetrain->SetDistance(3.);
+				m_drivetrain->SetLimit(.4);
+				m_drivetrain->EnableDistance();
+				m_arm->intakeSet(-1);
+				m_autonCase++;
+			}
+			break;
+		case 14:
+			if (m_drivetrain->DistanceAtSetpoint()){
+				m_drivetrain->DisableDistance();
+				m_elev->Set(kBottom);
+				m_autonCase++;
+			}
+			break;
+		case 15:
+			if (m_elev->AtSetpoint()){
+				m_elev->Set(kTop);
+				//->SetDistance(-3.0);
+				//m_drivetrain->EnableDistance();
 				m_autonCase++;
 			}
 			break;
@@ -628,7 +690,7 @@ public:
 		}
 		else*/ if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
-			m_drivetrain->EnableDistance();
+			m_drivetrain->EnableAngle();
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
 			m_drivetrain->ResetFlags();
@@ -637,6 +699,8 @@ public:
 
 		else if (m_drivetrain->IsEnabledDistance())
 			m_drivetrain->DisableDistance();
+		else if (m_drivetrain->IsEnabledAngle())
+			m_drivetrain->DisableAngle();
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_drivetrain->ResetEncoders();
 
@@ -672,8 +736,8 @@ public:
 				m_arm->wEnable();
 			}
 			else if(m_operator ->GetPOV() == 90){
-				m_arm->shoulderSetPos(ksPackage);
-				m_arm->wristSetPos(kwPackage);
+				m_arm->shoulderSetPos(ksFiveCan);
+				m_arm->wristSetPos(kwFiveCan);
 				m_arm->sEnable();
 				m_arm->wEnable();
 			}

@@ -60,6 +60,7 @@ void Drivetrain::PrintData() {
 		m_angleHeading = SmartDashboard::GetNumber("Set Heading");
 		m_distancePID->SetSetpoint(SmartDashboard::GetNumber("Distance PID Setpoint"));
 		m_correctLimit = SmartDashboard::GetNumber("Angle Compensation Limit");
+		m_turnPID->SetSetpoint(SmartDashboard::GetNumber("TurnPID SetPoint"));
 	}
 	else
 	{

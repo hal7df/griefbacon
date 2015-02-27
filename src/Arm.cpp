@@ -92,6 +92,9 @@ void Arm::shoulderSetPos (sPos_t position)
 	case ksPackage:
 		m_shoulderPid ->SetSetpoint(SHOULDER_PACKAGE);
 		break;
+	case ksFiveCan:
+		m_shoulderPid->SetSetpoint(SHOULDER_FIVECAN);
+		break;
 	}
 
 	f_sSetpointChanged = true;
@@ -135,6 +138,8 @@ void Arm::wristSetPos (wPos_t position)
 	case kwPackage:
 		m_wristPid ->SetSetpoint(WRIST_PACKAGE);
 		break;
+	case ksFiveCan:
+		m_wristPid ->SetSetpoint(WRIST_FIVECAN);
 	}
 
 	f_wSetpointChanged = true;
