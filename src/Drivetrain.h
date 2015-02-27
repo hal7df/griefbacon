@@ -24,6 +24,7 @@
 #define FEEDBACK_D 0.0
 
 #include "RobotUtils/HotSubsystem.h"
+#include "navx/AHRS.h"
 #include "WPILib.h"
 #include "FeedbackWrapper.h"
 #include "DistancePIDWrapper.h"
