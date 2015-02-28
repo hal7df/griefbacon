@@ -128,7 +128,7 @@ void Elevator::Disable()
 
 bool Elevator::AtSetpoint()
 {
-	return fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()) < 0.01;
+	return fabs(m_elevEncode->GetDistance() - m_pid->GetSetpoint()) < 0.02;
 }
 
 void Elevator::ResetEStop()

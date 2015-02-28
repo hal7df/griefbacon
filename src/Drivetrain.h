@@ -19,6 +19,10 @@
 #define DISTANCE_I 0.0
 #define DISTANCE_D -0.1
 
+#define TURN_P -0.1
+#define TURN_I 0.0
+#define TURN_D -0.1
+
 #define FEEDBACK_P 0.1
 #define FEEDBACK_I 0.0
 #define FEEDBACK_D 0.0

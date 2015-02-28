@@ -55,7 +55,7 @@ public:
 	bool AtSetpoint ();
 	pos_t GetSetpoint () { return GetSetpoint(m_pid->GetSetpoint()); }
 
-	void PIDWrite (float input) { Set((double)input*0.8); }
+	void PIDWrite (float input) { Set((double)input); }
 
 	void SetPID (bool set) { f_setPID = set; }
 

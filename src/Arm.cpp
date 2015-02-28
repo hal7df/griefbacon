@@ -194,8 +194,8 @@ void Arm::wristSetSetpoint(int point){
 void Arm::clearCans(bool on) {
 	if (on)
 	{
-		m_intakeL->Set(0.2);
-		m_intakeR->Set(1.0);
+		m_intakeL->Set(-0.3);
+		m_intakeR->Set(0.3);
 	}
 	else
 	{

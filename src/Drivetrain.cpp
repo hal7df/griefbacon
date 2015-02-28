@@ -39,7 +39,7 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 #endif
 	m_angleOut = new AngleOutputWrapper (m_drive);
 
-	m_turnPID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D, m_gyro, m_angleOut);
+	m_turnPID = new PIDController(TURN_P,TURN_I,TURN_D, m_gyro, m_angleOut);
 	m_distancePID = new PIDController(DISTANCE_P,DISTANCE_I,DISTANCE_D,m_distancePIDWrapper, this);
 
 	m_angleHeading = 0.0;
@@ -64,13 +64,13 @@ void Drivetrain::PrintData() {
 	if (f_setPID)
 	{
 		m_distancePID->SetPID(SmartDashboard::GetNumber("Distance P"), SmartDashboard::GetNumber("Distance I"), SmartDashboard::GetNumber("Distance D"));
-		m_turnPID->SetPID(SmartDashboard::GetNumber("Turn P"), SmartDashboard::GetNumber("Turn I"), SmartDashboard::GetNumber("Turn D"));
+		//m_turnPID->SetPID(SmartDashboard::GetNumber("Turn P"), SmartDashboard::GetNumber("Turn I"), SmartDashboard::GetNumber("Turn D"));
 
 		m_speedLimit = SmartDashboard::GetNumber("Speed Limit");
 		m_angleHeading = SmartDashboard::GetNumber("Set Heading");
 		m_distancePID->SetSetpoint(SmartDashboard::GetNumber("Distance PID Setpoint"));
 		m_correctLimit = SmartDashboard::GetNumber("Angle Compensation Limit");
-		m_turnPID->SetSetpoint(SmartDashboard::GetNumber("TurnPID SetPoint"));
+		//m_turnPID->SetSetpoint(SmartDashboard::GetNumber("TurnPID SetPoint"));
 	}
 	else
 	{
