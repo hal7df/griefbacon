@@ -51,7 +51,7 @@ public:
 	void Enable ();
 	void Disable ();
 	bool IsEnabled () { return m_pid->IsEnabled(); }
-	void Reset () { m_elevEncode->Reset(); }
+	void Reset () { m_elevEncode->Reset(); m_pid->Reset(); }
 	bool AtSetpoint ();
 	pos_t GetSetpoint () { return GetSetpoint(m_pid->GetSetpoint()); }
 

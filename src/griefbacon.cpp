@@ -112,6 +112,9 @@ public:
 		m_autonLoop = 0;
 		m_drivetrain->SetLimit(0.6);
 		m_drivetrain->ResetEncoders();
+#ifdef NAVX_ENABLED
+		m_drivetrain->ResetGyroAngle();
+#endif
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -149,199 +152,115 @@ public:
 	void AutonThreeTote ()
 	{
 		switch (m_autonCase)
-		{
-		case 0:
-			if (f_elevReset && f_shoulderReset && f_wristReset)
-				m_autonCase++;
-			break;
-		case 1:
-			m_elev->Set(kCarry);
-			m_arm->shoulderSetPos(ksDriving);
-			m_arm->wristSetPos(kwDriving);
-
-			if (!m_arm->sIsEnabled())
-				m_arm->sEnable();
-			if (!m_arm->wIsEnabled())
-				m_arm->wEnable();
-
-			if (m_elev->AtSetpoint())
 			{
-				m_elev->Disable();
-				m_autonCase++;
-			}
-			break;
-		case 2:
-			m_drivetrain->SetDistance(-0.25);
-
-			if (!m_drivetrain->IsEnabledDistance())
-				m_drivetrain->EnableDistance();
-
-			if(m_drivetrain->DistanceAtSetpoint())
-			{
-				m_drivetrain-> DisableDistance();
-				m_autonCase++;
-			}
+			case 0:
+				if (f_elevReset && f_shoulderReset && f_wristReset)
+					m_autonCase++;
 				break;
-		case 3:
-				if (m_autonLoop < 2)
+			case 1:
+				m_elev->Set(kCarry);
+				m_arm->shoulderSetPos(ksDriving);
+				m_arm->wristSetPos(kwDriving);
+
+				if (!m_arm->sIsEnabled())
+					m_arm->sEnable();
+				if (!m_arm->wIsEnabled())
+					m_arm->wEnable();
+
+				if (m_elev->AtSetpoint())
 				{
-					m_elev->Set(kTop);
-					if (m_elev->GetDistance() > ELEVATOR_UMID)
-					{
-						m_drivetrain->ResetEncoders();
-						m_autonCase++;
-					}
+					m_elev->Disable();
+					m_autonCase++;
 				}
-				else
-				{
-					m_elev->Set(kCarry);
-					m_drivetrain->ResetEncoders();
-					m_autonCase = 6;
-				}
-			break;
-		case 4:
-			m_drivetrain->SetDistance(6.5);
-			m_arm->clearCans(true);
-			m_drivetrain->EnableDistance();
-			if (m_drivetrain->GetDistancePID() > 4)
-			{
-				m_arm->clearCans(false);
-				m_arm->intakeSet(-1);
-			}
-			if(m_drivetrain->DistanceAtSetpoint())
-			{
-				m_drivetrain-> DisableDistance();
-				m_arm->intakeSet(0);
-				m_autonCase++;
-			}
-			break;
-		case 5:
-			m_elev->Set(kBottom);
-			if(m_elev->AtSetpoint())
-			{
-				if(m_autonLoop < 2)
-				{
-					m_drivetrain->ResetEncoders();
-					m_autonCase = 1;
-					m_autonLoop++;
-				}
-			}
-			break;
-		case 6:
-			break;
-		}
-	}
-
-	void JayAutonThreeTote ()
-	{
-		switch (m_autonCase)
-		{
-		case 0:
-			if (f_elevReset && f_shoulderReset && f_wristReset)
-				m_autonCase++;
-			break;
-		case 1:
-			m_elev->Set(kCarry);
-			m_arm->shoulderSetPos(ksDriving);
-			m_arm->wristSetPos(kwDriving);
-
-			if (!m_arm->sIsEnabled())
-				m_arm->sEnable();
-			if (!m_arm->wIsEnabled())
-				m_arm->wEnable();
-
-			if (m_elev->AtSetpoint())
-			{
-				m_elev->Disable();
-				m_autonCase++;
-			}
-			break;
-		case 2:
-			m_drivetrain->SetDistance(-0.25);
-
-			if (!m_drivetrain->IsEnabledDistance())
-				m_drivetrain->EnableDistance();
-
-			if(m_drivetrain->DistanceAtSetpoint())
-			{
-				m_drivetrain-> DisableDistance();
-				m_autonCase++;
-			}
 				break;
-		case 3:
-				if (m_autonLoop < 2)
-				{
-					m_elev->Set(kTop);
-					if (m_elev->GetDistance() > ELEVATOR_UMID)
-					{
-						m_drivetrain->ResetEncoders();
-						m_autonCase++;
-					}
-				}
-				else
-				{
-					m_elev->Set(kCarry);
-					m_drivetrain->ResetEncoders();
-					m_autonCase = 6;
-					m_drivetrain->SetAngleHeading(-90.0);
-					m_drivetrain->SetLimit(0.4);
-					m_drivetrain->SetCorrLimit(0.5);
-					m_drivetrain->SetDistance(-7.);
+			case 2:
+				m_drivetrain->SetDistance(-0.25);
+
+				if (!m_drivetrain->IsEnabledDistance())
 					m_drivetrain->EnableDistance();
+
+				if(m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain-> DisableDistance();
+					m_autonCase++;
 				}
-			break;
-		case 4:
-			m_drivetrain->SetDistance(6.5);
-			m_arm->clearCans(true);
-			m_drivetrain->SetLimit(0.4);
-			m_drivetrain->EnableDistance();
-			if(m_drivetrain->GetDistancePID() > 0.5)
-				m_drivetrain->SetLimit(0.65);
-			if (m_drivetrain->GetDistancePID() > 2)
-			{
-				m_arm->clearCans(false);
-				m_arm->intakeSet(-1.0);
-			}
-			if(m_drivetrain->DistanceAtSetpoint())
-			{
-				m_drivetrain-> DisableDistance();
-				m_autonCase++;
-			}
-			break;
-		case 5:
-			m_elev->Set(kBottom);
-			if(m_elev->AtSetpoint())
-			{
-				if(m_autonLoop < 2)
+					break;
+			case 3:
+					if (m_autonLoop < 2)
+					{
+						m_elev->Set(kTop);
+						if (m_elev->GetDistance() > ELEVATOR_UMID)
+						{
+							m_drivetrain->ResetEncoders();
+							m_autonCase++;
+						}
+					}
+					else
+					{
+						m_elev->Set(kCarry);
+						m_drivetrain->ResetEncoders();
+						m_autonCase = 6;
+						m_drivetrain->SetAngleHeading(-90.0);
+						m_drivetrain->SetLimit(0.4);
+						m_drivetrain->SetCorrLimit(0.5);
+						m_drivetrain->SetDistance(-7.);
+						m_drivetrain->EnableDistance();
+					}
+				break;
+			case 4:
+				m_drivetrain->SetDistance(6.5);
+				m_arm->clearCans(true);
+				m_drivetrain->SetLimit(0.4);
+				m_drivetrain->EnableDistance();
+				if(m_drivetrain->GetDistancePID() > 0.5)
+					m_drivetrain->SetLimit(0.65);
+				if (m_drivetrain->GetDistancePID() > 2)
+				{
+					m_arm->clearCans(false);
+					m_arm->intakeSet(-1.0);
+				}
+				if(m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain-> DisableDistance();
+					m_autonCase++;
+				}
+				break;
+			case 5:
+				m_elev->Set(kBottom);
+				if(m_elev->AtSetpoint())
+				{
+					if(m_autonLoop < 2)
+					{
+						m_drivetrain->ResetEncoders();
+						m_autonCase = 1;
+						m_autonLoop++;
+					}
+				}
+				break;
+			case 6:
+				if(m_drivetrain->DistanceAtSetpoint())
 				{
 					m_drivetrain->ResetEncoders();
-					m_autonCase = 1;
-					m_autonLoop++;
+					m_drivetrain->SetDistance(-4.0);
+					m_drivetrain->SetAngleHeading(0.0);
+					m_elev->Set(kBottom);
+					m_arm->intakeSet(1);
+					m_autonCase++;
 				}
+				break;
+			case 7:
+				if (m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain->DisableDistance();
+					m_arm->intakeSet(0);
+					SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
+					m_autonCase++;
+				}
+				break;
 			}
-			break;
-		case 6:
-			if(m_drivetrain->DistanceAtSetpoint())
-			{
-				m_drivetrain->ResetEncoders();
-				m_drivetrain->SetDistance(-4.0);
-				m_drivetrain->SetAngleHeading(0.0);
-				m_elev->Set(kBottom);
-				m_arm->intakeSet(1);
-				m_autonCase++;
-			}
-			break;
-		case 7:
-			if (m_drivetrain->DistanceAtSetpoint())
-			{
-				m_drivetrain->DisableDistance();
-				m_arm->intakeSet(0);
-				SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
-				m_autonCase++;
-			}
-			break;
-		}
 	}
+
+
 	void AutonTwoCan()
 	{
 		switch (m_autonCase)

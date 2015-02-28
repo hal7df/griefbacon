@@ -73,9 +73,9 @@ public:
 	void PIDWrite(float input);
 	void GetPID (bool get) { f_getPID = get; }
 	void sEnable ();
-	void sDisable () { if (sIsEnabled()) m_shoulderPid->Disable(); }
+	void sDisable ();
 	void wEnable ();
-	void wDisable () { if (wIsEnabled()) m_wristPid->Disable(); }
+	void wDisable ();
 
 	void sReset () {  m_shoulderEncode->Reset(); }
 	void wReset () {  m_wristEncode->Reset(); }

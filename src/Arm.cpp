@@ -48,11 +48,11 @@ Arm::~Arm() {
 }
 bool Arm::ShoulderAtSetpoint()
 {
-	return fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()) < 0.05;
+	return fabs(m_shoulderEncode->GetDistance() - m_shoulderPid->GetSetpoint()) < 0.01;
 }
 bool Arm::WristAtSetpoint()
 {
-	return fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()) < 0.05;
+	return fabs(m_wristEncode->GetDistance() - m_wristPid->GetSetpoint()) < 0.01;
 }
 
 void Arm::shoulderSet(double speed){
@@ -120,6 +120,15 @@ void Arm::sEnable ()
 	//END SEMAPHORE REGION
 }
 
+void Arm::sDisable ()
+{
+	if (sIsEnabled())
+	{
+		m_shoulderPid->Disable();
+		m_shoulderPid->Reset();
+	}
+}
+
 void Arm::wristSetPos (wPos_t position)
 {
 	switch (position){
@@ -163,6 +172,15 @@ void Arm::wEnable()
 	if (lock == 0)
 		sem_post(&m_semaphore);
 	//END SEMAPHORE REGION
+}
+
+void Arm::wDisable()
+{
+	if (wIsEnabled())
+	{
+		m_wristPid->Disable();
+		m_wristPid->Reset();
+	}
 }
 
 void Arm::shoulderSetSetpoint(int point){
@@ -259,6 +277,14 @@ void Arm::Update()
 		m_wStopTime->Reset();
 		m_sStopTime->Stop();
 		m_sStopTime->Reset();
+	}
+	if (ShoulderAtSetpoint() && sIsEnabled())
+	{
+		m_shoulderPid->Reset();
+	}
+	if (WristAtSetpoint() && wIsEnabled())
+	{
+		m_wristPid->Reset();
 	}
 }
 void Arm::EStopCheck()

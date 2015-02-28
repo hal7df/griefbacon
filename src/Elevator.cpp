@@ -120,7 +120,10 @@ void Elevator::Enable()
 void Elevator::Disable()
 {
 	if (IsEnabled())
+	{
 		m_pid->Disable();
+		m_pid->Reset();
+	}
 }
 
 bool Elevator::AtSetpoint()
@@ -161,6 +164,8 @@ void Elevator::Update ()
 		m_stackTime->Stop();
 		m_stackTime->Reset();
 	}
+	if (m_pid->IsEnabled() && AtSetpoint())
+		m_pid->Reset();
 }
 
 void Elevator::PrintData()
