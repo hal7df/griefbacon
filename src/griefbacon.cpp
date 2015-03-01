@@ -13,7 +13,8 @@ enum auton_t {
 	kTwoCan,
 	kRoboThreeTote,
 	kDriveForward,
-	kCanToAutoZone
+	kCanToAutoZone,
+	kNothing
 };
 
 
@@ -98,6 +99,8 @@ public:
 			m_autonChoice = kCanToAutoZone;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
 			m_autonChoice = kThreeTote;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
+			m_autonChoice = kNothing;
 
 		switch(m_autonChoice)
 		{
@@ -115,6 +118,9 @@ public:
 			break;
 		case kCanToAutoZone:
 			SmartDashboard::PutString("Auton Mode", "Can To Auto Zone");
+			break;
+		case kNothing:
+			SmartDashboard::PutString("Auton Mode", "Do Nothing");
 			break;
 		}
 	}
