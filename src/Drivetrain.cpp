@@ -55,6 +55,8 @@ Drivetrain::~Drivetrain() {
 void Drivetrain::Update() {
 #ifdef NAVX_ENABLED
 	GyroCal();
+	if (DriverStation::GetInstance()->IsAutonomous())
+		TipCheck();
 #else
 	m_gyro->Update();
 #endif
@@ -110,7 +112,9 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Angle Compensation Limit",m_correctLimit);
 
 		SmartDashboard::PutNumber("Angle", GetGyroAngle());
-#ifndef NAVX_ENABLED
+#ifdef NAVX_ENABLED
+		SmartDashboard::PutNumber("Roll", m_gyro->GetPitch());
+#else //!NAVX_ENABLED
 		SmartDashboard::PutNumber("Rate", m_gyro->GetRate());
 #endif
 		SmartDashboard::PutNumber("Left Encoder",m_lEncode->GetDistance());
@@ -152,4 +156,10 @@ void Drivetrain::GyroCal()
 		m_gyro->ZeroYaw();
 		m_firstGyroIt = false;
 	}
+}
+
+void Drivetrain::TipCheck()
+{
+	if (fabs(m_gyro->GetPitch()) > 20.0)
+		f_tipping = true;
 }

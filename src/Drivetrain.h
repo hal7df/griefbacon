@@ -93,6 +93,9 @@ public:
 	void SetCorrLimit (float lim) { m_correctLimit = lim; }
 	float GetCorrLimit () { return m_correctLimit; }
 
+	bool GetTipping() { return f_tipping; }
+	void ResetTipFlag() { f_tipping = false; }
+
 protected:
 
 	void Update();
@@ -100,6 +103,7 @@ protected:
 
 private:
 	void GyroCal();
+	void TipCheck();
 
 	Talon* m_lDrive1;
 	Talon* m_lDrive2;
@@ -131,6 +135,7 @@ private:
 
 	bool f_setPID;
 	bool f_DisabledDistance;
+	bool f_tipping;
 };
 
 #endif /* DRIVETRAIN_H_ */

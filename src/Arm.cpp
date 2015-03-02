@@ -194,8 +194,8 @@ void Arm::wristSetSetpoint(int point){
 void Arm::clearCans(bool on) {
 	if (on)
 	{
-		m_intakeL->Set(-0.3);
-		m_intakeR->Set(0.3);
+		m_intakeL->Set(0.35);
+		m_intakeR->Set(0.35);
 	}
 	else
 	{
@@ -257,7 +257,7 @@ void Arm::PrintData()
 
 void Arm::Update()
 {
-	if (DriverStation::GetInstance()->IsAutonomous())
+	/*if (DriverStation::GetInstance()->IsAutonomous())
 	{
 
 		if (!f_eStopRunning)
@@ -277,7 +277,7 @@ void Arm::Update()
 		m_wStopTime->Reset();
 		m_sStopTime->Stop();
 		m_sStopTime->Reset();
-	}
+	}*/
 	if (ShoulderAtSetpoint() && sIsEnabled())
 	{
 		m_shoulderPid->Reset();

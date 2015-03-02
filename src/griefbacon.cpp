@@ -233,14 +233,16 @@ public:
 		//clears can while driving to next tote and speeds up after clearing can. Then begins to take in next tote.
 		//once robot is around next tote, disables pid, and goes to next case
 			case 4:
-				m_drivetrain->SetDistance(5.75);
+				m_drivetrain->SetDistance(5.85);
 				m_arm->clearCans(true);
-				m_drivetrain->SetLimit(0.38);
+				m_drivetrain->SetLimit(0.40);
+				m_drivetrain->SetAngleHeading(0.);
 				m_drivetrain->EnableDistance();
 				if(m_drivetrain->GetDistancePID() > 1.5)
 					m_drivetrain->SetLimit(0.7);
-				if (m_drivetrain->GetDistancePID() > 2)
+				if (m_drivetrain->GetDistancePID() > 3)
 				{
+					m_drivetrain->SetAngleHeading(0.);
 					m_arm->clearCans(false);
 					m_arm->intakeSet(-1.0);
 				}
@@ -270,8 +272,9 @@ public:
 				{
 					m_drivetrain->DisableDistance();
 					m_drivetrain->ResetEncoders();
-					m_drivetrain->SetDistance(-6.0);
+					m_drivetrain->SetDistance(-7.5);
 					m_drivetrain->SetAngleHeading(0.0);
+					m_drivetrain->SetCorrLimit(0.3);
 
 					m_autonCase++;
 				}
@@ -279,7 +282,7 @@ public:
 			case 7:
 				if (!m_drivetrain->IsEnabledDistance())
 					m_drivetrain->EnableDistance();
-				if (m_drivetrain->GetDistancePID()<-2.25)
+				if (m_drivetrain->GetDistancePID() < -3.5)
 				{
 					m_elev->Set(kBottom);
 					m_arm->intakeSet(1);
@@ -287,6 +290,7 @@ public:
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
 					m_drivetrain->DisableDistance();
+					m_drivetrain->ArcadeDrive(0.,0.);
 					//m_arm->intakeSet(0);
 					SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
 					m_autonCase++;
@@ -639,6 +643,8 @@ public:
 
 		m_elev->ResetEStop();
 		m_arm->ResetEStop();
+
+		m_arm->intakeSet(0.0);
 	}
 
 	void TeleopPeriodic()
@@ -777,6 +783,10 @@ public:
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
 			m_drivetrain->ResetFlags();
 			m_drivetrain->ResetGyroAngle();
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+		{
+			m_drivetrain->EnableDistance();
 		}
 
 		else if (m_drivetrain->IsEnabledDistance())
