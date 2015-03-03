@@ -94,6 +94,7 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Turn P",m_turnPID->GetP());
 		SmartDashboard::PutNumber("Turn I",m_turnPID->GetI());
 		SmartDashboard::PutNumber("Turn D",m_turnPID->GetD());
+		SmartDashboard::PutBoolean("Turn PID At Setpoint",AtAngleHeading());
 
 		SmartDashboard::PutNumber("Distance P", m_distancePID->GetP());
 		SmartDashboard::PutNumber("Distance I", m_distancePID->GetI());
@@ -161,6 +162,6 @@ void Drivetrain::GyroCal()
 
 void Drivetrain::TipCheck()
 {
-	if (fabs(m_gyro->GetPitch()) > 20.0)
+	if (fabs(m_gyro->GetPitch()) > 10.0)
 		f_tipping = true;
 }

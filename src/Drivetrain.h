@@ -54,12 +54,12 @@ public:
 
 	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle);}
 	float GetTurnPIDHeading () {return m_turnPID->GetSetpoint();}
-	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 0.2; }
+	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 4; }
 
 
 	void SetAngleHeading (float angle) {m_angleHeading = angle; }
 	float GetAngleHeading () {return (m_angleHeading); }
-	bool AtAngleHeading () { return fabs(GetGyroAngle() - m_angleHeading) < 0.1; }
+	bool AtAngleHeading () { return fabs(GetGyroAngle() - m_angleHeading) < 1.; }
 
 #ifdef NAVX_ENABLED
 	void ResetGyroAngle() { m_gyro->ZeroYaw(); }
