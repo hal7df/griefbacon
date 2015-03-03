@@ -46,6 +46,7 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_speedLimit = 0.65;
 	m_correctLimit = 0.1;
 
+	f_tipping = false;
 }
 
 Drivetrain::~Drivetrain() {

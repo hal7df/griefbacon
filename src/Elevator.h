@@ -53,6 +53,7 @@ public:
 	bool IsEnabled () { return m_pid->IsEnabled(); }
 	void Reset () { m_elevEncode->Reset(); m_pid->Reset(); }
 	bool AtSetpoint ();
+	bool AtSetpoint (float tolerance);
 	pos_t GetSetpoint () { return GetSetpoint(m_pid->GetSetpoint()); }
 
 	void PIDWrite (float input) { Set((double)input); }
@@ -61,9 +62,6 @@ public:
 
 	double GetRate () {return m_elevEncode -> GetRate();}
 	double GetDistance () { return m_elevEncode -> GetDistance(); }
-
-	bool GetEStop () { return f_elevEStop; }
-	void ResetEStop ();
 protected:
 	void Update();
 	void PrintData();
@@ -79,10 +77,7 @@ private:
 	Encoder* m_elevEncode;
 	PIDController* m_pid;
 
-	Timer* m_stopTime;
 	Timer* m_stackTime;
-
-	sem_t m_semaphore;
 
 	unsigned m_stackCase;
 	pos_t m_stackFin;
@@ -90,9 +85,6 @@ private:
 	bool f_stacking;
 
 	bool f_setPID;
-	bool f_elevEStop;
-	bool f_eStopRunning;
-	bool f_setpointChanged;
 };
 
 #endif /* SRC_ELEVATOR_H_ */
