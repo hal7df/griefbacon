@@ -54,7 +54,7 @@ public:
 
 	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle);}
 	float GetTurnPIDHeading () {return m_turnPID->GetSetpoint();}
-	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 4; }
+	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 5; }
 
 
 	void SetAngleHeading (float angle) {m_angleHeading = angle; }

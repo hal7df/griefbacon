@@ -62,7 +62,7 @@ public:
 		f_shoulderReset = false;
 		f_wristReset = false;
 
-		m_autonChoice = kThreeTote;
+		m_autonChoice = kThreeTotew90Turn;
 		m_autonCase= 0;
 		m_autonLoop = 0;
 
@@ -155,7 +155,7 @@ public:
 			m_arm->wDisable();
 			m_arm->intakeSet(0);
 			m_elev->Disable();
-			m_autonCase = 8;
+			m_autonCase = 10;
 		}
 		switch (m_autonChoice)
 		{
@@ -417,25 +417,41 @@ public:
 					{
 						m_drivetrain->DisableAngle();
 						m_drivetrain->ResetEncoders();
-						m_drivetrain->SetDistance(-9.0);
+						m_drivetrain->SetDistance(-5.0);
 						m_drivetrain->SetAngleHeading(-90.0);
 						m_drivetrain->SetCorrLimit(0.3);
+						m_drivetrain->EnableDistance();
 						m_autonCase++;
 					}
 					break;
 				case 7:
-					if (!m_drivetrain->IsEnabledDistance())
-						m_drivetrain->EnableDistance();
-					if (m_drivetrain->GetDistancePID() < -7.)
+					if (m_drivetrain->DistanceAtSetpoint())
 					{
-						m_elev->Set(kBottom);
-						m_arm->intakeSet(1);
+						m_drivetrain->DisableDistance();
+						m_drivetrain->ResetEncoders();
+						m_drivetrain->SetTurnPIDHeading(0.);
+						m_drivetrain->EnableAngle();
+						m_autonCase++;
 					}
+					break;
+				case 8:
+					if(m_drivetrain->TurnPIDatSetpoint())
+					{
+						m_drivetrain->DisableAngle();
+						m_drivetrain->SetDistance(-6.0);
+						m_drivetrain->SetAngleHeading(0.0);
+						m_drivetrain->SetCorrLimit(0.3);
+						m_drivetrain->EnableDistance();
+						m_autonCase++;
+					}
+					break;
+				case 9:
+					m_elev->Set(kBottom);
+					m_arm->intakeSet(1);
 					if (m_drivetrain->DistanceAtSetpoint())
 					{
 						m_drivetrain->DisableDistance();
 						m_drivetrain->ArcadeDrive(0.,0.);
-						//m_arm->intakeSet(0);
 						SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
 						m_autonCase++;
 					}

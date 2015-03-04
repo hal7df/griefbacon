@@ -94,7 +94,7 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Turn P",m_turnPID->GetP());
 		SmartDashboard::PutNumber("Turn I",m_turnPID->GetI());
 		SmartDashboard::PutNumber("Turn D",m_turnPID->GetD());
-		SmartDashboard::PutBoolean("Turn PID At Setpoint",AtAngleHeading());
+		SmartDashboard::PutBoolean("Turn PID At Setpoint",TurnPIDatSetpoint());
 
 		SmartDashboard::PutNumber("Distance P", m_distancePID->GetP());
 		SmartDashboard::PutNumber("Distance I", m_distancePID->GetI());

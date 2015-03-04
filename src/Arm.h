@@ -12,6 +12,16 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
+//#define PRACTICE_BOT
+#define COMPETITION_BOT
+
+#ifdef PRACTICE_BOT
+#define ARM_ENCODER_REVERSE false
+#endif
+#ifdef COMPETITION_BOT
+#define ARM_ENCODER_REVERSE true
+#endif
+
 #define WRIST_P -16.0
 #define WRIST_I 0.01
 #define WRIST_D 0.0
