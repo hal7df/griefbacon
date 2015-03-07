@@ -13,7 +13,7 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
-#define ELEVATOR_P 8.0
+#define ELEVATOR_P 15.0
 #define ELEVATOR_I 0.01
 #define ELEVATOR_D 0.0
 

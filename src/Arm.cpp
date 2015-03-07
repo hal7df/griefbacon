@@ -201,7 +201,7 @@ void Arm::wristSetSetpoint(int point){
 void Arm::clearCans(bool on) {
 	if (on)
 	{
-		m_intakeL->Set(1.);
+		m_intakeL->Set(-1.);
 		m_intakeR->Set(1.);
 	}
 	else
@@ -231,6 +231,9 @@ void Arm::PrintData()
 		SmartDashboard::PutNumber("Arm Roller Right",m_pickRR->Get());
 		SmartDashboard::PutNumber("Arm Intake Left",m_intakeL->Get());
 		SmartDashboard::PutNumber("Arm Intake Right",m_intakeR->Get());
+
+		SmartDashboard::PutBoolean("Arm Intake Running",(m_intakeR->Get() != 0.0) && (m_intakeL->Get() != 0.0));
+		SmartDashboard::PutBoolean("Arm Intake Running",(m_pickRR->Get() != 0.0) && (m_pickRL->Get() != 0.0));
 
 		SmartDashboard::PutNumber("Shoulder Encoder",m_shoulderEncode->GetDistance());
 		SmartDashboard::PutNumber("Wrist Encoder",m_wristEncode->GetDistance());

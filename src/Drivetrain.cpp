@@ -45,6 +45,7 @@ Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int l
 	m_angleHeading = 0.0;
 	m_speedLimit = 0.65;
 	m_correctLimit = 0.1;
+	m_gyroOffset = 0.0;
 
 	f_tipping = false;
 }
@@ -112,8 +113,10 @@ void Drivetrain::PrintData() {
 		SmartDashboard::PutNumber("Set Heading",m_angleHeading);
 		SmartDashboard::PutNumber("Speed Limit",m_speedLimit);
 		SmartDashboard::PutNumber("Angle Compensation Limit",m_correctLimit);
+		SmartDashboard::PutNumber("Gyro Offset",m_gyroOffset);
 
-		SmartDashboard::PutNumber("Angle", GetGyroAngle());
+		SmartDashboard::PutNumber("Raw Angle", GetGyroAngle());
+		SmartDashboard::PutNumber("Adjusted Angle", (GetGyroAngle() - m_gyroOffset));
 #ifdef NAVX_ENABLED
 		SmartDashboard::PutNumber("Roll", m_gyro->GetPitch());
 #else //!NAVX_ENABLED
@@ -162,6 +165,6 @@ void Drivetrain::GyroCal()
 
 void Drivetrain::TipCheck()
 {
-	if (fabs(m_gyro->GetPitch()) > 10.0)
+	if (fabs(m_gyro->GetPitch()) > 7.5)
 		f_tipping = true;
 }

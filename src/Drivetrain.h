@@ -52,17 +52,17 @@ public:
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 
-	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle);}
+	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle - m_gyroOffset);}
 	float GetTurnPIDHeading () {return m_turnPID->GetSetpoint();}
-	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 5; }
+	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 7; }
 
 
-	void SetAngleHeading (float angle) {m_angleHeading = angle; }
+	void SetAngleHeading (float angle) { m_angleHeading = (angle - m_gyroOffset) ; }
 	float GetAngleHeading () {return (m_angleHeading); }
 	bool AtAngleHeading () { return fabs(GetGyroAngle() - m_angleHeading) < 1.; }
 
 #ifdef NAVX_ENABLED
-	void ResetGyroAngle() { m_gyro->ZeroYaw(); }
+	void ResetGyroAngle() { m_gyro->ZeroYaw(); m_gyroOffset = 0.0; }
 #else
 	void ResetGyroAngle() {m_gyro->Reset(); }
 #endif
@@ -82,6 +82,9 @@ public:
 #else
 	double GetGyroAngle () { return (m_gyro->GetAngle()); }
 #endif
+
+	void SetGyroOffset() { m_gyroOffset = GetGyroAngle(); }
+	float GetGyroOffset () { return m_gyroOffset; }
 
 	void ResetEncoders () {m_lEncode->Reset(); m_rEncode->Reset(); }
 	void ResetFlags () {f_setPID = false; f_DisabledDistance = false; }
@@ -132,6 +135,7 @@ private:
 	float m_speedLimit;
 	float m_correctLimit;
 	float m_angleHeading;
+	float m_gyroOffset;
 
 	bool f_setPID;
 	bool f_DisabledDistance;

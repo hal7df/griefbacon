@@ -112,7 +112,7 @@ void Elevator::Disable()
 
 bool Elevator::AtSetpoint()
 {
-	return AtSetpoint(0.04);
+	return AtSetpoint(0.03);
 }
 
 bool Elevator::AtSetpoint (float tolerance)
