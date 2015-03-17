@@ -953,32 +953,17 @@ public:
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
 			m_drivetrain->PIDWrite(.5);
-			//This function is DriveStraightBackward
+			//This function is DriveStraightBackward)
 		}
 		else*/
-		m_drivetrain->SetPID(m_driver->GetRawButton(AdvancedJoystick::kButtonBack));
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
-		{
-			m_drivetrain->EnableAngle();
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB)){
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart) && m_driver->GetRawButton(AdvancedJoystick::kButtonBack)){
 			m_drivetrain->ResetFlags();
 			m_drivetrain->ResetGyroAngle();
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-		{
-			m_drivetrain->EnableDistance();
-		}
-
-		else if (m_drivetrain->IsEnabledDistance())
-			m_drivetrain->DisableDistance();
-		else if (m_drivetrain->IsEnabledAngle())
-			m_drivetrain->DisableAngle();
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_drivetrain->ResetEncoders();
+		}
 
-		else
-			m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+		m_drivetrain->ArcadeDrive(m_driver->GetRawAxis(AdvancedJoystick::kLeftY), m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
 
 	}
@@ -1034,14 +1019,17 @@ public:
 			m_arm->shoulderSet(m_operator->GetRawAxis(AdvancedJoystick::kRightY));
 			m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		}
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
-			m_arm->rollerSet(1);
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
-			m_arm->rollerSet(-0.5);
-		}
-		else{
-			m_arm->rollerSet(0);
+
+		if(!m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
+				m_arm->rollerSet(1);
+			}
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+				m_arm->rollerSet(-0.5);
+			}
+			else{
+				m_arm->rollerSet(0);
+			}
 		}
 
 		if (m_driver->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.2){
@@ -1057,7 +1045,10 @@ public:
 		{
 			m_arm->intakeSet(0);
 		}
-
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
+			m_arm->canRotate(true);
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+			m_arm->canRotate(false);
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/

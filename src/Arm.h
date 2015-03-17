@@ -81,6 +81,7 @@ public:
 	void shoulderSetPos (sPos_t position);
 	void wristSetPos (wPos_t position);
 	void rollerSet(double speed);
+	void canRotate(bool speed);
 	void intakeSet(double speed);
 
 	void clearCans (bool on);

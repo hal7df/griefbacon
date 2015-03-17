@@ -69,6 +69,18 @@ void Arm::rollerSet(double speed){
 	m_pickRR->Set(-speed);
 }
 
+void Arm::canRotate(bool speed){
+	if (speed){
+		m_pickRL->Set(0.5);
+		m_pickRR->Set(0.5);
+	}
+	if (!speed){
+		m_pickRL->Set(-0.5);
+		m_pickRR->Set(-0.5);
+	}
+}
+
+
 void Arm::intakeSet(double speed){
 	m_intakeL->Set(-speed);
 	m_intakeR->Set(speed);
