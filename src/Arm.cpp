@@ -76,6 +76,11 @@ void Arm::intakeSet(double speed){
 
 void Arm::shoulderSetPos (sPos_t position)
 {
+	if (position == ksAutoPlace)
+		m_shoulderPid->SetOutputRange(-0.5,0.5);
+	else
+		m_shoulderPid->SetOutputRange(-1.0,1.0);
+
 	switch (position){
 	case ksGround:
 		m_shoulderPid->SetSetpoint(SHOULDER_GROUND);
@@ -97,6 +102,9 @@ void Arm::shoulderSetPos (sPos_t position)
 		break;
 	case ksCanKnock:
 		m_shoulderPid->SetSetpoint(SHOULDER_CANKNOCK);
+		break;
+	case ksAutoPlace:
+		m_shoulderPid->SetSetpoint(SHOULDER_AUTOPLACE);
 		break;
 	}
 
@@ -134,6 +142,11 @@ void Arm::sDisable ()
 
 void Arm::wristSetPos (wPos_t position)
 {
+	if (position == kwAutoPlace)
+		m_wristPid->SetOutputRange(-0.5,0.5);
+	else
+		m_wristPid->SetOutputRange(-1.0,1.0);
+
 	switch (position){
 	case kwGround:
 		m_wristPid->SetSetpoint(WRIST_GROUND);
@@ -150,11 +163,14 @@ void Arm::wristSetPos (wPos_t position)
 	case kwPackage:
 		m_wristPid ->SetSetpoint(WRIST_PACKAGE);
 		break;
-	case ksFiveCan:
+	case kwFiveCan:
 		m_wristPid ->SetSetpoint(WRIST_FIVECAN);
 		break;
-	case ksCanKnock:
+	case kwCanKnock:
 		m_wristPid->SetSetpoint(WRIST_CANKNOCK);
+		break;
+	case kwAutoPlace:
+		m_wristPid->SetSetpoint(WRIST_AUTOPLACE);
 		break;
 	}
 

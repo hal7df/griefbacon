@@ -12,8 +12,8 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
-//#define PRACTICE_BOT
-#define COMPETITION_BOT
+#define PRACTICE_BOT
+//#define COMPETITION_BOT
 
 #ifdef PRACTICE_BOT
 #define ARM_ENCODER_REVERSE false
@@ -37,6 +37,7 @@
 #define SHOULDER_FIVECAN -0.167
 #define SHOULDER_PACKAGE 0.0
 #define SHOULDER_CANKNOCK -0.777
+#define SHOULDER_AUTOPLACE -0.240
 
 #define WRIST_GROUND -0.206
 #define WRIST_TWOTOTE -0.293
@@ -45,6 +46,7 @@
 #define WRIST_FIVECAN -0.192
 #define WRIST_PACKAGE 0.0
 #define WRIST_CANKNOCK -0.079
+#define WRIST_AUTOPLACE -0.104
 
 enum sPos_t {
 	ksGround,
@@ -53,7 +55,8 @@ enum sPos_t {
 	ksCanStack,
 	ksPackage,
 	ksFiveCan,
-	ksCanKnock
+	ksCanKnock,
+	ksAutoPlace
 };
 
 enum wPos_t {
@@ -63,7 +66,8 @@ enum wPos_t {
 	kwCanStack,
 	kwPackage,
 	kwFiveCan,
-	kwCanKnock
+	kwCanKnock,
+	kwAutoPlace
 };
 
 class Arm: public HotSubsystem, public PIDOutput {
