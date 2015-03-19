@@ -89,7 +89,7 @@ void Arm::intakeSet(double speed){
 void Arm::shoulderSetPos (sPos_t position)
 {
 	if (position == ksAutoPlace)
-		m_shoulderPid->SetOutputRange(-0.5,0.5);
+		m_shoulderPid->SetOutputRange(-0.18,0.18);
 	else
 		m_shoulderPid->SetOutputRange(-1.0,1.0);
 
@@ -154,10 +154,6 @@ void Arm::sDisable ()
 
 void Arm::wristSetPos (wPos_t position)
 {
-	if (position == kwAutoPlace)
-		m_wristPid->SetOutputRange(-0.5,0.5);
-	else
-		m_wristPid->SetOutputRange(-1.0,1.0);
 
 	switch (position){
 	case kwGround:

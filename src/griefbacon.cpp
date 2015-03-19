@@ -973,7 +973,7 @@ public:
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
-			m_arm->rollerSet(-0.25);
+			m_arm->rollerSet(-0.34);
 		}
 		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);
@@ -1027,6 +1027,10 @@ public:
 			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
 				m_arm->rollerSet(-0.5);
 			}
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
+				m_arm->canRotate(true);
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+				m_arm->canRotate(false);
 			else{
 				m_arm->rollerSet(0);
 			}
@@ -1045,10 +1049,6 @@ public:
 		{
 			m_arm->intakeSet(0);
 		}
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
-			m_arm->canRotate(true);
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
-			m_arm->canRotate(false);
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/
