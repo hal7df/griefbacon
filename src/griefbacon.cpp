@@ -973,7 +973,7 @@ public:
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
-			m_arm->rollerSet(-0.34);
+			m_arm->rollerSet(-0.25);
 		}
 		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);
@@ -981,9 +981,15 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if(m_operator ->GetPOV() == 270 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
+		/*else if(m_operator ->GetPOV() == 270 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
 			m_arm->shoulderSetPos(ksCanKnock);
 			m_arm->wristSetPos(kwCanKnock);
+			m_arm->sEnable();
+			m_arm->wEnable();
+		} */
+		else if(m_operator->GetPOV() == 270 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
+			m_arm->shoulderSetPos(ksGroundM);
+			m_arm->wristSetPos(kwGroundM);
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
