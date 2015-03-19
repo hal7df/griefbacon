@@ -1011,7 +1011,6 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-
 		else
 		{
 			m_arm->sDisable();
