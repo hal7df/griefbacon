@@ -563,7 +563,7 @@ public:
 						//m_drivetrain->SetCorrLimit(0.5);
 						//m_drivetrain->SetDistance(-7.);
 						//m_drivetrain->EnableDistance();
-						m_drivetrain->SetTurnPIDHeading(90.);
+						m_drivetrain->SetTurnPIDHeading(75.);
 						m_drivetrain->EnableAngle();
 						m_autonCase = 6;
 					}
@@ -617,8 +617,7 @@ public:
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
 					m_drivetrain->SetLimit(0.7);
-					m_drivetrain->SetDistance(10.0);
-					m_drivetrain->SetAngleHeading(90.0);
+					m_drivetrain->SetDistance(13.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();
 					m_autonCase++;
