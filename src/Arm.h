@@ -39,6 +39,7 @@
 #define SHOULDER_CANKNOCK -0.777
 #define SHOULDER_AUTOPLACE -0.046 //-0.214
 #define SHOULDER_GROUND_M -0.546
+#define SHOULDER_SIDECAN
 
 #define WRIST_GROUND -0.206
 #define WRIST_TWOTOTE -0.293
@@ -49,6 +50,7 @@
 #define WRIST_CANKNOCK -0.079
 #define WRIST_AUTOPLACE -0.183 //-0.017
 #define WRIST_GROUND_M -0.973
+#define WRIST_SIDECAN
 
 enum sPos_t {
 	ksGround,
