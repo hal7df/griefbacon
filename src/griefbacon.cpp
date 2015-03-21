@@ -28,6 +28,8 @@ private:
 
 	Timer* m_resetTime;
 
+	SendableChooser* m_chooser;
+
 	bool f_elevReset, f_shoulderReset, f_wristReset;
 	auton_t m_autonChoice;
 	unsigned m_autonCase;
@@ -67,6 +69,15 @@ public:
 	void RobotInit()
 	{
 		m_subsys->Start();
+
+		m_chooser = new SendableChooser;
+		m_chooser->AddDefault("Auton Three Tote Back" , AutonThreeToteBack);
+		m_chooser->AddObject("Auton Three Tote", AutonThreeTote);
+		m_chooser->AddObject("Auton Three Tote with 90 Turn", AutonThreeTotew90Turn);
+		m_chooser->AddObject("Auton Two Can", AutonTwoCan);
+		m_chooser->AddObject("Auton Drive Forward", AutonDriveForward);
+		m_chooser->AddObject("Auton Knock Can, Go to Auto Zone", AutonKnockCanGoAutoZone);
+
 	}
 
 	void DisabledInit()
@@ -116,12 +127,18 @@ public:
 		m_resetTime->Stop();
 		m_resetTime->Start();
 		m_resetTime->Reset();
+
+
+
+
 	}
 
 	void AutonomousPeriodic()
 	{
 		ZeroAll();
 		PrintData();
+
+		m_chooser->GetSelected()();
 
 		switch (m_autonChoice)
 		{
@@ -692,6 +709,7 @@ public:
 
 		SmartDashboard::PutNumber("Auton Case",m_autonCase);
 		SmartDashboard::PutNumber("Auton Loop",m_autonLoop);
+		SmartDashboard::PutData("Autonomous Modes", m_chooser);
 	}
 	void ZeroAll ()
 	{
