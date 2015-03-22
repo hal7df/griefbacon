@@ -29,6 +29,7 @@ private:
 	Drivetrain* m_drivetrain;
 	Arm* m_arm;
 	Elevator* m_elev;
+	BackgroundDebugger* m_debug;
 
 	Timer* m_resetTime;
 	Timer* m_autonTime;
@@ -54,11 +55,13 @@ public:
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
+		m_debug = new BackgroundDebugger;
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
 		m_subsys->Add(m_drivetrain);
 		m_subsys->Add(m_arm);
+		m_subsys->Add(m_debug);
 
 		m_pdp = new PowerDistributionPanel;
 
@@ -80,6 +83,15 @@ public:
 
 	void RobotInit()
 	{
+		m_debug->AddValue("Elevator Encoder",m_elev->GetEncoder());
+		m_debug->AddValue("Shoulder Encoder",m_arm->GetShoulder());
+		m_debug->AddValue("Wrist Encoder",m_arm->GetWrist());
+		m_debug->AddValue("Gyro",m_drivetrain->GetGyro());
+		m_debug->AddValue("Drive Encoder Average",m_drivetrain->GetEncoders());
+		m_debug->AddValue("Left Drive Encoder",m_drivetrain->GetLEncode());
+		m_debug->AddValue("Right Drive Encoder",m_drivetrain->GetREncode());
+
+		m_debug->SetAutonCase(&m_autonCase);
 		m_subsys->Start();
 	}
 
@@ -157,12 +169,34 @@ public:
 		m_resetTime->Start();
 		m_resetTime->Reset();
 
-		if (m_autonChoice == kThreeTotew90Turn)
+		switch (m_autonChoice)
 		{
+		case kThreeTote:
+			m_debug->SetMaxAutonCase(8);
+			break;
+		case kThreeTotew90Turn:
+			m_debug->SetMaxAutonCase(10);
 			m_autonTime->Stop();
 			m_autonTime->Start();
 			m_autonTime->Reset();
+			break;
+		case kThreeToteBack:
+			m_debug->SetMaxAutonCase(10);
+			break;
+		case kTwoCan:
+			m_debug->SetMaxAutonCase(7);
+			break;
+		case kDriveForward:
+			m_debug->SetMaxAutonCase(3);
+			break;
+		case kKnockCanGoAutoZone:
+			m_debug->SetMaxAutonCase(7);
+			break;
+		case kNothing:
+			m_debug->SetMaxAutonCase(0);
+			break;
 		}
+		m_debug->EnableWatch(true);
 	}
 
 	void AutonomousPeriodic()
@@ -850,6 +884,8 @@ public:
 		m_arm->sDisable();
 
 		m_arm->intakeSet(0.0);
+
+		m_debug->EnableWatch(false);
 	}
 
 	void TeleopPeriodic()
@@ -858,6 +894,12 @@ public:
 		TeleopDrive();
 		TeleopArm();
 		PrintData();
+
+		if (m_driver->GetButtonPress(AdvancedJoystick::kButtonA))
+		{
+			m_debug->SetTempMessage("Driver-noted debug point");
+			m_debug->LogData("Debug point","Driver-noted");
+		}
 	}
 
 	void TestInit ()

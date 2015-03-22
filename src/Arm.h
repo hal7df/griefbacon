@@ -121,6 +121,9 @@ public:
 
 	void ResetEStop();
 
+	Encoder* GetShoulder() { return m_shoulderEncode; }
+	Encoder* GetWrist() { return m_wristEncode; }
+
 protected:
 	void Update();
 	void PrintData();
