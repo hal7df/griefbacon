@@ -56,7 +56,7 @@ public:
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
-		m_debug = new BackgroundDebugger;
+		m_debug = new BackgroundDebugger (1,true);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
@@ -94,6 +94,7 @@ public:
 		m_debug->AddValue("Right Drive Encoder",m_drivetrain->GetREncode());
 
 		m_debug->SetAutonCase(&m_autonCase);
+		m_debug->SetCaseDuration(4.0);
 		m_subsys->Start();
 	}
 
@@ -117,8 +118,8 @@ public:
 			m_debug->LogData("Shoulder at setpoint",m_arm->ShoulderAtSetpoint());
 			m_debug->SetManualLoggingName("Teleop");
 		}
-		else
-			m_debug->StopRun();
+
+		m_debug->StopRun();
 
 		m_drivetrain->DisableDistance();
 		m_elev->Disable();
@@ -221,8 +222,11 @@ public:
 			m_debug->SetMaxAutonCase(0);
 			break;
 		}
+
+		if (!m_debug->Running())
+			m_debug->StartRun();
+
 		m_debug->EnableWatch(true);
-		m_debug->StartRun();
 	}
 
 	void AutonomousPeriodic()
@@ -624,7 +628,7 @@ public:
 						//m_drivetrain->SetCorrLimit(0.5);
 						//m_drivetrain->SetDistance(-7.);
 						//m_drivetrain->EnableDistance();
-						m_drivetrain->SetTurnPIDHeading(75.);
+						m_drivetrain->SetTurnPIDHeading(60.);
 						m_drivetrain->EnableAngle();
 						m_autonCase = 6;
 					}
@@ -679,6 +683,7 @@ public:
 					m_drivetrain->ResetEncoders();
 					m_drivetrain->SetLimit(0.7);
 					m_drivetrain->SetDistance(13.0);
+					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();
 					m_autonCase++;
@@ -910,6 +915,9 @@ public:
 		m_arm->sDisable();
 
 		m_arm->intakeSet(0.0);
+
+		if (!m_debug->Running())
+			m_debug->StartRun();
 
 		m_debug->EnableWatch(false);
 		m_autonCase = 0;

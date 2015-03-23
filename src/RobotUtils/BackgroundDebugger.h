@@ -85,6 +85,8 @@ public:
      */
     void StopRun();
 
+    bool Running() { return f_running; }
+
     /**
      * @brief CloseFile: Closes non-automatic debugging files.
      */
@@ -186,7 +188,7 @@ private:
     double m_caseDuration;
     bool f_autonState;
     bool f_watchAuton;
-    time_t* m_caseTime;
+    bool f_autonWatchRunning;
 
     //User-defined debugging data
     vector<NumData> m_numList;
@@ -203,6 +205,7 @@ private:
     double m_debugInterval;
     time_t* m_lastDebugTime;
     time_t* m_startTime;
+    Timer* m_caseTime;
 
     bool f_running;
     bool f_delContents;

@@ -46,11 +46,7 @@ bool CSVWriter::writeCell(string str)
 
 bool CSVWriter::writeCell(float data)
 {
-    char buf [100];
-
-    sprintf(buf, "%f", data);
-
-    return writeCell(buf);
+    return writeCell(to_string(data));
 }
 
 bool CSVWriter::writeCell(bool data)

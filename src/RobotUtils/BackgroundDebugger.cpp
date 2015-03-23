@@ -23,9 +23,10 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
     m_lastCase = 0;
     m_endCase = 100;
     m_caseDuration = AUTON_CASE_DURATION;
-    m_caseTime = NULL;
+    m_caseTime = new Timer;
     f_autonState = true;
     f_watchAuton = true;
+    f_autonWatchRunning = false;
 
     f_running = false;
     f_delContents = clearContents;
@@ -152,7 +153,6 @@ void BackgroundDebugger::ResetRunNumber()
 
 void BackgroundDebugger::StartRun()
 {
-	unsigned x;
 	struct stat st;
 	std::string tmp;
 
@@ -247,6 +247,8 @@ void BackgroundDebugger::Update()
     if (f_running)
     {
 
+    	cout << "Writing debug logs... " << (time(NULL) - *m_lastDebugTime) << endl;
+
         string message;
         vector<SensorData>::iterator snit;
         vector<NumData>::iterator nit;
@@ -275,39 +277,55 @@ void BackgroundDebugger::Update()
 					m_csv->writeCell(*((*stit).value));
             }
 
+            cout << "Finished writing log line." << endl << "Running post-write checks..." << endl;
             time(m_lastDebugTime);
             if (m_tempMsg.compare(message) == 0)
                 m_tempMsg = "";
+
+            cout << "Finished running debug checks." << endl;
         }
 
-        if (DriverStation::GetInstance()->IsAutonomous())
+        if (DriverStation::GetInstance()->IsAutonomous() && f_watchAuton)
         {
-            if (m_caseTime == NULL)
-                time(m_caseTime);
+        	if (!f_autonWatchRunning)
+        	{
+        		m_caseTime->Stop();
+        		m_caseTime->Start();
+        		m_caseTime->Reset();
+        		f_autonWatchRunning = true;
+        	}
 
             watchAuton();
+            cout << "Auton case (according to debugger):" << (*m_autonCase) << endl;
         }
-        else if (m_caseTime != NULL)
-            m_caseTime = NULL;
+        else if (f_autonWatchRunning)
+        {
+        	m_caseTime->Stop();
+        	m_caseTime->Reset();
+        	f_autonWatchRunning = false;
+        }
+
+        cout << "Leaving update function." << endl;
     }
 }
 
 void BackgroundDebugger::PrintData()
 {
 	SmartDashboard::PutBoolean("Auton Good",GetAutonState());
+	SmartDashboard::PutBoolean("Debugger Running",f_running);
 }
 
 void BackgroundDebugger::watchAuton()
 {
     if ((*m_autonCase > 0 && *m_autonCase < m_endCase) && f_watchAuton && f_autonState)
     {
-        if (*m_autonCase != m_lastCase)
+        if ((*m_autonCase) != m_lastCase)
         {
-            time(m_caseTime);
+            m_caseTime->Reset();
             m_lastCase = *m_autonCase;
         }
 
-        if (difftime(time(NULL),*m_caseTime) > m_caseDuration)
+        else if (m_caseTime->Get() > m_caseDuration)
         {
             f_autonState = false;
             dumpAuton();
@@ -327,7 +345,7 @@ void BackgroundDebugger::dumpAuton()
     m_fout<<"BackgroundDebugger created this file because it detected that case "<<(*m_autonCase);
     m_fout<<" of the autonomous mode you ran did not advance to the next case inside of "<<m_caseDuration<<" seconds."<<endl<<endl;
     m_fout<<"Below is a dump of all sensor and time data available to BackgroundDebugger."<<endl<<endl;
-    m_fout<<"Maximum configured case duration: "<<m_caseDuration<<endl<<"Case run time: "<<difftime(time(NULL),*m_caseTime)<<endl<<endl;
+    m_fout<<"Maximum configured case duration: "<<m_caseDuration<<endl<<"Case run time: "<<m_caseTime->Get()<<endl<<endl;
 
     for (x = 0; x < m_sensorList.size(); x++)
     	m_fout<<m_sensorList[x].id<<": "<<m_sensorList[x].source->PIDGet()<<endl;
