@@ -37,6 +37,7 @@ private:
 	PowerDistributionPanel* m_pdp;
 
 	bool f_elevReset, f_shoulderReset, f_wristReset;
+	bool f_autonTipping;
 	auton_t m_autonChoice;
 	unsigned m_autonCase;
 	unsigned m_autonLoop;
@@ -71,6 +72,7 @@ public:
 		f_elevReset = false;
 		f_shoulderReset = false;
 		f_wristReset = false;
+		f_autonTipping = false;
 
 		m_autonChoice = kNothing;
 		m_autonCase= 0;
@@ -97,6 +99,27 @@ public:
 
 	void DisabledInit()
 	{
+		if (m_autonCase > 0)
+		{
+			m_debug->SetManualLoggingName("EndOfAuton");
+			m_debug->LogData("Autonomous Case",(double)m_autonCase);
+			m_debug->LogData("Gyro Tipping",(double)f_autonTipping);
+			m_debug->LogData("Gyro Angle",m_drivetrain->GetGyroAngle());
+			m_debug->LogData("Elevator position",m_elev->GetDistance());
+			m_debug->LogData("Wrist position",m_arm->GetWrist()->GetDistance());
+			m_debug->LogData("Shoulder position",m_arm->GetShoulder()->GetDistance());
+			m_debug->LogData("Encoder average",m_drivetrain->GetDistancePID());
+			m_debug->LogData("Left drive encoder",m_drivetrain->GetLEncode()->GetDistance());
+			m_debug->LogData("Right drive encoder",m_drivetrain->GetREncode()->GetDistance());
+			m_debug->LogData("Drive at setpoint",m_drivetrain->DistanceAtSetpoint());
+			m_debug->LogData("Elevator at setpoint",m_elev->AtSetpoint());
+			m_debug->LogData("Wrist at setpoint",m_arm->WristAtSetpoint());
+			m_debug->LogData("Shoulder at setpoint",m_arm->ShoulderAtSetpoint());
+			m_debug->SetManualLoggingName("Teleop");
+		}
+		else
+			m_debug->StopRun();
+
 		m_drivetrain->DisableDistance();
 		m_elev->Disable();
 		m_arm->wDisable();
@@ -169,6 +192,8 @@ public:
 		m_resetTime->Start();
 		m_resetTime->Reset();
 
+		f_autonTipping = false;
+
 		switch (m_autonChoice)
 		{
 		case kThreeTote:
@@ -197,6 +222,7 @@ public:
 			break;
 		}
 		m_debug->EnableWatch(true);
+		m_debug->StartRun();
 	}
 
 	void AutonomousPeriodic()
@@ -211,6 +237,7 @@ public:
 			m_arm->intakeSet(0);
 			m_elev->Disable();
 			m_autonCase = 10;
+			f_autonTipping = true;
 		}
 		switch (m_autonChoice)
 		{
@@ -885,6 +912,7 @@ public:
 		m_arm->intakeSet(0.0);
 
 		m_debug->EnableWatch(false);
+		m_autonCase = 0;
 	}
 
 	void TeleopPeriodic()
