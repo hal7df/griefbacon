@@ -62,6 +62,8 @@ public:
 
 	double GetRate () {return m_elevEncode -> GetRate();}
 	double GetDistance () { return m_elevEncode -> GetDistance(); }
+
+	Encoder* GetEncoder() { return m_elevEncode; }
 protected:
 	void Update();
 	void PrintData();

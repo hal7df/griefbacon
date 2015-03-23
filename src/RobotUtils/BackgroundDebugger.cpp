@@ -257,7 +257,6 @@ void BackgroundDebugger::Update()
         //Logging
         if ((time(NULL) - *m_lastDebugTime) >= m_debugInterval)
         {
-        	LogData("File Status",m_csv->is_open());
             if (m_csv->is_open())
             {
 				m_csv->writeCell((float)(time(NULL) - *m_startTime));
@@ -302,7 +301,7 @@ void BackgroundDebugger::watchAuton()
 {
     if ((*m_autonCase > 0 && *m_autonCase < m_endCase) && f_watchAuton && f_autonState)
     {
-        if (*m_autonCase > m_lastCase)
+        if (*m_autonCase != m_lastCase)
         {
             time(m_caseTime);
             m_lastCase = *m_autonCase;

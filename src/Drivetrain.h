@@ -99,6 +99,16 @@ public:
 	bool GetTipping() { return f_tipping; }
 	void ResetTipFlag() { f_tipping = false; }
 
+#ifdef NAVX_ENABLED
+	AHRS* GetGyro() { return m_gyro; }
+#else
+	ADXRS453Z* GetGyro() { return m_gyro; }
+#endif
+
+	DistancePIDWrapper* GetEncoders() { return m_distancePIDWrapper; }
+	Encoder* GetLEncode() { return m_lEncode; }
+	Encoder* GetREncode() { return m_rEncode; }
+
 protected:
 
 	void Update();

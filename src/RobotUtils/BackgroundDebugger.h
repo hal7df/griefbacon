@@ -111,7 +111,7 @@ public:
      *        so BackgroundDebugger can watch it.
      * @param auton: A pointer to the auton case variable
      */
-    void SetAutonCase (int* auton) { m_autonCase = auton; }
+    void SetAutonCase (unsigned* auton) { m_autonCase = auton; }
 
     /**
      * @brief SetMaxAutonCase: Sets the highest case that the case variable
@@ -119,7 +119,7 @@ public:
      *        the case variable.
      * @param max: The maximum case value.
      */
-    void SetMaxAutonCase (int max) { m_endCase = max; }
+    void SetMaxAutonCase (unsigned max) { m_endCase = max; }
 
     /**
      * @brief SetCaseDuration: Sets the maximum duration between case changes.
@@ -180,9 +180,9 @@ private:
     void watchAuton();
     void dumpAuton();
 
-    int* m_autonCase;
-    int m_lastCase;
-    int m_endCase;
+    unsigned* m_autonCase;
+    unsigned m_lastCase;
+    unsigned m_endCase;
     double m_caseDuration;
     bool f_autonState;
     bool f_watchAuton;
