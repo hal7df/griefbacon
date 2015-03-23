@@ -44,6 +44,7 @@
 #define WRIST_GROUND -0.206
 #define WRIST_TWOTOTE -0.293
 #define WRIST_DRIVING -0.971 //-0.488
+#define WRIST_AUTON -0.488
 #define WRIST_CANSTACK -0.045
 #define WRIST_FIVECAN -0.192
 #define WRIST_PACKAGE 0.0
@@ -73,7 +74,8 @@ enum wPos_t {
 	kwFiveCan,
 	kwCanKnock,
 	kwAutoPlace,
-	kwGroundM
+	kwGroundM,
+	kwAuton
 };
 
 class Arm: public HotSubsystem, public PIDOutput {

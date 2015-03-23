@@ -186,6 +186,9 @@ void Arm::wristSetPos (wPos_t position)
 	case kwGroundM:
 		m_wristPid->SetSetpoint(WRIST_GROUND_M);
 		break;
+	case kwAuton:
+		m_wristPid->SetSetpoint(WRIST_AUTON);
+		break;
 	}
 
 	f_wSetpointChanged = true;

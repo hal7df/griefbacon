@@ -520,7 +520,7 @@ public:
 			case 1:
 				m_elev->Set(kCarry);
 				m_arm->shoulderSetPos(ksDriving);
-				m_arm->wristSetPos(kwDriving);
+				m_arm->wristSetPos(kwAuton);
 
 				if (!m_arm->sIsEnabled())
 					m_arm->sEnable();
@@ -641,6 +641,8 @@ public:
 				break;
 			case 9:
 				m_elev->Set(kBottom);
+				m_arm->wristSetPos(kwGround);
+				m_arm->shoulderSetPos(ksGround);
 				m_arm->intakeSet(1);
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
