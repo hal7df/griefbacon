@@ -118,8 +118,8 @@ void Arm::shoulderSetPos (sPos_t position)
 	case ksAutoPlace:
 		m_shoulderPid->SetSetpoint(SHOULDER_AUTOPLACE);
 		break;
-	case ksSideCan:
-		m_shoulderPid->SetSetpoint(SHOULDER_SIDECAN);
+	case ksGroundM:
+		m_shoulderPid->SetSetpoint(SHOULDER_GROUND_M);
 		break;
 	}
 
@@ -183,8 +183,11 @@ void Arm::wristSetPos (wPos_t position)
 	case kwAutoPlace:
 		m_wristPid->SetSetpoint(WRIST_AUTOPLACE);
 		break;
-	case kwSideCan:
-		m_wristPid->SetSetpoint(WRIST_SIDECAN);
+	case kwGroundM:
+		m_wristPid->SetSetpoint(WRIST_GROUND_M);
+		break;
+	case kwAuton:
+		m_wristPid->SetSetpoint(WRIST_AUTON);
 		break;
 	}
 

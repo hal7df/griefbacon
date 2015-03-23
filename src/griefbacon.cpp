@@ -520,7 +520,7 @@ public:
 			case 1:
 				m_elev->Set(kCarry);
 				m_arm->shoulderSetPos(ksDriving);
-				m_arm->wristSetPos(kwDriving);
+				m_arm->wristSetPos(kwAuton);
 
 				if (!m_arm->sIsEnabled())
 					m_arm->sEnable();
@@ -640,6 +640,8 @@ public:
 				break;
 			case 9:
 				m_elev->Set(kBottom);
+				m_arm->wristSetPos(kwGround);
+				m_arm->shoulderSetPos(ksGround);
 				m_arm->intakeSet(1);
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
@@ -972,7 +974,7 @@ public:
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
-			m_arm->rollerSet(-0.34);
+			m_arm->rollerSet(-0.25);
 		}
 		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);
@@ -980,9 +982,15 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if(m_operator ->GetPOV() == 270 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
+		/*else if(m_operator ->GetPOV() == 270 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
 			m_arm->shoulderSetPos(ksCanKnock);
 			m_arm->wristSetPos(kwCanKnock);
+			m_arm->sEnable();
+			m_arm->wEnable();
+		} */
+		else if(m_operator->GetPOV() == 270 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
+			m_arm->shoulderSetPos(ksGroundM);
+			m_arm->wristSetPos(kwGroundM);
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
