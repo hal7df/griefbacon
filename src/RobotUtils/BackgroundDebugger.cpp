@@ -15,8 +15,8 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
     m_manualCsv = new CSVWriter;
     m_manualCsv->setColumns(3);
 
-    m_startTime = new time_t;
-    m_lastDebugTime = new time_t;
+    m_startTime = new Timer;
+    m_debugTime = new Timer;
 
     //Auton setup
     m_autonCase = NULL;
@@ -153,71 +153,80 @@ void BackgroundDebugger::ResetRunNumber()
 
 void BackgroundDebugger::StartRun()
 {
-	struct stat st;
-	std::string tmp;
+	if (!f_running)
+	{
+		struct stat st;
+		std::string tmp;
 
-	CloseFile();
+		CloseFile();
 
-    m_runNum++;
-    (*m_concat) << "/home/lvuser/Run"<<m_runNum<<'/';
-    (*m_concat) >> m_runPath;
+		m_runNum++;
+		(*m_concat) << "/home/lvuser/Run"<<m_runNum<<'/';
+		(*m_concat) >> m_runPath;
 
-    m_manualLogPath = m_runPath + m_manualLog;
+		m_manualLogPath = m_runPath + m_manualLog;
 
-    m_concat->str("");
-    m_concat->clear();
+		m_concat->str("");
+		m_concat->clear();
 
-    time(m_startTime);
+		m_startTime->Stop();
+		m_startTime->Start();
+		m_startTime->Reset();
 
-    if (!S_ISDIR(stat(m_runPath.c_str(),&st)))
-    {
-        mkdir(m_runPath.c_str(), 0755);
-    }
-    else if (f_delContents)
-    {
-        struct dirent* curFile;
-        DIR* folder;
-        string filepath;
+		m_debugTime->Stop();
+		m_debugTime->Start();
+		m_debugTime->Reset();
 
-        folder = opendir(m_runPath.c_str());
+		if (!S_ISDIR(stat(m_runPath.c_str(),&st)))
+		{
+			mkdir(m_runPath.c_str(), 0755);
+		}
+		else if (f_delContents)
+		{
+			struct dirent* curFile;
+			DIR* folder;
+			string filepath;
 
-        while (curFile = readdir(folder))
-        {
-            if (strcmp(curFile->d_name, ".") != 0 && strcmp(curFile->d_name, "..") != 0)
-            {
-                filepath = m_runPath+curFile->d_name;
-                remove(filepath.c_str());
-            }
-        }
-    }
+			folder = opendir(m_runPath.c_str());
 
-    (*m_concat) << m_runPath << "data.csv";
-    (*m_concat) >> tmp;
+			while (curFile = readdir(folder))
+			{
+				if (strcmp(curFile->d_name, ".") != 0 && strcmp(curFile->d_name, "..") != 0)
+				{
+					filepath = m_runPath+curFile->d_name;
+					remove(filepath.c_str());
+				}
+			}
+		}
 
-    m_csv->open(tmp.c_str());
-    m_csv->setColumns(m_numList.size()+m_stringList.size()+m_sensorList.size()+1);
+		(*m_concat) << m_runPath << "data.csv";
+		(*m_concat) >> tmp;
 
-    if (m_csv->is_open())
-    {
-        m_csv->writeCell(string("Time"));
+		m_csv->open(tmp.c_str());
+		m_csv->setColumns(m_numList.size()+m_stringList.size()+m_sensorList.size()+1);
 
-        vector<SensorData>::iterator snit;
-        vector<NumData>::iterator nit;
-        vector<StringData>::iterator stit;
+		if (m_csv->is_open())
+		{
+			m_csv->writeCell(string("Time"));
 
-        for (snit = m_sensorList.begin(); snit != m_sensorList.end(); ++snit)
-        	m_csv->writeCell((*snit).id);
+			vector<SensorData>::iterator snit;
+			vector<NumData>::iterator nit;
+			vector<StringData>::iterator stit;
 
-        for (nit = m_numList.begin(); nit != m_numList.end(); ++nit)
-        	m_csv->writeCell((*nit).id);
+			for (snit = m_sensorList.begin(); snit != m_sensorList.end(); ++snit)
+				m_csv->writeCell((*snit).id);
 
-        for (stit = m_stringList.begin(); stit != m_stringList.end(); ++stit)
-        	m_csv->writeCell((*stit).id);
-    }
-    f_running = true;
+			for (nit = m_numList.begin(); nit != m_numList.end(); ++nit)
+				m_csv->writeCell((*nit).id);
 
-    m_concat->str("");
-    m_concat->clear();
+			for (stit = m_stringList.begin(); stit != m_stringList.end(); ++stit)
+				m_csv->writeCell((*stit).id);
+		}
+		f_running = true;
+
+		m_concat->str("");
+		m_concat->clear();
+	}
 }
 
 void BackgroundDebugger::StopRun()
@@ -226,6 +235,12 @@ void BackgroundDebugger::StopRun()
 
     m_csv->close();
     CloseFile();
+
+    m_startTime->Stop();
+    m_startTime->Reset();
+
+    m_debugTime->Stop();
+    m_debugTime->Reset();
 
     prefs = Preferences::GetInstance();
 
@@ -246,9 +261,6 @@ void BackgroundDebugger::Update()
 {
     if (f_running)
     {
-
-    	cout << "Writing debug logs... " << (time(NULL) - *m_lastDebugTime) << endl;
-
         string message;
         vector<SensorData>::iterator snit;
         vector<NumData>::iterator nit;
@@ -257,16 +269,16 @@ void BackgroundDebugger::Update()
         message = m_tempMsg;
 
         //Logging
-        if ((time(NULL) - *m_lastDebugTime) >= m_debugInterval)
+        if ((m_debugTime->Get()*1000) >= m_debugInterval)
         {
             if (m_csv->is_open())
             {
-				m_csv->writeCell((float)(time(NULL) - *m_startTime));
+				m_csv->writeCell((float)m_startTime->Get());
 				if (message != "")
 				{
 					m_csv->writeCell(message);
 					m_csv->newRow();
-					m_csv->writeCell((float)(time(NULL) - *m_startTime));
+					m_csv->writeCell((float)m_startTime->Get());
 				}
 
 				for (snit = m_sensorList.begin(); snit != m_sensorList.end(); ++snit)
@@ -277,8 +289,8 @@ void BackgroundDebugger::Update()
 					m_csv->writeCell(*((*stit).value));
             }
 
-            cout << "Finished writing log line." << endl << "Running post-write checks..." << endl;
-            time(m_lastDebugTime);
+            m_debugTime->Reset();
+
             if (m_tempMsg.compare(message) == 0)
                 m_tempMsg = "";
 

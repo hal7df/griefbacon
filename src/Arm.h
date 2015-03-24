@@ -12,8 +12,8 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
-#define PRACTICE_BOT
-//#define COMPETITION_BOT
+//#define PRACTICE_BOT
+#define COMPETITION_BOT
 
 #ifdef PRACTICE_BOT
 #define ARM_ENCODER_REVERSE false
@@ -30,18 +30,17 @@
 #define SHOULDER_I -0.01
 #define SHOULDER_D 0.0
 
-#define SHOULDER_GROUND -0.931
+#define SHOULDER_GROUND -0.892 //-0.931
 #define SHOULDER_TWOTOTE -0.831
-#define SHOULDER_DRIVING -0.109
+#define SHOULDER_DRIVING -0.072 //-0.109
 #define SHOULDER_CANSTACK -0.120
 #define SHOULDER_FIVECAN -0.167
 #define SHOULDER_PACKAGE 0.0
 #define SHOULDER_CANKNOCK -0.777
 #define SHOULDER_AUTOPLACE -0.039 //-0.046 //-0.214
 #define SHOULDER_GROUND_M -0.546
-#define SHOULDER_SIDECAN
 
-#define WRIST_GROUND -0.206
+#define WRIST_GROUND -0.239 //-0.206
 #define WRIST_TWOTOTE -0.293
 #define WRIST_DRIVING -0.971 //-0.488
 #define WRIST_AUTON -0.488
@@ -51,7 +50,6 @@
 #define WRIST_CANKNOCK -0.079
 #define WRIST_AUTOPLACE -0.183 //-0.017
 #define WRIST_GROUND_M -0.973
-#define WRIST_SIDECAN
 
 enum sPos_t {
 	ksGround,
@@ -151,6 +149,7 @@ private:
 	bool f_sSetpointChanged;
 	bool f_wEStop;
 	bool f_sEStop;
+	bool f_shoulderStop;
 	Timer* m_wStopTime;
 	Timer* m_sStopTime;
 	sem_t m_semaphore;

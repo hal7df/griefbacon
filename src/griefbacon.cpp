@@ -56,7 +56,7 @@ public:
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
-		m_debug = new BackgroundDebugger (1,true);
+		m_debug = new BackgroundDebugger (1000,true);
 
 		m_subsys = new HotSubsystemHandler;
 		m_subsys->Add(m_elev);
@@ -264,6 +264,8 @@ public:
 			AutonThreeToteBack();
 			break;
 		}
+
+		m_debug->LogData("Robot Roll", m_drivetrain->GetGyroRoll());
 
 	}
 
@@ -694,20 +696,25 @@ public:
 				{
 					m_drivetrain->DisableDistance();
 					m_drivetrain->ResetEncoders();
+					m_arm->rollerSet(1);
 					m_autonCase++;
+				}
+				if (fabs(13 - m_drivetrain->GetDistancePID()) < 6)
+				{
+					m_arm->wristSetPos(kwGround);
+					m_arm->shoulderSetPos(ksGround);
 				}
 				break;
 			case 8:
-				m_drivetrain->SetDistance(-3.0);
-				m_drivetrain->SetAngleHeading(90.0);
+				m_drivetrain->SetDistance(-4.9);
+				m_drivetrain->SetAngleHeading(75.0);
 				m_drivetrain->SetCorrLimit(0.2);
+				m_drivetrain->SetLimit(0.5);
 				m_drivetrain->EnableDistance();
 				m_autonCase++;
 				break;
 			case 9:
 				m_elev->Set(kBottom);
-				m_arm->wristSetPos(kwGround);
-				m_arm->shoulderSetPos(ksGround);
 				m_arm->intakeSet(1);
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
@@ -1052,7 +1059,7 @@ public:
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
-			m_arm->rollerSet(-0.25);
+			m_arm->rollerSet(-0.2);
 		}
 		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);

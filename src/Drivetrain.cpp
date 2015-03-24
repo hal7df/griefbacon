@@ -165,6 +165,6 @@ void Drivetrain::GyroCal()
 
 void Drivetrain::TipCheck()
 {
-	if (fabs(m_gyro->GetPitch()) > 7.5)
+	if (fabs(m_gyro->GetPitch()) > 10)
 		f_tipping = true;
 }

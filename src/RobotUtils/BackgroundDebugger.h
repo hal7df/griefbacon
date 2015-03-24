@@ -203,8 +203,8 @@ private:
     CSVWriter* m_csv;
     CSVWriter* m_manualCsv;
     double m_debugInterval;
-    time_t* m_lastDebugTime;
-    time_t* m_startTime;
+    Timer* m_debugTime;
+    Timer* m_startTime;
     Timer* m_caseTime;
 
     bool f_running;

@@ -79,6 +79,7 @@ public:
 	bool IsEnabledAngle () { return (m_turnPID->IsEnabled()); }
 #ifdef NAVX_ENABLED
 	double GetGyroAngle () { return m_gyro->GetYaw(); }
+	double GetGyroRoll () { return m_gyro->GetPitch(); }
 #else
 	double GetGyroAngle () { return (m_gyro->GetAngle()); }
 #endif

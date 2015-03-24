@@ -40,6 +40,7 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	f_eStopRunning = false;
 	f_wSetpointChanged = false;
 	f_sSetpointChanged = false;
+	f_shoulderStop = false;
 }
 
 Arm::~Arm() {
@@ -136,7 +137,7 @@ void Arm::sEnable ()
 	if (f_eStopRunning)
 		sem_wait(&m_semaphore);
 
-	if (!sIsEnabled() && !GetEStop())
+	if (!sIsEnabled() && !GetEStop() && !f_shoulderStop)
 		m_shoulderPid->Enable();
 
 	lock = sem_getvalue(&m_semaphore, &lock);
@@ -321,6 +322,14 @@ void Arm::Update()
 		m_sStopTime->Stop();
 		m_sStopTime->Reset();
 	}*/
+
+	if (sIsEnabled() && m_shoulderEncode->GetDistance() < -0.745 && m_wristEncode->GetDistance() < -0.411)
+	{
+		sDisable();
+		f_shoulderStop = true;
+	}
+	else
+		f_shoulderStop = false;
 	if (ShoulderAtSetpoint() && sIsEnabled())
 	{
 		m_shoulderPid->Reset();
