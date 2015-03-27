@@ -39,6 +39,7 @@
 #define SHOULDER_CANKNOCK -0.777
 #define SHOULDER_AUTOPLACE -0.039 //-0.046 //-0.214
 #define SHOULDER_GROUND_M -0.546
+#define SHOULDER_FOURCAN -0.183
 
 #define WRIST_GROUND -0.239 //-0.206
 #define WRIST_TWOTOTE -0.293
@@ -50,6 +51,7 @@
 #define WRIST_CANKNOCK -0.079
 #define WRIST_AUTOPLACE -0.183 //-0.017
 #define WRIST_GROUND_M -0.973
+#define WRIST_FOURCAN -0.109
 
 enum sPos_t {
 	ksGround,
@@ -60,7 +62,8 @@ enum sPos_t {
 	ksFiveCan,
 	ksCanKnock,
 	ksAutoPlace,
-	ksGroundM
+	ksGroundM,
+	ksFourCanPlace
 };
 
 enum wPos_t {
@@ -73,7 +76,8 @@ enum wPos_t {
 	kwCanKnock,
 	kwAutoPlace,
 	kwGroundM,
-	kwAuton
+	kwAuton,
+	kwFourCanPlace
 };
 
 class Arm: public HotSubsystem, public PIDOutput {

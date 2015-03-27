@@ -207,7 +207,7 @@ public:
 			m_autonTime->Reset();
 			break;
 		case kThreeToteBack:
-			m_debug->SetMaxAutonCase(10);
+			m_debug->SetMaxAutonCase(11);
 			break;
 		case kTwoCan:
 			m_debug->SetMaxAutonCase(7);
@@ -233,16 +233,7 @@ public:
 	{
 		PrintData();
 		ZeroAll();
-		if (m_drivetrain->GetTipping())
-		{
-			m_drivetrain->DisableDistance();
-			m_arm->sDisable();
-			m_arm->wDisable();
-			m_arm->intakeSet(0);
-			m_elev->Disable();
-			m_autonCase = 10;
-			f_autonTipping = true;
-		}
+
 		switch (m_autonChoice)
 		{
 		case kThreeTote:
@@ -596,12 +587,12 @@ public:
 
 				if (m_elev->AtSetpoint())
 				{
-					m_autonCase=3;
+					m_autonCase = 3;
 				}
 				break;
 			//Robot backs up. Goes to the next case when the distance is at setpoint.
 			case 2:
-				m_drivetrain->SetDistance(-0.25);
+				m_drivetrain->SetDistance(-0.5);
 
 				if (!m_drivetrain->IsEnabledDistance())
 					m_drivetrain->EnableDistance();
@@ -643,7 +634,7 @@ public:
 				m_drivetrain->SetLimit(0.40);
 				m_drivetrain->SetAngleHeading(0.);
 				m_drivetrain->EnableDistance();
-				if(m_drivetrain->GetDistancePID() > 1.5)
+				if(m_drivetrain->GetDistancePID() > 2)
 				{
 
 					if (m_autonLoop == 0)
@@ -684,36 +675,50 @@ public:
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
 					m_drivetrain->SetLimit(0.7);
-					m_drivetrain->SetDistance(11.0);
+					m_drivetrain->SetDistance(11.75);
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();
+
+					m_arm->wristSetPos(kwGround);
+					m_arm->shoulderSetPos(ksGround);
 					m_autonCase++;
 				}
 				break;
 			case 7:
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
+
 					m_drivetrain->DisableDistance();
 					m_drivetrain->ResetEncoders();
-					m_arm->rollerSet(1);
-					m_autonCase++;
-				}
-				if (fabs(13 - m_drivetrain->GetDistancePID()) < 6)
-				{
-					m_arm->wristSetPos(kwGround);
-					m_arm->shoulderSetPos(ksGround);
+//					m_drivetrain->SetTurnPIDHeading(72.5);
+//					m_drivetrain->EnableAngle();
+					m_autonCase=9;
 				}
 				break;
 			case 8:
-				m_drivetrain->SetDistance(-4.25);
-				m_drivetrain->SetAngleHeading(75.0);
-				m_drivetrain->SetCorrLimit(0.2);
-				m_drivetrain->SetLimit(0.5);
-				m_drivetrain->EnableDistance();
+			if (m_drivetrain->TurnPIDatSetpoint())
+			{
+				m_drivetrain->DisableAngle();
+				m_drivetrain->ResetEncoders();
+
 				m_autonCase++;
-				break;
+			}
+			break;
+
 			case 9:
+				if (m_arm->ShoulderAtSetpoint() && m_arm->WristAtSetpoint())
+				{
+					m_arm->rollerSet(1);
+					m_drivetrain->SetDistance(-4.0);
+					m_drivetrain->SetAngleHeading(72.5);
+					m_drivetrain->SetCorrLimit(0.25);
+					m_drivetrain->SetLimit(0.5);
+					m_drivetrain->EnableDistance();
+					m_autonCase++;
+				}
+				break;
+			case 10:
 				m_elev->Set(kBottom);
 				if (m_drivetrain->GetDistancePID() < -0.5)
 					m_arm->intakeSet(0.5);
@@ -1056,7 +1061,13 @@ public:
 	}
 
 	void TeleopArm(){
-		if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
+
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB) && m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
+		{
+			m_arm->shoulderSetPos(ksFourCanPlace);
+			m_arm->wristSetPos(kwFourCanPlace);
+		}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
@@ -1112,31 +1123,33 @@ public:
 			m_arm->wristSet(-m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
 		}
 
-		if(!m_operator->GetRawButton(AdvancedJoystick::kButtonLB)){
-			if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
-				m_arm->rollerSet(1);
-			}
-			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
-				m_arm->rollerSet(-0.5);
-			}
-			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
-				m_arm->canRotate(true);
-			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
-				m_arm->canRotate(false);
-			else{
-				m_arm->rollerSet(0);
-			}
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonRB)){
+			m_arm->rollerSet(1);
 		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonLB)){
+			if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB) && m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
+				m_arm->rollerSet(-0.25);
+			else
+				m_arm->rollerSet(-0.5);
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
+			m_arm->canRotate(true);
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+			m_arm->canRotate(false);
+		else if(!m_operator->GetRawButton(AdvancedJoystick::kButtonLB) || m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
+			m_arm->rollerSet(0);
+		}
+
 
 		if (m_driver->GetRawAxis(AdvancedJoystick::kRightTrigger) > 0.2){
 			m_arm->intakeSet(-m_driver->GetRawAxis(AdvancedJoystick::kRightTrigger));
 		}
 		else if (m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.2){
 			if (m_driver->GetRawAxis(AdvancedJoystick::kLeftY) > 0.0)
-
 			{
 				m_arm->intakeSet(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger)*(fabs(m_driver->GetRawAxis(AdvancedJoystick::kLeftY))));
-				m_arm->wristSetSetpoint(-0.73);
+				m_arm->wristSetSetpoint(-0.220);
 				m_arm->wEnable();
 			}
 			else

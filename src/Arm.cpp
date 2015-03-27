@@ -122,6 +122,9 @@ void Arm::shoulderSetPos (sPos_t position)
 	case ksGroundM:
 		m_shoulderPid->SetSetpoint(SHOULDER_GROUND_M);
 		break;
+	case ksFourCanPlace:
+		m_shoulderPid->SetSetpoint(SHOULDER_FOURCAN);
+		break;
 	}
 
 	f_sSetpointChanged = true;
@@ -189,6 +192,9 @@ void Arm::wristSetPos (wPos_t position)
 		break;
 	case kwAuton:
 		m_wristPid->SetSetpoint(WRIST_AUTON);
+		break;
+	case kwFourCanPlace:
+		m_wristPid->SetSetpoint(WRIST_FOURCAN);
 		break;
 	}
 
