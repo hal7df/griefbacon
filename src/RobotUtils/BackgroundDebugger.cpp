@@ -293,8 +293,6 @@ void BackgroundDebugger::Update()
 
             if (m_tempMsg.compare(message) == 0)
                 m_tempMsg = "";
-
-            cout << "Finished running debug checks." << endl;
         }
 
         if (DriverStation::GetInstance()->IsAutonomous() && f_watchAuton)
@@ -316,8 +314,6 @@ void BackgroundDebugger::Update()
         	m_caseTime->Reset();
         	f_autonWatchRunning = false;
         }
-
-        cout << "Leaving update function." << endl;
     }
 }
 

@@ -228,7 +228,7 @@ void Arm::shoulderSetSetpoint(int point){
 	m_shoulderPid->SetSetpoint(point);
 }
 
-void Arm::wristSetSetpoint(int point){
+void Arm::wristSetSetpoint(float point){
 	m_wristPid->SetSetpoint(point);
 }
 

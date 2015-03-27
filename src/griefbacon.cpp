@@ -684,7 +684,7 @@ public:
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
 					m_drivetrain->SetLimit(0.7);
-					m_drivetrain->SetDistance(13.0);
+					m_drivetrain->SetDistance(11.0);
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();
@@ -706,7 +706,7 @@ public:
 				}
 				break;
 			case 8:
-				m_drivetrain->SetDistance(-4.9);
+				m_drivetrain->SetDistance(-4.25);
 				m_drivetrain->SetAngleHeading(75.0);
 				m_drivetrain->SetCorrLimit(0.2);
 				m_drivetrain->SetLimit(0.5);
@@ -715,7 +715,8 @@ public:
 				break;
 			case 9:
 				m_elev->Set(kBottom);
-				m_arm->intakeSet(1);
+				if (m_drivetrain->GetDistancePID() < -0.5)
+					m_arm->intakeSet(0.5);
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
 					m_drivetrain->DisableDistance();
@@ -1103,7 +1104,7 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else
+		else if(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2)
 		{
 			m_arm->sDisable();
 			m_arm->wDisable();
@@ -1132,7 +1133,12 @@ public:
 		}
 		else if (m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) > 0.2){
 			if (m_driver->GetRawAxis(AdvancedJoystick::kLeftY) > 0.0)
+
+			{
 				m_arm->intakeSet(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger)*(fabs(m_driver->GetRawAxis(AdvancedJoystick::kLeftY))));
+				m_arm->wristSetSetpoint(-0.73);
+				m_arm->wEnable();
+			}
 			else
 				m_arm->intakeSet(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger));
 		}

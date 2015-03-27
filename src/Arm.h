@@ -109,7 +109,7 @@ public:
 	bool wIsEnabled(){return m_wristPid -> IsEnabled();}
 
 	void shoulderSetSetpoint(int point);
-	void wristSetSetpoint(int point);
+	void wristSetSetpoint(float point);
 	double GetWristRate(){ return m_wristEncode -> GetRate(); }
 	double GetShoulderRate(){ return m_shoulderEncode -> GetRate(); }
 
