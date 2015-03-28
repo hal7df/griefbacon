@@ -3,10 +3,7 @@
 BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents) :
     HotSubsystem("BackgroundDebugger")
 {
-    Preferences* prefs;
-    struct stat st;
-
-    prefs = Preferences::GetInstance();
+   struct stat st;
 
     m_debugInterval = debugInterval;
     m_manualLog = "manualLog.csv";
@@ -30,7 +27,7 @@ BackgroundDebugger::BackgroundDebugger(double debugInterval, bool clearContents)
 
     f_running = false;
     f_delContents = clearContents;
-    m_runNum = prefs->GetInt("DebugRun");
+    m_runNum = 1;
     m_runPath = "/home/lvuser/DisabledLogs/";
 
     (*m_concat) << m_runPath << m_manualLog;
@@ -231,8 +228,6 @@ void BackgroundDebugger::StartRun()
 
 void BackgroundDebugger::StopRun()
 {
-    Preferences* prefs;
-
     m_csv->close();
     CloseFile();
 
@@ -241,11 +236,6 @@ void BackgroundDebugger::StopRun()
 
     m_debugTime->Stop();
     m_debugTime->Reset();
-
-    prefs = Preferences::GetInstance();
-
-    prefs->PutInt("DebugRun",m_runNum);
-    prefs->Save();
 
     f_running = false;
     m_runPath = "/home/lvuser/DisabledLogs/";

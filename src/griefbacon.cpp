@@ -96,6 +96,7 @@ public:
 		m_debug->SetAutonCase(&m_autonCase);
 		m_debug->SetCaseDuration(4.0);
 		m_subsys->Start();
+		m_subsys->SetPrintData(false);
 	}
 
 	void DisabledInit()
@@ -129,7 +130,7 @@ public:
 
 	void DisabledPeriodic()
 	{
-		PrintData();
+		//PrintData();
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -231,7 +232,7 @@ public:
 
 	void AutonomousPeriodic()
 	{
-		PrintData();
+		//PrintData();
 		ZeroAll();
 
 		switch (m_autonChoice)
@@ -298,6 +299,7 @@ public:
 				{
 					m_drivetrain-> DisableDistance();
 					m_autonCase++;
+					\
 				}
 					break;
 		//if auton loop is less than two, then elevator is raised. Will go on to next case if elevator is at midpoint and resets encoders
@@ -941,7 +943,7 @@ public:
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
-		PrintData();
+		//PrintData();
 
 		if (m_driver->GetButtonPress(AdvancedJoystick::kButtonA))
 		{
