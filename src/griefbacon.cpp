@@ -96,7 +96,7 @@ public:
 		m_debug->SetAutonCase(&m_autonCase);
 		m_debug->SetCaseDuration(4.0);
 		m_subsys->Start();
-		m_subsys->SetPrintData(false);
+		//m_subsys->SetPrintData(false);
 	}
 
 	void DisabledInit()
