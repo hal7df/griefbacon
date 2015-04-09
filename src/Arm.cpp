@@ -7,7 +7,7 @@
 
 #include "Arm.h"
 
-Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR) :
+Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR, int canburgleL, int canburgleR, int potL, int potR) :
 	HotSubsystem("Arm")
 {
 	// TODO Auto-generated constructor stub
@@ -19,6 +19,9 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_intakeL = new CANTalon (intakeL);
 	m_intakeR = new CANTalon (intakeR);
 
+	m_canburgleR = new Talon (canburgleR);
+	m_canburgleL = new Talon (canburgleL);
+
 	m_pickSL->SetVoltageRampRate(0.1);
 	m_pickSR->SetVoltageRampRate(0.1);
 	m_pickW->SetVoltageRampRate(0.1);
@@ -28,11 +31,21 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_wristEncode = new Encoder (6,7,ARM_ENCODER_REVERSE);
 	m_wristEncode->SetDistancePerPulse(1./2613.);
 
+	m_potR = new AnalogPotentiometer (potR);
+	m_potL = new AnalogPotentiometer (potL);
+
+	m_burgleWrap = new BurgleWrapper (m_canburgleL, m_canburgleR, m_potL, m_potR);
+
 	m_wristPid = new PIDController(WRIST_P,WRIST_I,WRIST_D,m_wristEncode,m_pickW);
 	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
+	m_burglePid = new PIDController(BURGLE_P, BURGLE_I, BURGLE_D, m_burgleWrap, m_burgleWrap);
 	f_getPID = false;
 
 	sem_init(&m_semaphore,0,1);
+
+	m_burgleCase = 0;
+	m_burgletime = new Timer;
+
 	m_wStopTime = new Timer;
 	m_sStopTime = new Timer;
 	f_sEStop = false;
@@ -41,6 +54,7 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	f_wSetpointChanged = false;
 	f_sSetpointChanged = false;
 	f_shoulderStop = false;
+	f_burgling = false;
 }
 
 Arm::~Arm() {
@@ -343,6 +357,41 @@ void Arm::Update()
 	if (WristAtSetpoint() && wIsEnabled())
 	{
 		m_wristPid->Reset();
+	}
+	if (f_burgling && burglarAtPoint(0.0))
+	{
+		switch (m_burgleCase)
+		{
+		case 0:
+			m_burgletime->Stop();
+			m_burgletime->Start();
+			m_burgletime->Reset();
+			m_canburgleL->Set(1.0);
+			m_canburgleR->Set(1.0);
+			m_burgleCase++;
+			break;
+		case 1:
+			if (m_burgletime->Get() > 0.5)
+			{
+				m_canburgleL->Set(0.0);
+				m_canburgleR->Set(0.0);
+				m_burgletime->Stop();
+				m_burgletime->Reset();
+				m_burgleCase++;
+			}
+			break;
+		}
+	}
+	if (!f_burgling && burglarAtPoint(1.0))
+	{
+		if (!m_burglePid->IsEnabled())
+		{
+			m_burglePid->SetSetpoint(0.0);
+			m_burglePid->Enable();
+			m_burgleCase = 0;
+		}
+		if (burglarAtPoint(0.0))
+			m_burglePid->Disable();
 	}
 }
 void Arm::EStopCheck()
