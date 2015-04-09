@@ -9,6 +9,7 @@
 #define SRC_ARM_H_
 
 #include "RobotUtils/HotSubsystem.h"
+#include "BurgleWrapper.h"
 #include "WPILib.h"
 #include <semaphore.h>
 
