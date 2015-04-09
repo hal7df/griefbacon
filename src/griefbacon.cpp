@@ -15,7 +15,8 @@ enum auton_t {
 	kTwoCan,
 	kDriveForward,
 	kKnockCanGoAutoZone,
-	kNothing
+	kNothing,
+	kCanBurglar
 };
 
 
@@ -54,7 +55,7 @@ public:
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
-		m_arm = new Arm(11,16,14,10,15,12,13);
+		m_arm = new Arm(11,16,14,10,15,12,13,6,7,0,1);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
 
@@ -128,6 +129,8 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
+
+		SmartDashboard::PutString("DB/String0","Auton Mode");
 	}
 
 	void DisabledPeriodic()
@@ -136,7 +139,7 @@ public:
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			m_autonChoice = kTwoCan;
+			m_autonChoice = kCanBurglar;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
 			m_autonChoice = kKnockCanGoAutoZone;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
@@ -154,25 +157,25 @@ public:
 		switch(m_autonChoice)
 		{
 		case kThreeTote:
-			SmartDashboard::PutString("Auton Mode","Three Tote");
+			SmartDashboard::PutString("DB/String5","Three Tote");
 			break;
 		case kThreeTotew90Turn:
-			SmartDashboard::PutString("Auton Mode","Three Tote w 90 Turn");
+			SmartDashboard::PutString("DB/String5","Three Tote w 90 Turn");
 			break;
-		case kTwoCan:
-			SmartDashboard::PutString("Auton Mode","Two Can Clear");
+		case kCanBurglar:
+			SmartDashboard::PutString("DB/String5","Can Burglar");
 			break;
 		case kDriveForward:
-			SmartDashboard::PutString("Auton Mode", "Drive Forward");
+			SmartDashboard::PutString("DB/String5", "Drive Forward");
 			break;
 		case kKnockCanGoAutoZone:
-			SmartDashboard::PutString("Auton Mode", "Knock Can, Go Auto Zone");
+			SmartDashboard::PutString("DB/String5", "Knock Can, Go Auto Zone");
 			break;
 		case kNothing:
-			SmartDashboard::PutString("Auton Mode", "Do Nothing");
+			SmartDashboard::PutString("DB/String5", "Do Nothing");
 			break;
 		case kThreeToteBack:
-			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
+			SmartDashboard::PutString("DB/String5", "Three Tote, Drive Back");
 			break;
 		}
 	}
@@ -224,6 +227,9 @@ public:
 		case kNothing:
 			m_debug->SetMaxAutonCase(0);
 			break;
+		case kCanBurglar:
+			m_debug->SetMaxAutonCase(3);
+			break;
 		}
 
 		if (!m_debug->Running())
@@ -256,6 +262,9 @@ public:
 			break;
 		case kThreeToteBack:
 			AutonThreeToteBack();
+			break;
+		case kCanBurglar:
+			AutonCanBurglar();
 			break;
 		}
 
@@ -473,17 +482,11 @@ public:
 				case 4:
 					m_drivetrain->SetDistance(5.7);
 					m_arm->clearCans(true);
-					m_drivetrain->SetLimit(0.40);
+					m_drivetrain->SetLimit(0.5);
 					m_drivetrain->SetAngleHeading(0.);
 					m_drivetrain->EnableDistance();
 					if(m_drivetrain->GetDistancePID() > 1.5)
-					{
-
-						if (m_autonLoop == 0)
-							m_drivetrain->SetLimit(0.5);
-						else
-							m_drivetrain->SetLimit(0.55);
-					}
+						m_drivetrain->SetLimit(0.7);
 					if (m_drivetrain->GetDistancePID() > 3)
 					{
 						m_drivetrain->SetAngleHeading(0.);
@@ -516,7 +519,7 @@ public:
 					{
 						m_drivetrain->DisableAngle();
 						m_drivetrain->ResetEncoders();
-						m_drivetrain->SetLimit(0.7);
+						m_drivetrain->SetLimit(0.8);
 						m_drivetrain->SetDistance(-5.75);
 						m_drivetrain->SetAngleHeading(-90.0);
 						m_drivetrain->SetCorrLimit(0.3);
@@ -923,6 +926,34 @@ public:
 
 	}
 
+	void AutonCanBurglar()
+	{
+		switch(m_autonCase)
+		{
+		case 0:
+			if (f_elevReset && f_shoulderReset && f_wristReset)
+				m_autonCase++;
+			break;
+		case 1:
+			m_arm->setBurgle(true);
+			if (m_arm->burglarAtPoint(1)){
+				m_drivetrain->SetDistance(7.0);
+				m_drivetrain->SetAngleHeading(0.0);
+				m_drivetrain->SetLimit(.95);
+				m_drivetrain->EnableDistance();
+				m_autonCase++;
+			}
+			break;
+		case 2:
+			if (m_drivetrain->DistanceAtSetpoint())
+			{
+				m_arm->setBurgle(false);
+				m_drivetrain->DisableDistance();
+				m_autonCase++;
+			}
+			break;
+		}
+	}
 
 	void TeleopInit()
 	{
@@ -1001,6 +1032,31 @@ public:
 		else{
 			m_arm->intakeSet(0);
 		}
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+		{
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+				m_arm->testSetBurgle(1,1.0);
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+				m_arm->testSetBurgle(1,-1.0);
+			else
+				m_arm->testSetBurgle(1,0.0);
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
+		{
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+				m_arm->testSetBurgle(2,1.0);
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+				m_arm->testSetBurgle(2,-1.0);
+			else
+				m_arm->testSetBurgle(2,0.0);
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+			m_arm->testSetBurgle(0,1.0);
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+			m_arm->testSetBurgle(0,-1.0);
+		else
+			m_arm->testSetBurgle(0,0.0);
 	}
 
 	/** SPECIALIZED FUNCTIONS **/
@@ -1165,6 +1221,9 @@ public:
 		{
 			m_arm->intakeSet(0);
 		}
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart) && m_driver->GetButtonPress(AdvancedJoystick::kButtonY))
+			m_arm->setBurgle(!m_arm->getBurgle());
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/

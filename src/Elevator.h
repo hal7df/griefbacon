@@ -14,7 +14,7 @@
 #include <semaphore.h>
 
 //#define PRACTICE_BOT
-#define COMPETITON_BOT
+#define COMPETITION_BOT
 
 #define ELEVATOR_P 15.0
 #define ELEVATOR_I 0.01
@@ -28,7 +28,7 @@
 #ifdef COMPETITION_BOT
 #define ELEVATOR_CARRY 0.114
 #else
-#define ELEVATOR_CARRY 0.18
+#define ELEVATOR_CARRY 0.180
 #endif
 
 enum pos_t {
