@@ -934,7 +934,7 @@ public:
 		case 1:
 			m_arm->setBurgle(true);
 			if (m_arm->burglarAtPoint(1)){
-				m_drivetrain->SetDistance(9.0);
+				m_drivetrain->SetDistance(7.0);
 				m_drivetrain->SetAngleHeading(0.0);
 				m_drivetrain->SetLimit(.95);
 				m_drivetrain->EnableDistance();
