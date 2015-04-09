@@ -7,11 +7,13 @@
 
 #include "Drivetrain.h"
 
-Drivetrain::Drivetrain(int lDrive, int rDrive, int lEncode, int rEncode) :
+Drivetrain::Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode) :
 	HotSubsystem("Drivetrain")
 {
-	m_lDrive = new Talon (lDrive);
-	m_rDrive = new Talon (rDrive);
+	m_lDrive1 = new Talon (lDrive1);
+	m_lDrive2 = new Talon (lDrive2);
+	m_rDrive1 = new Talon (rDrive1);
+	m_rDrive2 = new Talon (rDrive2);
 
 	m_lEncode = new Encoder (lEncode,lEncode++,false);
 	m_rEncode = new Encoder (rEncode, rEncode++,true);
@@ -25,7 +27,7 @@ Drivetrain::Drivetrain(int lDrive, int rDrive, int lEncode, int rEncode) :
 	f_setPID = false;
 	f_DisabledDistance = false;
 
-	m_drive = new RobotDrive (m_lDrive, m_rDrive);
+	m_drive = new RobotDrive (m_lDrive1, m_lDrive2, m_rDrive1, m_rDrive2);
 	m_drive->SetSafetyEnabled(false);
 
 #ifdef NAVX_ENABLED
@@ -76,8 +78,10 @@ void Drivetrain::PrintData() {
 	}
 	else
 	{
-		SmartDashboard::PutNumber("Left Drive 1",m_lDrive->Get());
-		SmartDashboard::PutNumber("Right Drive 1",m_rDrive->Get());
+		SmartDashboard::PutNumber("Left Drive 1",m_lDrive1->Get());
+		SmartDashboard::PutNumber("Left Drive 2",m_lDrive2->Get());
+		SmartDashboard::PutNumber("Right Drive 1",m_rDrive1->Get());
+		SmartDashboard::PutNumber("Right Drive 2",m_rDrive2->Get());
 
 		SmartDashboard::PutNumber("m_lEncode Distance", m_lEncode->GetDistance());
 		SmartDashboard::PutNumber("m_rEncode Distance", m_rEncode->GetDistance());

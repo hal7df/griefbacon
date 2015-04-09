@@ -12,15 +12,15 @@
 
 class BurgleWrapper: public PIDSource, public PIDOutput {
 public:
-	BurgleWrapper(Talon* canburgleL, Talon* canburgleR, AnalogPotentiometer* potL,  AnalogPotentiometer* potR);
+	BurgleWrapper(Victor* canburgleL, Victor* canburgleR, AnalogPotentiometer* potL,  AnalogPotentiometer* potR);
 	virtual ~BurgleWrapper();
 
-	double PIDGet() { return ((m_potL->Get() + m_potR->Get())/2); }
+	double PIDGet() { return (((1-(m_potL->Get())) + m_potR->Get())/2); }
 	void PIDWrite (float output);
 
 private:
-	Talon* m_canburgleL;
-	Talon* m_canburgleR;
+	Victor* m_canburgleL;
+	Victor* m_canburgleR;
 	AnalogPotentiometer* m_potL;
 	AnalogPotentiometer* m_potR;
 };
