@@ -7,7 +7,7 @@
 
 #include "BurgleWrapper.h"
 
-BurgleWrapper::BurgleWrapper(Talon* canburgleL, Talon* canburgleR, AnalogPotentiometer* potL,  AnalogPotentiometer* potR) {
+BurgleWrapper::BurgleWrapper(Victor* canburgleL, Victor* canburgleR, AnalogPotentiometer* potL,  AnalogPotentiometer* potR) {
 	m_canburgleL = canburgleL;
 	m_canburgleR = canburgleR;
 	m_potL = potL;
