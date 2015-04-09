@@ -102,7 +102,7 @@ public:
 	void clearCans (bool on);
 
 	void setBurgle (bool on) { f_burgling = on;}
-	void testSetBurgle (int arm=0, float speed);
+	void testSetBurgle (int arm, float speed);
 	bool getBurgle () { return f_burgling; }
 	bool burglarAtPoint (float point) { return fabs(m_burgleWrap->PIDGet()-point) < 0.1; }
 

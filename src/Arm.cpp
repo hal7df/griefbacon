@@ -95,7 +95,7 @@ void Arm::canRotate(bool speed){
 	}
 }
 
-void Arm::testSetBurgle (int arm=0, float speed)
+void Arm::testSetBurgle (int arm, float speed)
 {
 	switch (arm)
 	{
