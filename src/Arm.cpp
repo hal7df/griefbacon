@@ -95,6 +95,24 @@ void Arm::canRotate(bool speed){
 	}
 }
 
+void Arm::testSetBurgle (int arm=0, float speed)
+{
+	switch (arm)
+	{
+	case 0:
+		m_canburgleL->Set(speed);
+		m_canburgleR->Set(speed);
+		break;
+	case 1:
+		m_canburgleL->Set(speed);
+		m_canburgleR->Set(0);
+		break;
+	case 2:
+		m_canburgleL->Set(0);
+		m_canburgleR->Set(speed);
+		break;
+	}
+}
 
 void Arm::intakeSet(double speed){
 	m_intakeL->Set(-speed);
@@ -316,6 +334,13 @@ void Arm::PrintData()
 
 		SmartDashboard::PutNumber("Wrist E-Stop Timer",m_wStopTime->Get());
 		SmartDashboard::PutNumber("Shoulder E-Stop Timer",m_sStopTime->Get());
+
+		SmartDashboard::PutNumber("Left Can Burglar Throttle", m_canburgleL->Get());
+		SmartDashboard::PutNumber("Right Can Burglar Throttle", m_canburgleR->Get());
+		SmartDashboard::PutNumber("Left Can Burglar Potentiometer", m_potL->Get());
+		SmartDashboard::PutNumber("Right Can Burgler Potentiometer", m_potR->Get());
+		SmartDashboard::PutBoolean("Burgling",f_burgling);
+		SmartDashboard::PutNumber("Burgle Case",m_burgleCase);
 	}
 }
 

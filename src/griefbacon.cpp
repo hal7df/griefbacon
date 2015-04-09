@@ -55,7 +55,7 @@ public:
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
-		m_arm = new Arm(11,16,14,10,15,12,13,5,6,0,1);
+		m_arm = new Arm(11,16,14,10,15,12,13,6,7,0,1);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
 
@@ -1038,6 +1038,31 @@ public:
 		else{
 			m_arm->intakeSet(0);
 		}
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+		{
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+				m_arm->testSetBurgle(1,1.0);
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+				m_arm->testSetBurgle(1,-1.0);
+			else
+				m_arm->testSetBurgle(1,0.0);
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
+		{
+			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+				m_arm->testSetBurgle(2,1.0);
+			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+				m_arm->testSetBurgle(2,-1.0);
+			else
+				m_arm->testSetBurgle(2,0.0);
+		}
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
+			m_arm->testSetBurgle(0,1.0);
+		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
+			m_arm->testSetBurgle(0,-1.0);
+		else
+			m_arm->testSetBurgle(0,0.0);
 	}
 
 	/** SPECIALIZED FUNCTIONS **/
