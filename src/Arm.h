@@ -102,6 +102,7 @@ public:
 	void clearCans (bool on);
 
 	void setBurgle (bool on) { f_burgling = on;}
+	bool getBurgle () { return f_burgling; }
 	bool burglarAtPoint (float point) { return fabs(((m_potL->Get() + m_potR->Get())/2)-point) < 0.1; }
 
 	bool WristAtSetpoint ();

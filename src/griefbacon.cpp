@@ -1201,6 +1201,9 @@ public:
 		{
 			m_arm->intakeSet(0);
 		}
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart) && m_driver->GetButtonPress(AdvancedJoystick::kButtonY))
+			m_arm->setBurgle(!m_arm->getBurgle());
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/
