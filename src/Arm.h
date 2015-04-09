@@ -9,6 +9,7 @@
 #define SRC_ARM_H_
 
 #include "RobotUtils/HotSubsystem.h"
+#include "BurgleWrapper.h"
 #include "WPILib.h"
 #include <semaphore.h>
 
@@ -29,6 +30,10 @@
 #define SHOULDER_P -8.0
 #define SHOULDER_I -0.01
 #define SHOULDER_D 0.0
+
+#define BURGLE_P 0.1
+#define BURGLE_I 0.0
+#define BURGLE_D 0.0
 
 #define SHOULDER_GROUND -0.892 //-0.931
 #define SHOULDER_TWOTOTE -0.831
@@ -83,7 +88,7 @@ enum wPos_t {
 class Arm: public HotSubsystem, public PIDOutput {
 public:
 	friend class HotSubsystemHandler;
-	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR);
+	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR, int canburgleL, int canburgleR, int potL, int potR);
 	virtual ~Arm();
 
 	void shoulderSet(double speed);
@@ -95,6 +100,11 @@ public:
 	void intakeSet(double speed);
 
 	void clearCans (bool on);
+
+	void setBurgle (bool on) { f_burgling = on;}
+	void testSetBurgle (int arm=0, float speed);
+	bool getBurgle () { return f_burgling; }
+	bool burglarAtPoint (float point) { return fabs(m_burgleWrap->PIDGet()-point) < 0.1; }
 
 	bool WristAtSetpoint ();
 	bool ShoulderAtSetpoint ();
@@ -141,21 +151,35 @@ private:
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
 
+	Victor* m_canburgleL;
+	Victor* m_canburgleR;
+
 	Encoder* m_shoulderEncode;
 	Encoder* m_wristEncode;
 
+	AnalogPotentiometer* m_potL;
+	AnalogPotentiometer* m_potR;
+
+	BurgleWrapper* m_burgleWrap;
+
 	PIDController* m_shoulderPid;
 	PIDController* m_wristPid;
-	bool f_getPID;
+	PIDController* m_burglePid;
 
+	unsigned m_burgleCase;
+
+	bool f_burgling;
+	bool f_getPID;
 	bool f_eStopRunning;
 	bool f_wSetpointChanged;
 	bool f_sSetpointChanged;
 	bool f_wEStop;
 	bool f_sEStop;
 	bool f_shoulderStop;
+
 	Timer* m_wStopTime;
 	Timer* m_sStopTime;
+	Timer* m_burgletime;
 	sem_t m_semaphore;
 };
 
