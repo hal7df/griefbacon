@@ -96,7 +96,9 @@ public:
 		m_debug->SetAutonCase(&m_autonCase);
 		m_debug->SetCaseDuration(4.0);
 		m_subsys->Start();
-		m_subsys->SetPrintData(false);
+
+		if (DriverStation::GetInstance()->IsFMSAttached())
+			m_subsys->SetPrintData(false);
 	}
 
 	void DisabledInit()
@@ -130,7 +132,7 @@ public:
 
 	void DisabledPeriodic()
 	{
-		//PrintData();
+		PrintData();
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -232,7 +234,7 @@ public:
 
 	void AutonomousPeriodic()
 	{
-		//PrintData();
+		PrintData();
 		ZeroAll();
 
 		switch (m_autonChoice)
@@ -943,7 +945,7 @@ public:
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
-		//PrintData();
+		PrintData();
 
 		if (m_driver->GetButtonPress(AdvancedJoystick::kButtonA))
 		{
@@ -1073,7 +1075,8 @@ public:
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
-			m_arm->rollerSet(-0.2);
+			if (m_arm->GetWrist()->GetDistance() > -0.84)
+				m_arm->rollerSet(-0.2);
 		}
 		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);
@@ -1166,29 +1169,32 @@ public:
 	/** MISCELLANEOUS FUNCTIONS **/
 	void PrintData ()
 	{
-		SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
-		SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-		SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
-		SmartDashboard::PutNumber("Operator Right Y",m_operator->GetRawAxis(AdvancedJoystick::kRightY));
-		SmartDashboard::PutNumber("Operator Left Trigger",m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
-		SmartDashboard::PutNumber("Operator Right Trigger",m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
+		if (!DriverStation::GetInstance()->IsFMSAttached())
+		{
+			SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
+			SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+			SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+			SmartDashboard::PutNumber("Operator Right Y",m_operator->GetRawAxis(AdvancedJoystick::kRightY));
+			SmartDashboard::PutNumber("Operator Left Trigger",m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
+			SmartDashboard::PutNumber("Operator Right Trigger",m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
 
-		SmartDashboard::PutBoolean("Operator Left Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonLB));
-		SmartDashboard::PutBoolean("Operator Right Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonRB));
+			SmartDashboard::PutBoolean("Operator Left Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonLB));
+			SmartDashboard::PutBoolean("Operator Right Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonRB));
 
-		SmartDashboard::PutNumber("Driver Raw Left Y",m_driver->GetJoystick()->GetRawAxis(1));
-		SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
+			SmartDashboard::PutNumber("Driver Raw Left Y",m_driver->GetJoystick()->GetRawAxis(1));
+			SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
 
-		SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+			SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
-		SmartDashboard::PutNumber("Total Current",m_pdp->GetTotalCurrent());
+			SmartDashboard::PutNumber("Total Current",m_pdp->GetTotalCurrent());
 
-		SmartDashboard::PutNumber("Auton Case",m_autonCase);
-		SmartDashboard::PutNumber("Auton Loop",m_autonLoop);
+			SmartDashboard::PutNumber("Auton Case",m_autonCase);
+			SmartDashboard::PutNumber("Auton Loop",m_autonLoop);
 
-		SmartDashboard::PutBoolean("Shoulder Reset", f_shoulderReset);
-		SmartDashboard::PutBoolean("Wrist Reset", f_wristReset);
-		SmartDashboard::PutBoolean("Elevator Reset", f_elevReset);
+			SmartDashboard::PutBoolean("Shoulder Reset", f_shoulderReset);
+			SmartDashboard::PutBoolean("Wrist Reset", f_wristReset);
+			SmartDashboard::PutBoolean("Elevator Reset", f_elevReset);
+		}
 	}
 	void ZeroAll ()
 	{
