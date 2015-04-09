@@ -1154,7 +1154,8 @@ public:
 			if (m_driver->GetRawAxis(AdvancedJoystick::kLeftY) > 0.0)
 			{
 				m_arm->intakeSet(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger)*(fabs(m_driver->GetRawAxis(AdvancedJoystick::kLeftY))));
-				m_arm->wristSetSetpoint(-0.220);
+				m_arm->wristSetSetpoint(-0.250);
+				m_arm->rollerSet(-0.1);
 				m_arm->wEnable();
 			}
 			else

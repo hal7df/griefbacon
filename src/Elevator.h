@@ -13,6 +13,9 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
+//#define PRACTICE_BOT
+#define COMPETITON_BOT
+
 #define ELEVATOR_P 15.0
 #define ELEVATOR_I 0.01
 #define ELEVATOR_D 0.0
@@ -21,7 +24,12 @@
 #define ELEVATOR_TOP 1.0000
 #define ELEVATOR_LMID 0.4700
 #define ELEVATOR_UMID 0.7600
+
+#ifdef COMPETITION_BOT
 #define ELEVATOR_CARRY 0.114
+#else
+#define ELEVATOR_CARRY 0.18
+#endif
 
 enum pos_t {
 	kBottom,
