@@ -13,19 +13,19 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
-#define PRACTICE_BOT
-//#define COMPETITION_BOT
+//#define PRACTICE_BOT
+#define COMPETITION_BOT
 
 #ifdef PRACTICE_BOT
 #define ELEVATOR_CARRY 0.180
 #endif
 
 #ifdef COMPETITION_BOT
-#define ELEVATOR_CARRY 0.114
+#define ELEVATOR_CARRY 0.114 //0.107
 #endif
 
 #define ELEVATOR_P 15.0
-#define ELEVATOR_I 0.01
+#define ELEVATOR_I 0.015 //0.01
 #define ELEVATOR_D 0.0
 
 #define ELEVATOR_BOTTOM 0.0000

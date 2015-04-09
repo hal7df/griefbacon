@@ -12,8 +12,8 @@
 #include "WPILib.h"
 #include <semaphore.h>
 
-#define PRACTICE_BOT
-//#define COMPETITION_BOT
+//#define PRACTICE_BOT
+#define COMPETITION_BOT
 
 #ifdef PRACTICE_BOT
 #define ARM_ENCODER_REVERSE false
