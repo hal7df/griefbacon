@@ -53,7 +53,7 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_drivetrain = new Drivetrain (0,2,0,2);
+		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
@@ -158,7 +158,7 @@ public:
 			SmartDashboard::PutString("Auton Mode","Three Tote w 90 Turn");
 			break;
 		case kTwoCan:
-			SmartDashboard::PutString("DB/String5","Two Can Clear");
+			SmartDashboard::PutString("Auton Mode","Two Can Clear");
 			break;
 		case kDriveForward:
 			SmartDashboard::PutString("Auton Mode", "Drive Forward");
@@ -179,7 +179,7 @@ public:
 	{
 		m_autonCase = 0;
 		m_autonLoop = 0;
-		m_drivetrain->SetLimit(0.65);
+		m_drivetrain->SetLimit(0.55);
 		m_drivetrain->ResetEncoders();
 #ifdef NAVX_ENABLED
 		m_drivetrain->ResetGyroAngle();
@@ -626,7 +626,6 @@ public:
 						m_drivetrain->SetTurnPIDHeading(60.);
 						m_drivetrain->EnableAngle();
 						m_autonCase = 6;
-						m_arm->intakeSet(0);
 					}
 				break;
 		//clears can while driving to next tote and speeds up after clearing can. Then begins to take in next tote.
@@ -634,12 +633,16 @@ public:
 			case 4:
 				m_drivetrain->SetDistance(5.7);
 				m_arm->clearCans(true);
-				m_drivetrain->SetLimit(0.5);
+				m_drivetrain->SetLimit(0.40);
 				m_drivetrain->SetAngleHeading(0.);
 				m_drivetrain->EnableDistance();
 				if(m_drivetrain->GetDistancePID() > 2)
 				{
-						m_drivetrain->SetLimit(0.7);
+
+					if (m_autonLoop == 0)
+						m_drivetrain->SetLimit(0.5);
+					else
+						m_drivetrain->SetLimit(0.55);
 				}
 				if (m_drivetrain->GetDistancePID() > 3)
 				{
@@ -673,7 +676,7 @@ public:
 				{
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
-					m_drivetrain->SetLimit(0.8);
+					m_drivetrain->SetLimit(0.7);
 					m_drivetrain->SetDistance(11.75);
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
@@ -712,7 +715,7 @@ public:
 					m_drivetrain->SetDistance(-4.0);
 					m_drivetrain->SetAngleHeading(72.5);
 					m_drivetrain->SetCorrLimit(0.25);
-					m_drivetrain->SetLimit(0.65);
+					m_drivetrain->SetLimit(0.5);
 					m_drivetrain->EnableDistance();
 					m_autonCase++;
 				}
@@ -922,7 +925,6 @@ public:
 	void TeleopInit()
 	{
 		m_drivetrain->DisableDistance();
-		m_drivetrain->DisableAngle();
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
