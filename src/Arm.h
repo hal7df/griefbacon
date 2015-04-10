@@ -9,7 +9,6 @@
 #define SRC_ARM_H_
 
 #include "RobotUtils/HotSubsystem.h"
-#include "BurgleWrapper.h"
 #include "WPILib.h"
 #include <semaphore.h>
 
@@ -35,16 +34,16 @@
 #ifdef COMPETITION_BOT
 #define ARM_ENCODER_REVERSE true
 
-#define BURGLE_LEFT_UP 4.023
-#define BURGLE_LEFT_DOWN 1.0 //DANGER! THIS IS NOT A REAL VALUE!
+#define BURGLE_LEFT_UP 3.707
+#define BURGLE_LEFT_DOWN 1.196
 #define BURGLE_RIGHT_UP 1.155
-#define BURGLE_RIGHT_DOWN 4.0 //DANGER! THIS IS NOT A REAL VALUE!
+#define BURGLE_RIGHT_DOWN 3.293
 
-#define BURGLE_LEFT_P 0.1
+#define BURGLE_LEFT_P 1.5 //0.75
 #define BURGLE_LEFT_I 0.0
 #define BURGLE_LEFT_D 0.0
 
-#define BURGLE_RIGHT_P 0.1
+#define BURGLE_RIGHT_P 1.5 //0.75
 #define BURGLE_RIGHT_I 0.0
 #define BURGLE_RIGHT_D 0.0
 
@@ -140,6 +139,7 @@ public:
 	void testSetBurgle (burgleArm_t arm, float speed);
 	bool getBurgle () { return f_burgling; }
 	bool burglarAtPoint (burgleArm_t arm, burglePos_t point);
+	void burgleDisable ();
 
 	bool WristAtSetpoint ();
 	bool ShoulderAtSetpoint ();

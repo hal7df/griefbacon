@@ -105,15 +105,13 @@ void Arm::testSetBurgle (burgleArm_t arm, float speed)
 	case kBoth:
 		//for left, negative is down and positive is up
 		//for right, negative is up and positive is down
-		m_canburgleL->Set(-speed);
 		m_canburgleR->Set(speed);
+		m_canburgleL->Set(-speed);
 		break;
 	case kLeft:
 		m_canburgleL->Set(speed);
-		m_canburgleR->Set(0);
 		break;
 	case kRight:
-		m_canburgleL->Set(0);
 		m_canburgleR->Set(speed);
 		break;
 	}
@@ -136,8 +134,8 @@ bool Arm::burglarAtPoint(burgleArm_t arm, burglePos_t point)
 		break;
 	}
 
-	left = (fabs(m_potL->GetAverageVoltage() - leftPoint)) < 0.1;
-	right = (fabs(m_potR->GetAverageVoltage() - rightPoint)) < 0.1;
+	left = (fabs(m_potL->GetAverageVoltage() - leftPoint)) < 0.4;
+	right = (fabs(m_potR->GetAverageVoltage() - rightPoint)) < 0.4;
 
 	switch (arm)
 	{
@@ -151,6 +149,11 @@ bool Arm::burglarAtPoint(burgleArm_t arm, burglePos_t point)
 		return right;
 		break;
 	}
+}
+
+void Arm::burgleDisable(){
+	m_leftBurglePid->Disable();
+	m_rightBurglePid->Disable();
 }
 
 void Arm::intakeSet(double speed){
@@ -380,6 +383,8 @@ void Arm::PrintData()
 		SmartDashboard::PutNumber("Right Can Burgler Potentiometer", m_potR->GetAverageVoltage());
 		SmartDashboard::PutBoolean("Burgling",f_burgling);
 		SmartDashboard::PutNumber("Burgle Case",m_burgleCase);
+		SmartDashboard::PutBoolean("Left PID Enabled", m_leftBurglePid->IsEnabled());
+		SmartDashboard::PutBoolean("Right PID Enabled", m_rightBurglePid->IsEnabled());
 	}
 }
 
@@ -422,67 +427,76 @@ void Arm::Update()
 	{
 		m_wristPid->Reset();
 	}
-	if (f_burgling && !burglarAtPoint(kBoth,kDown))
-	{
-		switch (m_burgleCase)
+	if (DriverStation::GetInstance()->IsAutonomous())
+	{	if (f_burgling /*&& !burglarAtPoint(kBoth,kDown) */)
 		{
-		case 0:
-			m_burgletime->Stop();
-			m_burgletime->Start();
-			m_burgletime->Reset();
-			m_canburgleL->Set(-0.5);
-			m_canburgleR->Set(0.5);
-			m_burgleCase++;
-			break;
-		case 1:
-			if (m_burgletime->Get() > 0.25)
+			switch (m_burgleCase)
 			{
-				m_canburgleL->Set(0.0);
-				m_canburgleR->Set(0.0);
+			case 0:
+				m_burgletime->Stop();
+				m_burgletime->Start();
+				m_burgletime->Reset();
+				testSetBurgle(kBoth, 1);
+				m_burgleCase++;
+				break;
+			case 1:
+				if (m_burgletime->Get() > 0.24) //0.24 is nice
+				{
+					testSetBurgle(kBoth, 0);
+					m_burgletime->Stop();
+					m_burgletime->Reset();
+					m_burgleCase++;
+				}
+				break;
+			}
+		}
+		if (!f_burgling && !burglarAtPoint(kBoth,kUp))
+		{
+			if (burglarAtPoint(kLeft,kUp))
+			{
+				if (m_leftBurglePid->IsEnabled())
+					m_leftBurglePid->Disable();
+			}
+			else
+			{
+				if (!m_leftBurglePid->IsEnabled())
+				{
+					m_leftBurglePid->SetSetpoint(BURGLE_LEFT_UP);
+					m_leftBurglePid->Enable();
+				}
+			}
+
+			if (burglarAtPoint(kRight,kUp))
+			{
+				if (m_rightBurglePid->IsEnabled())
+					m_rightBurglePid->Disable();
+			}
+			else
+			{
+				if (!m_rightBurglePid->IsEnabled())
+				{
+					m_rightBurglePid->SetSetpoint(BURGLE_RIGHT_UP);
+					m_rightBurglePid->Enable();
+				}
+			}
+
+			if (m_burgleCase != 0)
+			{
 				m_burgletime->Stop();
 				m_burgletime->Reset();
-				m_burgleCase++;
+				m_burgleCase = 0;
 			}
-			break;
 		}
-	}
-	if (!f_burgling && !burglarAtPoint(kBoth,kUp))
-	{
-		if (burglarAtPoint(kLeft,kUp))
+		else
 		{
 			if (m_leftBurglePid->IsEnabled())
 				m_leftBurglePid->Disable();
-		}
-		else
-		{
-			if (!m_leftBurglePid->IsEnabled())
-			{
-				m_leftBurglePid->SetSetpoint(BURGLE_LEFT_UP);
-				m_leftBurglePid->Enable();
-			}
-		}
 
-		if (burglarAtPoint(kRight,kUp))
-		{
 			if (m_rightBurglePid->IsEnabled())
 				m_rightBurglePid->Disable();
 		}
-		else
-		{
-			if (!m_rightBurglePid->IsEnabled())
-			{
-				m_rightBurglePid->SetSetpoint(BURGLE_RIGHT_UP);
-				m_rightBurglePid->Enable();
-			}
-		}
-
-		if (m_burgleCase != 0)
-		{
-			m_burgletime->Stop();
-			m_burgletime->Reset();
-			m_burgleCase = 0;
-		}
 	}
+
 }
 void Arm::EStopCheck()
 {

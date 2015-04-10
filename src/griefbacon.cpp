@@ -16,7 +16,8 @@ enum auton_t {
 	kDriveForward,
 	kKnockCanGoAutoZone,
 	kNothing,
-	kCanBurglar
+	kCanBurglar,
+	kCanBurglarStay
 };
 
 
@@ -55,7 +56,7 @@ public:
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
-		m_arm = new Arm(11,16,14,10,15,12,13,6,7,0,1);
+		m_arm = new Arm(11,16,14,10,15,12,13,8,7,0,1);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
 
@@ -78,10 +79,6 @@ public:
 		m_autonChoice = kNothing;
 		m_autonCase= 0;
 		m_autonLoop = 0;
-
-		CameraServer* server = CameraServer::GetInstance();
-		server->SetQuality(50);
-		server->StartAutomaticCapture("cam0");
 	}
 
 	void RobotInit()
@@ -97,7 +94,7 @@ public:
 		m_debug->SetAutonCase(&m_autonCase);
 		m_debug->SetCaseDuration(4.0);
 		m_subsys->Start();
-		//m_subsys->SetPrintData(false);
+		m_subsys->SetPrintData(false);
 	}
 
 	void DisabledInit()
@@ -127,6 +124,7 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
+		m_arm->burgleDisable();
 
 		SmartDashboard::PutString("DB/String0","Auton Mode");
 	}
@@ -137,7 +135,10 @@ public:
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			m_autonChoice = kCanBurglar;
+			{
+				m_autonChoice = kCanBurglar;
+				cout<<"Can Burglar";
+			}
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
 			m_autonChoice = kKnockCanGoAutoZone;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
@@ -149,7 +150,16 @@ public:
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_autonChoice = kNothing;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
-			m_autonChoice = kThreeToteBack;
+			{
+				m_autonChoice = kThreeToteBack;
+				cout<<"Three Tote Back";
+			}
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
+		{
+			m_autonChoice = kCanBurglarStay;
+			cout<<"Can Burglar Stay";
+		}
+
 
 
 		switch(m_autonChoice)
@@ -174,6 +184,9 @@ public:
 			break;
 		case kThreeToteBack:
 			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
+			break;
+		case kCanBurglarStay:
+			SmartDashboard::PutString("Auton Mode", "Burglar Arm Down, Stays");
 			break;
 		}
 	}
@@ -228,18 +241,25 @@ public:
 		case kCanBurglar:
 			m_debug->SetMaxAutonCase(3);
 			break;
+		case kCanBurglarStay:
+			m_debug->SetMaxAutonCase(1);
+			break;
 		}
 
 		if (!m_debug->Running())
 			m_debug->StartRun();
 
 		m_debug->EnableWatch(true);
+
+		m_arm->burgleDisable();
+		m_arm->setBurgle(false);
 	}
 
 	void AutonomousPeriodic()
 	{
 		//PrintData();
-		ZeroAll();
+		if (!(((m_autonChoice != kCanBurglar) && (m_autonChoice == kCanBurglarStay)) || ((m_autonChoice == kCanBurglar) && (m_autonChoice != kCanBurglarStay))))
+			ZeroAll();
 
 		switch (m_autonChoice)
 		{
@@ -263,6 +283,9 @@ public:
 			break;
 		case kCanBurglar:
 			AutonCanBurglar();
+			break;
+		case kCanBurglarStay:
+			AutonCanBurglarStay();
 			break;
 		}
 
@@ -936,20 +959,16 @@ public:
 		{
 		case 0:
 			m_arm->setBurgle(true);
-			if (m_arm->burglarAtPoint(kBoth,kDown)){
-				m_drivetrain->SetDistance(7.0);
-				m_drivetrain->SetAngleHeading(0.0);
-				m_drivetrain->SetLimit(.95);
-				m_drivetrain->EnableDistance();
-				m_autonCase++;
-			}
-			break;
-		case 1:
+			m_drivetrain->SetDistance(7);
+			m_drivetrain->SetAngleHeading(0.0);
+			m_drivetrain->SetLimit(.95);
+			Wait(0.20);
+			m_drivetrain->EnableDistance();
 			if (m_drivetrain->DistanceAtSetpoint())
 			{
-				m_arm->wristSetPos(kwDriving);
-				m_arm->shoulderSetPos(ksDriving);
-				m_arm->setBurgle(false);
+				//m_arm->wristSetPos(kwDriving);
+				//m_arm->shoulderSetPos(ksDriving);
+				//m_arm->setBurgle(false);
 				m_drivetrain->DisableDistance();
 				m_autonCase++;
 			}
@@ -957,12 +976,38 @@ public:
 		}
 	}
 
+	void AutonCanBurglarStay()
+		{
+			switch(m_autonCase)
+			{
+			case 0:
+				m_arm->setBurgle(true);
+				//m_drivetrain->SetDistance(7);
+				//m_drivetrain->SetAngleHeading(0.0);
+				//m_drivetrain->SetLimit(.95);
+				//Wait(0.25);
+				//m_drivetrain->EnableDistance();
+
+				//if (m_drivetrain->DistanceAtSetpoint())
+				{
+					//m_arm->wristSetPos(kwDriving);
+					//m_arm->shoulderSetPos(ksDriving);
+					//m_arm->setBurgle(false);
+					//m_drivetrain->DisableDistance();
+				}
+				m_autonCase++;
+				break;
+			}
+		}
+
+
 	void TeleopInit()
 	{
 		m_drivetrain->DisableDistance();
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
+		m_arm->burgleDisable();
 
 		m_arm->intakeSet(0.0);
 
@@ -989,12 +1034,12 @@ public:
 
 	void TestInit ()
 	{
-
+		m_arm->burgleDisable();
 	}
 
 	void TestPeriodic()
 	{
-		TeleopDrive();
+
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonA))
 			m_elev->Set(Relay::kForward);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -1035,7 +1080,7 @@ public:
 			m_arm->intakeSet(0);
 		}
 
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
+		/* if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
 			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
 				m_arm->testSetBurgle(kLeft,1.0);
@@ -1059,6 +1104,11 @@ public:
 			m_arm->testSetBurgle(kBoth,-0.5);
 		else
 			m_arm->testSetBurgle(kBoth,0.0);
+		*/
+
+		m_arm->testSetBurgle(kLeft, m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
+		m_arm->testSetBurgle(kRight, m_driver->GetRawAxis(AdvancedJoystick::kRightY));
+
 	}
 
 	/** SPECIALIZED FUNCTIONS **/
@@ -1223,8 +1273,18 @@ public:
 			m_arm->intakeSet(0);
 		}
 
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart) && m_driver->GetButtonPress(AdvancedJoystick::kButtonY))
-			m_arm->setBurgle(!m_arm->getBurgle());
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart))
+		{
+			if(m_driver->GetPOV() == 0)
+				m_arm->testSetBurgle(kBoth, -0.3);
+			else if (m_driver->GetPOV() == 180)
+				m_arm->testSetBurgle(kBoth, 0.3);
+			else
+				m_arm->testSetBurgle(kBoth, 0);
+		}
+		else
+			m_arm->testSetBurgle(kBoth, 0);
+
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/
