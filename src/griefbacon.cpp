@@ -15,8 +15,7 @@ enum auton_t {
 	kTwoCan,
 	kDriveForward,
 	kKnockCanGoAutoZone,
-	kNothing,
-	kCanBurglar
+	kNothing
 };
 
 
@@ -55,7 +54,7 @@ public:
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_drivetrain = new Drivetrain (0,2,0,2);
-		m_arm = new Arm(11,16,14,10,15,12,13,1,3,0,1);
+		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
 
@@ -139,7 +138,7 @@ public:
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			m_autonChoice = kCanBurglar;
+			m_autonChoice = kTwoCan;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
 			m_autonChoice = kKnockCanGoAutoZone;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
@@ -162,8 +161,8 @@ public:
 		case kThreeTotew90Turn:
 			SmartDashboard::PutString("DB/String5","Three Tote w 90 Turn");
 			break;
-		case kCanBurglar:
-			SmartDashboard::PutString("DB/String5","Can Burglar");
+		case kTwoCan:
+			SmartDashboard::PutString("DB/String5","Two Can Clear");
 			break;
 		case kDriveForward:
 			SmartDashboard::PutString("DB/String5", "Drive Forward");
