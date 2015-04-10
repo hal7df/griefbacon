@@ -227,9 +227,6 @@ public:
 		case kNothing:
 			m_debug->SetMaxAutonCase(0);
 			break;
-		case kCanBurglar:
-			m_debug->SetMaxAutonCase(3);
-			break;
 		}
 
 		if (!m_debug->Running())
@@ -262,9 +259,6 @@ public:
 			break;
 		case kThreeToteBack:
 			AutonThreeToteBack();
-			break;
-		case kCanBurglar:
-			AutonCanBurglar();
 			break;
 		}
 
@@ -929,34 +923,6 @@ public:
 
 	}
 
-	void AutonCanBurglar()
-	{
-		switch(m_autonCase)
-		{
-		case 0:
-			if (f_elevReset && f_shoulderReset && f_wristReset)
-				m_autonCase++;
-			break;
-		case 1:
-			m_arm->setBurgle(true);
-			if (m_arm->burglarAtPoint(1)){
-				m_drivetrain->SetDistance(9.0);
-				m_drivetrain->SetAngleHeading(0.0);
-				m_drivetrain->SetLimit(.95);
-				m_drivetrain->EnableDistance();
-				m_autonCase++;
-			}
-			break;
-		case 2:
-			if (m_drivetrain->DistanceAtSetpoint())
-			{
-				m_arm->setBurgle(false);
-				m_drivetrain->DisableDistance();
-				m_autonCase++;
-			}
-			break;
-		}
-	}
 
 	void TeleopInit()
 	{
