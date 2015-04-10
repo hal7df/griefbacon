@@ -9,17 +9,45 @@
 #define SRC_ARM_H_
 
 #include "RobotUtils/HotSubsystem.h"
+#include "BurgleWrapper.h"
 #include "WPILib.h"
 #include <semaphore.h>
 
-#define PRACTICE_BOT
-//#define COMPETITION_BOT
+//#define PRACTICE_BOT
+#define COMPETITION_BOT
 
 #ifdef PRACTICE_BOT
 #define ARM_ENCODER_REVERSE false
+
+#define BURGLE_LEFT_UP 4.023
+#define BURGLE_LEFT_DOWN 1.0
+#define BURGLE_RIGHT_UP 1.155
+#define BURGLE_RIGHT_DOWN 4.0
+
+#define BURGLE_LEFT_P 0.1
+#define BURGLE_LEFT_I 0.0
+#define BURGLE_LEFT_D 0.0
+
+#define BURGLE_RIGHT_P 0.1
+#define BURGLE_RIGHT_I 0.0
+#define BURGLE_RIGHT_D 0.0
 #endif
 #ifdef COMPETITION_BOT
 #define ARM_ENCODER_REVERSE true
+
+#define BURGLE_LEFT_UP 4.023
+#define BURGLE_LEFT_DOWN 1.0 //DANGER! THIS IS NOT A REAL VALUE!
+#define BURGLE_RIGHT_UP 1.155
+#define BURGLE_RIGHT_DOWN 4.0 //DANGER! THIS IS NOT A REAL VALUE!
+
+#define BURGLE_LEFT_P 0.1
+#define BURGLE_LEFT_I 0.0
+#define BURGLE_LEFT_D 0.0
+
+#define BURGLE_RIGHT_P 0.1
+#define BURGLE_RIGHT_I 0.0
+#define BURGLE_RIGHT_D 0.0
+
 #endif
 
 #define WRIST_P -16.0
@@ -29,6 +57,7 @@
 #define SHOULDER_P -8.0
 #define SHOULDER_I -0.01
 #define SHOULDER_D 0.0
+
 
 #define SHOULDER_GROUND -0.892 //-0.931
 #define SHOULDER_TWOTOTE -0.831
@@ -80,10 +109,21 @@ enum wPos_t {
 	kwFourCanPlace
 };
 
+enum burgleArm_t {
+	kBoth = 0,
+	kLeft = 1,
+	kRight = 2
+};
+
+enum burglePos_t {
+	kUp,
+	kDown
+};
+
 class Arm: public HotSubsystem, public PIDOutput {
 public:
 	friend class HotSubsystemHandler;
-	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR);
+	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR, int canburgleL, int canburgleR, int potL, int potR);
 	virtual ~Arm();
 
 	void shoulderSet(double speed);
@@ -95,6 +135,11 @@ public:
 	void intakeSet(double speed);
 
 	void clearCans (bool on);
+
+	void setBurgle (bool on) { f_burgling = on;}
+	void testSetBurgle (burgleArm_t arm, float speed);
+	bool getBurgle () { return f_burgling; }
+	bool burglarAtPoint (burgleArm_t arm, burglePos_t point);
 
 	bool WristAtSetpoint ();
 	bool ShoulderAtSetpoint ();
@@ -141,21 +186,34 @@ private:
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
 
+	Victor* m_canburgleL;
+	Victor* m_canburgleR;
+
 	Encoder* m_shoulderEncode;
 	Encoder* m_wristEncode;
 
+	AnalogInput* m_potL;
+	AnalogInput* m_potR;
+
 	PIDController* m_shoulderPid;
 	PIDController* m_wristPid;
-	bool f_getPID;
+	PIDController* m_leftBurglePid;
+	PIDController* m_rightBurglePid;
 
+	unsigned m_burgleCase;
+
+	bool f_burgling;
+	bool f_getPID;
 	bool f_eStopRunning;
 	bool f_wSetpointChanged;
 	bool f_sSetpointChanged;
 	bool f_wEStop;
 	bool f_sEStop;
 	bool f_shoulderStop;
+
 	Timer* m_wStopTime;
 	Timer* m_sStopTime;
+	Timer* m_burgletime;
 	sem_t m_semaphore;
 };
 
