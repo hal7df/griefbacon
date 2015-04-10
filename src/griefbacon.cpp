@@ -482,11 +482,17 @@ public:
 				case 4:
 					m_drivetrain->SetDistance(5.7);
 					m_arm->clearCans(true);
-					m_drivetrain->SetLimit(0.5);
+					m_drivetrain->SetLimit(0.40);
 					m_drivetrain->SetAngleHeading(0.);
 					m_drivetrain->EnableDistance();
 					if(m_drivetrain->GetDistancePID() > 1.5)
-						m_drivetrain->SetLimit(0.7);
+					{
+
+						if (m_autonLoop == 0)
+							m_drivetrain->SetLimit(0.5);
+						else
+							m_drivetrain->SetLimit(0.55);
+					}
 					if (m_drivetrain->GetDistancePID() > 3)
 					{
 						m_drivetrain->SetAngleHeading(0.);
@@ -519,7 +525,7 @@ public:
 					{
 						m_drivetrain->DisableAngle();
 						m_drivetrain->ResetEncoders();
-						m_drivetrain->SetLimit(0.8);
+						m_drivetrain->SetLimit(0.7);
 						m_drivetrain->SetDistance(-5.75);
 						m_drivetrain->SetAngleHeading(-90.0);
 						m_drivetrain->SetCorrLimit(0.3);
