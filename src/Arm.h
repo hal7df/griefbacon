@@ -9,9 +9,10 @@
 #define SRC_ARM_H_
 
 #include "RobotUtils/HotSubsystem.h"
-#include "BurgleWrapper.h"
 #include "WPILib.h"
+#include "BurgleWrapper.h"
 #include <semaphore.h>
+#include <cmath>
 
 //#define PRACTICE_BOT
 #define COMPETITION_BOT
@@ -102,9 +103,7 @@ public:
 	void clearCans (bool on);
 
 	void setBurgle (bool on) { f_burgling = on;}
-	void testSetBurgle (int arm, float speed);
-	bool getBurgle () { return f_burgling; }
-	bool burglarAtPoint (float point) { return fabs(m_burgleWrap->PIDGet()-point) < 0.1; }
+	bool burglarAtPoint (float point) { return fabs(((m_potL->Get() + m_potR->Get())/2)-point) < 0.1; }
 
 	bool WristAtSetpoint ();
 	bool ShoulderAtSetpoint ();
@@ -151,8 +150,8 @@ private:
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
 
-	Victor* m_canburgleL;
-	Victor* m_canburgleR;
+	Talon* m_canburgleL;
+	Talon* m_canburgleR;
 
 	Encoder* m_shoulderEncode;
 	Encoder* m_wristEncode;

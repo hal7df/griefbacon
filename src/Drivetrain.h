@@ -19,7 +19,7 @@
 #define DISTANCE_I 0.0
 #define DISTANCE_D -0.1
 
-#define TURN_P -0.1
+#define TURN_P -0.15
 #define TURN_I 0.0
 #define TURN_D -0.1
 
@@ -42,7 +42,7 @@ class Drivetrain: public HotSubsystem, public PIDOutput {
 public:
 
 	friend class HotSubsystemHandler;
-	Drivetrain(int lDrive1, int lDrive2, int rDrive1, int rDrive2, int lEncode, int rEncode);
+	Drivetrain(int lDrive, int rDrive, int lEncode, int rEncode);
 	virtual ~Drivetrain();
 
 	void ArcadeDrive(double speed, double angle, bool squaredinputs=false) { m_drive->ArcadeDrive(speed, angle, squaredinputs); }
@@ -119,10 +119,8 @@ private:
 	void GyroCal();
 	void TipCheck();
 
-	Talon* m_lDrive1;
-	Talon* m_lDrive2;
-	Talon* m_rDrive1;
-	Talon* m_rDrive2;
+	Talon* m_lDrive;
+	Talon* m_rDrive;
 
 	Encoder* m_lEncode;
 	Encoder* m_rEncode;
