@@ -53,7 +53,7 @@ public:
 		m_operator->SetDeadband(0.2);
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
-		m_drivetrain = new Drivetrain (0,2,0,2);
+		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
 		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
@@ -96,9 +96,7 @@ public:
 		m_debug->SetAutonCase(&m_autonCase);
 		m_debug->SetCaseDuration(4.0);
 		m_subsys->Start();
-
-		if (DriverStation::GetInstance()->IsFMSAttached())
-			m_subsys->SetPrintData(false);
+		//m_subsys->SetPrintData(false);
 	}
 
 	void DisabledInit()
@@ -128,13 +126,11 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
-
-		SmartDashboard::PutString("DB/String0","Autonomous Mode:");
 	}
 
 	void DisabledPeriodic()
 	{
-		PrintData();
+		//PrintData();
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -156,25 +152,25 @@ public:
 		switch(m_autonChoice)
 		{
 		case kThreeTote:
-			SmartDashboard::PutString("DB/String5","Three Tote");
+			SmartDashboard::PutString("Auton Mode","Three Tote");
 			break;
 		case kThreeTotew90Turn:
-			SmartDashboard::PutString("DB/String5","Three Tote w 90 Turn");
+			SmartDashboard::PutString("Auton Mode","Three Tote w 90 Turn");
 			break;
 		case kTwoCan:
-			SmartDashboard::PutString("DB/String5","Two Can Clear");
+			SmartDashboard::PutString("Auton Mode","Two Can Clear");
 			break;
 		case kDriveForward:
-			SmartDashboard::PutString("DB/String5", "Drive Forward");
+			SmartDashboard::PutString("Auton Mode", "Drive Forward");
 			break;
 		case kKnockCanGoAutoZone:
-			SmartDashboard::PutString("DB/String5", "Knock Can, Go Auto Zone");
+			SmartDashboard::PutString("Auton Mode", "Knock Can, Go Auto Zone");
 			break;
 		case kNothing:
-			SmartDashboard::PutString("DB/String5", "Do Nothing");
+			SmartDashboard::PutString("Auton Mode", "Do Nothing");
 			break;
 		case kThreeToteBack:
-			SmartDashboard::PutString("DB/String5", "Three Tote, Drive Back");
+			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
 			break;
 		}
 	}
@@ -183,7 +179,7 @@ public:
 	{
 		m_autonCase = 0;
 		m_autonLoop = 0;
-		m_drivetrain->SetLimit(0.65);
+		m_drivetrain->SetLimit(0.55);
 		m_drivetrain->ResetEncoders();
 #ifdef NAVX_ENABLED
 		m_drivetrain->ResetGyroAngle();
@@ -236,7 +232,7 @@ public:
 
 	void AutonomousPeriodic()
 	{
-		PrintData();
+		//PrintData();
 		ZeroAll();
 
 		switch (m_autonChoice)
@@ -630,7 +626,6 @@ public:
 						m_drivetrain->SetTurnPIDHeading(60.);
 						m_drivetrain->EnableAngle();
 						m_autonCase = 6;
-						m_arm->intakeSet(0);
 					}
 				break;
 		//clears can while driving to next tote and speeds up after clearing can. Then begins to take in next tote.
@@ -638,12 +633,16 @@ public:
 			case 4:
 				m_drivetrain->SetDistance(5.7);
 				m_arm->clearCans(true);
-				m_drivetrain->SetLimit(0.5);
+				m_drivetrain->SetLimit(0.40);
 				m_drivetrain->SetAngleHeading(0.);
 				m_drivetrain->EnableDistance();
 				if(m_drivetrain->GetDistancePID() > 2)
 				{
-						m_drivetrain->SetLimit(0.7);
+
+					if (m_autonLoop == 0)
+						m_drivetrain->SetLimit(0.5);
+					else
+						m_drivetrain->SetLimit(0.55);
 				}
 				if (m_drivetrain->GetDistancePID() > 3)
 				{
@@ -677,7 +676,7 @@ public:
 				{
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
-					m_drivetrain->SetLimit(0.8);
+					m_drivetrain->SetLimit(0.7);
 					m_drivetrain->SetDistance(11.75);
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
@@ -716,7 +715,7 @@ public:
 					m_drivetrain->SetDistance(-4.0);
 					m_drivetrain->SetAngleHeading(72.5);
 					m_drivetrain->SetCorrLimit(0.25);
-					m_drivetrain->SetLimit(0.65);
+					m_drivetrain->SetLimit(0.5);
 					m_drivetrain->EnableDistance();
 					m_autonCase++;
 				}
@@ -926,7 +925,6 @@ public:
 	void TeleopInit()
 	{
 		m_drivetrain->DisableDistance();
-		m_drivetrain->DisableAngle();
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
@@ -945,7 +943,7 @@ public:
 		TeleopElevator();
 		TeleopDrive();
 		TeleopArm();
-		PrintData();
+		//PrintData();
 
 		if (m_driver->GetButtonPress(AdvancedJoystick::kButtonA))
 		{
@@ -1075,8 +1073,7 @@ public:
 		{
 			m_arm->shoulderSetPos(ksAutoPlace);
 			m_arm->wristSetPos(kwAutoPlace);
-			if (m_arm->GetWrist()->GetDistance() > -0.84)
-				m_arm->rollerSet(-0.2);
+			m_arm->rollerSet(-0.2);
 		}
 		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);
@@ -1170,32 +1167,29 @@ public:
 	/** MISCELLANEOUS FUNCTIONS **/
 	void PrintData ()
 	{
-		if (!DriverStation::GetInstance()->IsFMSAttached())
-		{
-			SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
-			SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
-			SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
-			SmartDashboard::PutNumber("Operator Right Y",m_operator->GetRawAxis(AdvancedJoystick::kRightY));
-			SmartDashboard::PutNumber("Operator Left Trigger",m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
-			SmartDashboard::PutNumber("Operator Right Trigger",m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
+		SmartDashboard::PutNumber("Driver Left Y",m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
+		SmartDashboard::PutNumber("Driver Right X",m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+		SmartDashboard::PutNumber("Operator Left Y",m_operator->GetRawAxis(AdvancedJoystick::kLeftY));
+		SmartDashboard::PutNumber("Operator Right Y",m_operator->GetRawAxis(AdvancedJoystick::kRightY));
+		SmartDashboard::PutNumber("Operator Left Trigger",m_operator->GetRawAxis(AdvancedJoystick::kLeftTrigger));
+		SmartDashboard::PutNumber("Operator Right Trigger",m_operator->GetRawAxis(AdvancedJoystick::kRightTrigger));
 
-			SmartDashboard::PutBoolean("Operator Left Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonLB));
-			SmartDashboard::PutBoolean("Operator Right Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonRB));
+		SmartDashboard::PutBoolean("Operator Left Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonLB));
+		SmartDashboard::PutBoolean("Operator Right Bumper",m_operator->GetRawButton(AdvancedJoystick::kButtonRB));
 
-			SmartDashboard::PutNumber("Driver Raw Left Y",m_driver->GetJoystick()->GetRawAxis(1));
-			SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
+		SmartDashboard::PutNumber("Driver Raw Left Y",m_driver->GetJoystick()->GetRawAxis(1));
+		SmartDashboard::PutNumber("Driver Calc",(m_driver->GetJoystick()->GetRawAxis(1)/fabs(m_driver->GetJoystick()->GetRawAxis(1)))*(pow(((fabs(m_driver->GetJoystick()->GetRawAxis(1))-0.2)*(1/1-0.2)),2)));
 
-			SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
+		SmartDashboard::PutNumber("Joystick Y", -m_driver->GetRawAxis(AdvancedJoystick::kRightX));
 
-			SmartDashboard::PutNumber("Total Current",m_pdp->GetTotalCurrent());
+		SmartDashboard::PutNumber("Total Current",m_pdp->GetTotalCurrent());
 
-			SmartDashboard::PutNumber("Auton Case",m_autonCase);
-			SmartDashboard::PutNumber("Auton Loop",m_autonLoop);
+		SmartDashboard::PutNumber("Auton Case",m_autonCase);
+		SmartDashboard::PutNumber("Auton Loop",m_autonLoop);
 
-			SmartDashboard::PutBoolean("Shoulder Reset", f_shoulderReset);
-			SmartDashboard::PutBoolean("Wrist Reset", f_wristReset);
-			SmartDashboard::PutBoolean("Elevator Reset", f_elevReset);
-		}
+		SmartDashboard::PutBoolean("Shoulder Reset", f_shoulderReset);
+		SmartDashboard::PutBoolean("Wrist Reset", f_wristReset);
+		SmartDashboard::PutBoolean("Elevator Reset", f_elevReset);
 	}
 	void ZeroAll ()
 	{
