@@ -31,14 +31,17 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_wristEncode = new Encoder (6,7,ARM_ENCODER_REVERSE);
 	m_wristEncode->SetDistancePerPulse(1./2613.);
 
-	m_potR = new AnalogPotentiometer (potR, BURGLE_RIGHT_SCALE, BURGLE_RIGHT_OFFSET);
-	m_potL = new AnalogPotentiometer (potL, BURGLE_LEFT_SCALE, BURGLE_LEFT_OFFSET);
-
-	m_burgleWrap = new BurgleWrapper (m_canburgleL, m_canburgleR, m_potL, m_potR);
+	m_potR = new AnalogInput (potR);
+	m_potL = new AnalogInput (potL);
 
 	m_wristPid = new PIDController(WRIST_P,WRIST_I,WRIST_D,m_wristEncode,m_pickW);
 	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
-	m_burglePid = new PIDController(BURGLE_P, BURGLE_I, BURGLE_D, m_burgleWrap, m_burgleWrap);
+	m_leftBurglePid = new PIDController(BURGLE_LEFT_P, BURGLE_LEFT_I, BURGLE_LEFT_D, m_potL, m_canburgleL);
+	m_rightBurglePid = new PIDController(BURGLE_RIGHT_P, BURGLE_RIGHT_I, BURGLE_RIGHT_D, m_potR, m_canburgleR);
+
+	m_leftBurglePid->SetOutputRange(-0.5,0.5);
+	m_rightBurglePid->SetOutputRange(-0.5,0.5);
+
 	f_getPID = false;
 
 	sem_init(&m_semaphore,0,1);
@@ -95,21 +98,57 @@ void Arm::canRotate(bool speed){
 	}
 }
 
-void Arm::testSetBurgle (int arm, float speed)
+void Arm::testSetBurgle (burgleArm_t arm, float speed)
 {
 	switch (arm)
 	{
-	case 0:
-		m_canburgleL->Set(speed);
+	case kBoth:
+		//for left, negative is down and positive is up
+		//for right, negative is up and positive is down
+		m_canburgleL->Set(-speed);
 		m_canburgleR->Set(speed);
 		break;
-	case 1:
+	case kLeft:
 		m_canburgleL->Set(speed);
 		m_canburgleR->Set(0);
 		break;
-	case 2:
+	case kRight:
 		m_canburgleL->Set(0);
 		m_canburgleR->Set(speed);
+		break;
+	}
+}
+
+bool Arm::burglarAtPoint(burgleArm_t arm, burglePos_t point)
+{
+	bool left, right;
+	float leftPoint, rightPoint;
+
+	switch (point)
+	{
+	case kUp:
+		leftPoint = BURGLE_LEFT_UP;
+		rightPoint = BURGLE_RIGHT_UP;
+		break;
+	case kDown:
+		leftPoint = BURGLE_LEFT_DOWN;
+		rightPoint = BURGLE_RIGHT_DOWN;
+		break;
+	}
+
+	left = (fabs(m_potL->GetAverageVoltage() - leftPoint)) < 0.1;
+	right = (fabs(m_potR->GetAverageVoltage() - rightPoint)) < 0.1;
+
+	switch (arm)
+	{
+	case kBoth:
+		return left && right;
+		break;
+	case kLeft:
+		return left;
+		break;
+	case kRight:
+		return right;
 		break;
 	}
 }
@@ -337,8 +376,8 @@ void Arm::PrintData()
 
 		SmartDashboard::PutNumber("Left Can Burglar Throttle", m_canburgleL->Get());
 		SmartDashboard::PutNumber("Right Can Burglar Throttle", m_canburgleR->Get());
-		SmartDashboard::PutNumber("Left Can Burglar Potentiometer", m_potL->Get());
-		SmartDashboard::PutNumber("Right Can Burgler Potentiometer", m_potR->Get());
+		SmartDashboard::PutNumber("Left Can Burglar Potentiometer", m_potL->GetAverageVoltage());
+		SmartDashboard::PutNumber("Right Can Burgler Potentiometer", m_potR->GetAverageVoltage());
 		SmartDashboard::PutBoolean("Burgling",f_burgling);
 		SmartDashboard::PutNumber("Burgle Case",m_burgleCase);
 	}
@@ -383,7 +422,7 @@ void Arm::Update()
 	{
 		m_wristPid->Reset();
 	}
-	if (f_burgling && burglarAtPoint(0.0))
+	if (f_burgling && !burglarAtPoint(kBoth,kDown))
 	{
 		switch (m_burgleCase)
 		{
@@ -391,12 +430,12 @@ void Arm::Update()
 			m_burgletime->Stop();
 			m_burgletime->Start();
 			m_burgletime->Reset();
-			m_canburgleL->Set(-1.0);
-			m_canburgleR->Set(1.0);
+			m_canburgleL->Set(-0.5);
+			m_canburgleR->Set(0.5);
 			m_burgleCase++;
 			break;
 		case 1:
-			if (m_burgletime->Get() > 0.5)
+			if (m_burgletime->Get() > 0.25)
 			{
 				m_canburgleL->Set(0.0);
 				m_canburgleR->Set(0.0);
@@ -407,16 +446,42 @@ void Arm::Update()
 			break;
 		}
 	}
-	if (!f_burgling && burglarAtPoint(1.0))
+	if (!f_burgling && !burglarAtPoint(kBoth,kUp))
 	{
-		if (!m_burglePid->IsEnabled())
+		if (burglarAtPoint(kLeft,kUp))
 		{
-			m_burglePid->SetSetpoint(0.0);
-			m_burglePid->Enable();
+			if (m_leftBurglePid->IsEnabled())
+				m_leftBurglePid->Disable();
+		}
+		else
+		{
+			if (!m_leftBurglePid->IsEnabled())
+			{
+				m_leftBurglePid->SetSetpoint(BURGLE_LEFT_UP);
+				m_leftBurglePid->Enable();
+			}
+		}
+
+		if (burglarAtPoint(kRight,kUp))
+		{
+			if (m_rightBurglePid->IsEnabled())
+				m_rightBurglePid->Disable();
+		}
+		else
+		{
+			if (!m_rightBurglePid->IsEnabled())
+			{
+				m_rightBurglePid->SetSetpoint(BURGLE_RIGHT_UP);
+				m_rightBurglePid->Enable();
+			}
+		}
+
+		if (m_burgleCase != 0)
+		{
+			m_burgletime->Stop();
+			m_burgletime->Reset();
 			m_burgleCase = 0;
 		}
-		if (burglarAtPoint(0.0))
-			m_burglePid->Disable();
 	}
 }
 void Arm::EStopCheck()

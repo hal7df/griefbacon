@@ -935,12 +935,8 @@ public:
 		switch(m_autonCase)
 		{
 		case 0:
-			if (f_elevReset && f_shoulderReset && f_wristReset)
-				m_autonCase++;
-			break;
-		case 1:
 			m_arm->setBurgle(true);
-			if (m_arm->burglarAtPoint(1)){
+			if (m_arm->burglarAtPoint(kBoth,kDown)){
 				m_drivetrain->SetDistance(7.0);
 				m_drivetrain->SetAngleHeading(0.0);
 				m_drivetrain->SetLimit(.95);
@@ -948,9 +944,11 @@ public:
 				m_autonCase++;
 			}
 			break;
-		case 2:
+		case 1:
 			if (m_drivetrain->DistanceAtSetpoint())
 			{
+				m_arm->wristSetPos(kwDriving);
+				m_arm->shoulderSetPos(ksDriving);
 				m_arm->setBurgle(false);
 				m_drivetrain->DisableDistance();
 				m_autonCase++;
@@ -1040,27 +1038,27 @@ public:
 		if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
 		{
 			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-				m_arm->testSetBurgle(1,1.0);
+				m_arm->testSetBurgle(kLeft,1.0);
 			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-				m_arm->testSetBurgle(1,-1.0);
+				m_arm->testSetBurgle(kLeft,-1.0);
 			else
-				m_arm->testSetBurgle(1,0.0);
+				m_arm->testSetBurgle(kLeft,0.0);
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
 		{
 			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-				m_arm->testSetBurgle(2,1.0);
+				m_arm->testSetBurgle(kRight,1.0);
 			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-				m_arm->testSetBurgle(2,-1.0);
+				m_arm->testSetBurgle(kRight,-1.0);
 			else
-				m_arm->testSetBurgle(2,0.0);
+				m_arm->testSetBurgle(kRight,0.0);
 		}
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-			m_arm->testSetBurgle(0,1.0);
+			m_arm->testSetBurgle(kBoth,0.5);
 		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-			m_arm->testSetBurgle(0,-1.0);
+			m_arm->testSetBurgle(kBoth,-0.5);
 		else
-			m_arm->testSetBurgle(0,0.0);
+			m_arm->testSetBurgle(kBoth,0.0);
 	}
 
 	/** SPECIALIZED FUNCTIONS **/
