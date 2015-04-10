@@ -31,8 +31,8 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_wristEncode = new Encoder (6,7,ARM_ENCODER_REVERSE);
 	m_wristEncode->SetDistancePerPulse(1./2613.);
 
-	m_potR = new AnalogPotentiometer (potR);
-	m_potL = new AnalogPotentiometer (potL);
+	m_potR = new AnalogPotentiometer (potR, BURGLE_RIGHT_SCALE, BURGLE_RIGHT_OFFSET);
+	m_potL = new AnalogPotentiometer (potL, BURGLE_LEFT_SCALE, BURGLE_LEFT_OFFSET);
 
 	m_burgleWrap = new BurgleWrapper (m_canburgleL, m_canburgleR, m_potL, m_potR);
 
@@ -95,7 +95,7 @@ void Arm::canRotate(bool speed){
 	}
 }
 
-void Arm::testSetBurgle (int arm=0, float speed)
+void Arm::testSetBurgle (int arm, float speed)
 {
 	switch (arm)
 	{
@@ -391,7 +391,7 @@ void Arm::Update()
 			m_burgletime->Stop();
 			m_burgletime->Start();
 			m_burgletime->Reset();
-			m_canburgleL->Set(1.0);
+			m_canburgleL->Set(-1.0);
 			m_canburgleR->Set(1.0);
 			m_burgleCase++;
 			break;

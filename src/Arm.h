@@ -35,6 +35,11 @@
 #define BURGLE_I 0.0
 #define BURGLE_D 0.0
 
+#define BURGLE_LEFT_SCALE 2.347
+#define BURGLE_RIGHT_SCALE 2.415
+#define BURGLE_LEFT_OFFSET 1.840
+#define BURGLE_RIGHT_OFFSET 0.615
+
 #define SHOULDER_GROUND -0.892 //-0.931
 #define SHOULDER_TWOTOTE -0.831
 #define SHOULDER_DRIVING -0.072 //-0.109
@@ -102,7 +107,7 @@ public:
 	void clearCans (bool on);
 
 	void setBurgle (bool on) { f_burgling = on;}
-	void testSetBurgle (int arm=0, float speed);
+	void testSetBurgle (int arm, float speed);
 	bool getBurgle () { return f_burgling; }
 	bool burglarAtPoint (float point) { return fabs(m_burgleWrap->PIDGet()-point) < 0.1; }
 

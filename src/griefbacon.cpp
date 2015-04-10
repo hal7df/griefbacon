@@ -155,25 +155,25 @@ public:
 		switch(m_autonChoice)
 		{
 		case kThreeTote:
-			SmartDashboard::PutString("DB/String5","Three Tote");
+			SmartDashboard::PutString("Auton Mode","Three Tote");
 			break;
 		case kThreeTotew90Turn:
-			SmartDashboard::PutString("DB/String5","Three Tote w 90 Turn");
+			SmartDashboard::PutString("Auton Mode","Three Tote w 90 Turn");
 			break;
 		case kCanBurglar:
-			SmartDashboard::PutString("DB/String5","Can Burglar");
+			SmartDashboard::PutString("Auton Mode","Can Burglar");
 			break;
 		case kDriveForward:
-			SmartDashboard::PutString("DB/String5", "Drive Forward");
+			SmartDashboard::PutString("Auton Mode", "Drive Forward");
 			break;
 		case kKnockCanGoAutoZone:
-			SmartDashboard::PutString("DB/String5", "Knock Can, Go Auto Zone");
+			SmartDashboard::PutString("Auton Mode", "Knock Can, Go Auto Zone");
 			break;
 		case kNothing:
-			SmartDashboard::PutString("DB/String5", "Do Nothing");
+			SmartDashboard::PutString("Auton Mode", "Do Nothing");
 			break;
 		case kThreeToteBack:
-			SmartDashboard::PutString("DB/String5", "Three Tote, Drive Back");
+			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
 			break;
 		}
 	}
