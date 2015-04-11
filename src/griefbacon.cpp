@@ -1155,7 +1155,7 @@ public:
 			m_drivetrain->SetDistance(7);
 			m_drivetrain->SetAngleHeading(0.0);
 			m_drivetrain->SetLimit(.95);
-			Wait(0.30);
+			Wait(0.5);
 			m_drivetrain->EnableDistance();
 			if (m_drivetrain->DistanceAtSetpoint())
 			{

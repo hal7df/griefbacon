@@ -419,14 +419,6 @@ void Arm::Update()
 	}
 	else
 		f_shoulderStop = false;
-	if (ShoulderAtSetpoint() && sIsEnabled())
-		{
-			m_shoulderPid->Reset();
-		}
-	if (WristAtSetpoint() && wIsEnabled())
-		{
-			m_wristPid->Reset();
-		}
 	if (DriverStation::GetInstance()->IsAutonomous())
 	{	if (f_burgling /*&& !burglarAtPoint(kBoth,kDown) */)
 		{

@@ -21,7 +21,7 @@
 #endif
 
 #ifdef COMPETITION_BOT
-#define ELEVATOR_CARRY 0.114 //0.107
+#define ELEVATOR_CARRY 0.12 //0.114 //0.107
 #endif
 
 #define ELEVATOR_P 15.0
