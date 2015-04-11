@@ -248,11 +248,12 @@ public:
 			m_debug->SetMaxAutonCase(11);
 			break;
 		}
-
+/*
 		if (!m_debug->Running())
 			m_debug->StartRun();
 
 		m_debug->EnableWatch(true);
+*/
 
 		m_arm->burgleDisable();
 		m_arm->setBurgle(false);
@@ -1378,7 +1379,7 @@ public:
 			m_arm->wristSetPos(kwAutoPlace);
 			m_arm->rollerSet(-0.2);
 		}
-		else if (m_operator->GetPOV() == 180){
+		else if ((m_operator->GetPOV() == 180) || m_operator->GetPOV() == 135){
 			m_arm->shoulderSetPos(ksGround);
 			m_arm->wristSetPos(kwGround);
 			m_arm->sEnable();
@@ -1396,7 +1397,7 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if(m_operator ->GetPOV() == 270){
+		else if((m_operator ->GetPOV() == 270) || m_operator->GetPOV() == 315){
 			m_arm->shoulderSetPos(ksDriving);
 			m_arm->wristSetPos(kwDriving);
 			m_arm->sEnable();
@@ -1420,7 +1421,7 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2)
+		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && (m_operator->GetPOV() != 225))
 		{
 			m_arm->sDisable();
 			m_arm->wDisable();
