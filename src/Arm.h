@@ -50,7 +50,7 @@
 #endif
 
 #define WRIST_P -16.0
-#define WRIST_I 0.01
+#define WRIST_I 0.015 //0.01
 #define WRIST_D 0.0
 
 #define SHOULDER_P -8.00
@@ -65,7 +65,7 @@
 #define SHOULDER_FIVECAN -0.167
 #define SHOULDER_PACKAGE 0.0
 #define SHOULDER_CANKNOCK -0.777
-#define SHOULDER_AUTOPLACE -0.046 //-0.214
+#define SHOULDER_AUTOPLACE -0.042 //-0.046 //-0.214
 #define SHOULDER_GROUND_M -0.546
 #define SHOULDER_FOURCAN -0.183
 

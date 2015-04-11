@@ -85,7 +85,7 @@ void Elevator::Set (pos_t position)
 	}
 
 	if (position == kCarry)
-		m_pid->SetPID(10, ELEVATOR_I, ELEVATOR_D);
+		m_pid->SetPID(11, ELEVATOR_I, ELEVATOR_D);
 	else
 		m_pid->SetPID(ELEVATOR_P, ELEVATOR_I, ELEVATOR_D);
 
