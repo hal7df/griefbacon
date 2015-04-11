@@ -25,7 +25,7 @@
 #endif
 
 #define ELEVATOR_P 15.0
-#define ELEVATOR_I 0.015 //0.01
+#define ELEVATOR_I 0.01
 #define ELEVATOR_D 0.0
 
 #define ELEVATOR_BOTTOM 0.0000
