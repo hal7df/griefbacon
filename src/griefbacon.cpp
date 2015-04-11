@@ -12,6 +12,7 @@ enum auton_t {
 	kThreeTote,
 	kThreeTotew90Turn,
 	kThreeToteBack,
+	kThreeToteSmack,
 	kTwoCan,
 	kDriveForward,
 	kKnockCanGoAutoZone,
@@ -149,16 +150,12 @@ public:
 			m_autonChoice = kThreeTotew90Turn;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_autonChoice = kNothing;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
+			m_autonChoice = kThreeToteBack;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
-			{
-				m_autonChoice = kThreeToteBack;
-				cout<<"Three Tote Back";
-			}
+			m_autonChoice = kThreeToteSmack;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
-		{
 			m_autonChoice = kCanBurglarStay;
-			cout<<"Can Burglar Stay";
-		}
 
 
 
@@ -183,6 +180,9 @@ public:
 			SmartDashboard::PutString("Auton Mode", "Do Nothing");
 			break;
 		case kThreeToteBack:
+			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
+			break;
+		case kThreeToteSmack:
 			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
 			break;
 		case kCanBurglarStay:
@@ -244,6 +244,9 @@ public:
 		case kCanBurglarStay:
 			m_debug->SetMaxAutonCase(1);
 			break;
+		case kThreeToteSmack:
+			m_debug->SetMaxAutonCase(11);
+			break;
 		}
 
 		if (!m_debug->Running())
@@ -280,6 +283,9 @@ public:
 			break;
 		case kThreeToteBack:
 			AutonThreeToteBack();
+			break;
+		case kThreeToteSmack:
+			AutonThreeToteSmack();
 			break;
 		case kCanBurglar:
 			AutonCanBurglar();
@@ -679,6 +685,193 @@ public:
 				if (m_drivetrain->GetDistancePID() > 3)
 				{
 					m_drivetrain->SetAngleHeading(0.);
+					m_arm->clearCans(false);
+					m_arm->intakeSet(-1.0);
+				}
+				if(m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain-> DisableDistance();
+					m_autonCase++;
+				}
+				break;
+		//elevator picks up next tote
+		//if autonLoop is less than two, then it will reset encoders then go to case 1
+			case 5:
+				m_elev->Set(kBottom);
+				if(m_elev->AtSetpoint())
+				{
+					if(m_autonLoop < 2)
+					{
+						m_drivetrain->ResetEncoders();
+						m_autonCase = 1;
+						m_autonLoop++;
+					}
+				}
+				break;
+		//if robot reaches setpoint, encoders will reset, distance and heading will change, setting down totes and goes to next case
+			case 6:
+				if(m_drivetrain->TurnPIDatSetpoint())
+				{
+					m_drivetrain->DisableAngle();
+					m_drivetrain->ResetEncoders();
+					m_drivetrain->SetLimit(0.7);
+					m_drivetrain->SetDistance(11.75);
+					m_drivetrain->SetAngleHeading(60.0);
+					m_drivetrain->SetCorrLimit(0.2);
+					m_drivetrain->EnableDistance();
+
+					m_arm->wristSetPos(kwGround);
+					m_arm->shoulderSetPos(ksGround);
+					m_autonCase++;
+				}
+				break;
+			case 7:
+				if (m_drivetrain->DistanceAtSetpoint())
+				{
+
+					m_drivetrain->DisableDistance();
+					m_drivetrain->ResetEncoders();
+//					m_drivetrain->SetTurnPIDHeading(72.5);
+//					m_drivetrain->EnableAngle();
+					m_autonCase=9;
+				}
+				break;
+			case 8:
+			if (m_drivetrain->TurnPIDatSetpoint())
+			{
+				m_drivetrain->DisableAngle();
+				m_drivetrain->ResetEncoders();
+
+				m_autonCase++;
+			}
+			break;
+
+			case 9:
+				if (m_arm->ShoulderAtSetpoint() && m_arm->WristAtSetpoint())
+				{
+					m_arm->rollerSet(1);
+					m_drivetrain->SetDistance(-4.0);
+					m_drivetrain->SetAngleHeading(72.5);
+					m_drivetrain->SetCorrLimit(0.25);
+					m_drivetrain->SetLimit(0.5);
+					m_drivetrain->EnableDistance();
+					m_autonCase++;
+				}
+				break;
+			case 10:
+				m_elev->Set(kBottom);
+				if (m_drivetrain->GetDistancePID() < -0.5)
+					m_arm->intakeSet(0.5);
+				if (m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain->DisableDistance();
+					m_drivetrain->ArcadeDrive(0.,0.);
+					SmartDashboard::PutNumber("Auton Time",DriverStation::GetInstance()->GetMatchTime());
+					m_autonCase++;
+				}
+				break;
+			}
+	}
+
+	void AutonThreeToteSmack ()
+	{
+/*	if (m_autonTime->Get()>14 && m_autonCase < 9)
+	{
+		m_drivetrain->DisableAngle();
+		m_drivetrain->ResetEncoders();
+		m_drivetrain->SetDistance(-6.0);
+		m_drivetrain->SetAngleHeading(0.0);
+		m_drivetrain->SetCorrLimit(0.3);
+		m_drivetrain->EnableDistance();
+		m_autonCase = 9;
+	}*/
+	switch (m_autonCase)
+			{
+		//Waits until all pids are 0
+			case 0:
+				if (f_elevReset && f_shoulderReset && f_wristReset)
+					m_autonCase++;
+				break;
+		//Sets all pids to driving position. If elevator is at setpoint, it moves on to the next case.
+			case 1:
+				m_elev->Set(kCarry);
+				m_arm->shoulderSetPos(ksDriving);
+				m_arm->wristSetPos(kwAuton);
+
+				if (!m_arm->sIsEnabled())
+					m_arm->sEnable();
+				if (!m_arm->wIsEnabled())
+					m_arm->wEnable();
+
+				if (m_elev->AtSetpoint())
+				{
+					m_autonCase++;
+				}
+				break;
+		//if auton loop is less than two, then elevator is raised. Will go on to next case if elevator is at midpoint and resets encoders
+		//else carries tote, resets encoders, changes turning heading, and allows it to turn quickly, also starts driving and skips to case six
+			case 2:
+					if (m_autonLoop < 2)
+					{
+						m_elev->Set(kUMid);
+						m_drivetrain->ResetEncoders();
+						m_drivetrain->SetTurnPIDHeading(15);
+						m_arm->clearCans(true);
+						m_drivetrain->EnableAngle();
+						m_autonCase++;
+					}
+					else
+					{
+						m_elev->Set(kCarry);
+						m_drivetrain->ResetEncoders();
+						//m_drivetrain->SetAngleHeading(-90.0);
+						//m_drivetrain->SetLimit(0.85);
+						//m_drivetrain->SetCorrLimit(0.5);
+						//m_drivetrain->SetDistance(-7.);
+						//m_drivetrain->EnableDistance();
+						m_drivetrain->SetTurnPIDHeading(60.);
+						m_drivetrain->EnableAngle();
+						m_autonCase = 6;
+					}
+				break;
+		//clears can while driving to next tote and speeds up after clearing can. Then begins to take in next tote.
+		//once robot is around next tote, disables pid, and goes to next case
+			case 3:
+				if (m_drivetrain->AtAngleHeading())
+				{
+					m_drivetrain->DisableAngle();
+					m_drivetrain->ResetEncoders();
+					m_drivetrain->SetDistance(.25);
+					m_drivetrain->SetAngleHeading(15);
+					m_drivetrain->EnableDistance();
+				}
+				if (m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain->DisableDistance();
+					m_drivetrain->ResetEncoders();
+
+					if ((fabs(m_drivetrain->GetAverageRate())) < 0.5)
+						{
+							m_drivetrain->SetTurnPIDHeading(0);
+							m_drivetrain->EnableAngle();
+							m_autonCase++;
+						}
+				}
+				break;
+			case 4:
+				if (m_drivetrain->AtAngleHeading())
+				{
+					m_drivetrain->SetDistance(5.5);
+					if (m_autonLoop == 0)
+						m_drivetrain->SetLimit(0.5);
+					else
+						m_drivetrain->SetLimit(0.55);
+					m_drivetrain->SetAngleHeading(0.);
+					m_drivetrain->EnableDistance();
+				}
+				if (m_drivetrain->GetDistancePID() > 2)
+				{
+					m_drivetrain->SetAngleHeading(0.0);
 					m_arm->clearCans(false);
 					m_arm->intakeSet(-1.0);
 				}

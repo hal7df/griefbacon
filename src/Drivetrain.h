@@ -106,6 +106,8 @@ public:
 	ADXRS453Z* GetGyro() { return m_gyro; }
 #endif
 
+	double GetAverageRate () { return (m_lEncode->GetRate() + m_rEncode->GetRate())/2; }
+
 	DistancePIDWrapper* GetEncoders() { return m_distancePIDWrapper; }
 	Encoder* GetLEncode() { return m_lEncode; }
 	Encoder* GetREncode() { return m_rEncode; }
