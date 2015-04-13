@@ -99,6 +99,8 @@ public:
 
 	void clearCans (bool on);
 
+	void setBurgle (float speed) { m_lCanBurgle->Set(-speed); m_rCanBurgle->Set(speed); }
+
 	bool WristAtSetpoint ();
 	bool ShoulderAtSetpoint ();
 
@@ -143,6 +145,9 @@ private:
 	CANTalon* m_pickRR;
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
+
+	Victor* m_lCanBurgle;
+	Victor* m_rCanBurgle;
 
 	Encoder* m_shoulderEncode;
 	Encoder* m_wristEncode;

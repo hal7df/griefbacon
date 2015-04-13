@@ -36,6 +36,7 @@ private:
 
 	Timer* m_resetTime;
 	Timer* m_autonTime;
+	Timer* m_burgleTime;
 
 	PowerDistributionPanel* m_pdp;
 
@@ -71,6 +72,7 @@ public:
 
 		m_resetTime = new Timer;
 		m_autonTime = new Timer;
+		m_burgleTime = new Timer;
 
 		f_elevReset = false;
 		f_shoulderReset = false;
@@ -334,7 +336,6 @@ public:
 				{
 					m_drivetrain-> DisableDistance();
 					m_autonCase++;
-					\
 				}
 					break;
 		//if auton loop is less than two, then elevator is raised. Will go on to next case if elevator is at midpoint and resets encoders
@@ -1148,6 +1149,31 @@ public:
 		switch(m_autonCase)
 		{
 		case 0:
+			m_burgleTime->Stop();
+			m_burgleTime->Start();
+			m_burgleTime->Reset();
+			m_arm->setBurgle(-0.3);
+			m_autonCase++;
+			break;
+		case 1:
+			if (m_burgleTime->Get() > 0.24){
+				m_arm->setBurgle(0);
+			}
+			if (m_burgleTime->Get() > 0.5){
+				m_drivetrain->SetAngleHeading(0);
+				m_drivetrain->SetCorrLimit(0.1);
+				m_autonCase++;
+			}
+			break;
+		case 2:
+			m_drivetrain->SetDistance(-7.0);
+			if (!m_drivetrain->IsEnabledDistance())
+				m_drivetrain->EnableDistance();
+			if(m_drivetrain->DistanceAtSetpoint())
+			{
+				m_drivetrain-> DisableDistance();
+				m_autonCase++;
+			}
 			break;
 		}
 	}
@@ -1157,6 +1183,17 @@ public:
 			switch(m_autonCase)
 			{
 			case 0:
+				m_burgleTime->Stop();
+				m_burgleTime->Start();
+				m_burgleTime->Reset();
+				m_arm->setBurgle(-0.3);
+				m_autonCase++;
+				break;
+			case 1:
+				if (m_burgleTime->Get() > 0.24){
+					m_arm->setBurgle(0);
+					m_autonCase++;
+				}
 				break;
 			}
 		}
@@ -1400,6 +1437,24 @@ public:
 		else
 		{
 			m_arm->intakeSet(0);
+		}
+
+		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart)){
+			if (m_driver->GetPOV() == 0)
+				m_arm->setBurgle(-0.3);
+			else if (m_driver->GetPOV() == 180)
+				m_arm->setBurgle(0.3);
+			else if (m_driver->GetPOV() == 90){
+				if (m_burgleTime->Get() == 0){
+					m_burgleTime->Stop();
+					m_burgleTime->Start();
+					m_burgleTime->Reset();
+					m_arm->setBurgle(-0.3);
+				}
+				if (m_burgleTime->Get() > 0.24){
+					m_arm->setBurgle(0);
+				}
+			}
 		}
 	}
 
