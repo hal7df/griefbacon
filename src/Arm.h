@@ -17,35 +17,10 @@
 
 #ifdef PRACTICE_BOT
 #define ARM_ENCODER_REVERSE false
-
-#define BURGLE_LEFT_UP 4.023
-#define BURGLE_LEFT_DOWN 1.0
-#define BURGLE_RIGHT_UP 1.155
-#define BURGLE_RIGHT_DOWN 4.0
-
-#define BURGLE_LEFT_P 0.1
-#define BURGLE_LEFT_I 0.0
-#define BURGLE_LEFT_D 0.0
-
-#define BURGLE_RIGHT_P 0.1
-#define BURGLE_RIGHT_I 0.0
-#define BURGLE_RIGHT_D 0.0
 #endif
 #ifdef COMPETITION_BOT
 #define ARM_ENCODER_REVERSE true
 
-#define BURGLE_LEFT_UP 3.707
-#define BURGLE_LEFT_DOWN 1.196
-#define BURGLE_RIGHT_UP 1.155
-#define BURGLE_RIGHT_DOWN 3.293
-
-#define BURGLE_LEFT_P 1.5 //0.75
-#define BURGLE_LEFT_I 0.0
-#define BURGLE_LEFT_D 0.0
-
-#define BURGLE_RIGHT_P 1.5 //0.75
-#define BURGLE_RIGHT_I 0.0
-#define BURGLE_RIGHT_D 0.0
 
 #endif
 
@@ -108,21 +83,10 @@ enum wPos_t {
 	kwFourCanPlace
 };
 
-enum burgleArm_t {
-	kBoth = 0,
-	kLeft = 1,
-	kRight = 2
-};
-
-enum burglePos_t {
-	kUp,
-	kDown
-};
-
 class Arm: public HotSubsystem, public PIDOutput {
 public:
 	friend class HotSubsystemHandler;
-	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR, int canburgleL, int canburgleR, int potL, int potR);
+	Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL, int intakeR);
 	virtual ~Arm();
 
 	void shoulderSet(double speed);
@@ -134,12 +98,6 @@ public:
 	void intakeSet(double speed);
 
 	void clearCans (bool on);
-
-	void setBurgle (bool on) { f_burgling = on;}
-	void testSetBurgle (burgleArm_t arm, float speed);
-	bool getBurgle () { return f_burgling; }
-	bool burglarAtPoint (burgleArm_t arm, burglePos_t point);
-	void burgleDisable ();
 
 	bool WristAtSetpoint ();
 	bool ShoulderAtSetpoint ();
@@ -186,23 +144,12 @@ private:
 	CANTalon* m_intakeL;
 	CANTalon* m_intakeR;
 
-	Victor* m_canburgleL;
-	Victor* m_canburgleR;
-
 	Encoder* m_shoulderEncode;
 	Encoder* m_wristEncode;
 
-	AnalogInput* m_potL;
-	AnalogInput* m_potR;
-
 	PIDController* m_shoulderPid;
 	PIDController* m_wristPid;
-	PIDController* m_leftBurglePid;
-	PIDController* m_rightBurglePid;
 
-	unsigned m_burgleCase;
-
-	bool f_burgling;
 	bool f_getPID;
 	bool f_eStopRunning;
 	bool f_wSetpointChanged;
@@ -213,7 +160,6 @@ private:
 
 	Timer* m_wStopTime;
 	Timer* m_sStopTime;
-	Timer* m_burgletime;
 	sem_t m_semaphore;
 };
 

@@ -57,7 +57,7 @@ public:
 		m_operator->SetDeadbandType(AdvancedJoystick::kQuad);
 
 		m_drivetrain = new Drivetrain (0,1,2,3,0,2);
-		m_arm = new Arm(11,16,14,10,15,12,13,8,7,0,1);
+		m_arm = new Arm(11,16,14,10,15,12,13);
 		m_elev = new Elevator (4,5,0,8);
 		m_debug = new BackgroundDebugger (1000,true);
 
@@ -125,7 +125,6 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
-		m_arm->burgleDisable();
 
 		SmartDashboard::PutString("DB/String0","Auton Mode");
 	}
@@ -254,9 +253,6 @@ public:
 
 		m_debug->EnableWatch(true);
 */
-
-		m_arm->burgleDisable();
-		m_arm->setBurgle(false);
 	}
 
 	void AutonomousPeriodic()
@@ -1152,20 +1148,6 @@ public:
 		switch(m_autonCase)
 		{
 		case 0:
-			m_arm->setBurgle(true);
-			m_drivetrain->SetDistance(7);
-			m_drivetrain->SetAngleHeading(0.0);
-			m_drivetrain->SetLimit(.95);
-			Wait(0.5);
-			m_drivetrain->EnableDistance();
-			if (m_drivetrain->DistanceAtSetpoint())
-			{
-				//m_arm->wristSetPos(kwDriving);
-				//m_arm->shoulderSetPos(ksDriving);
-				//m_arm->setBurgle(false);
-				m_drivetrain->DisableDistance();
-				m_autonCase++;
-			}
 			break;
 		}
 	}
@@ -1175,21 +1157,6 @@ public:
 			switch(m_autonCase)
 			{
 			case 0:
-				m_arm->setBurgle(true);
-				//m_drivetrain->SetDistance(7);
-				//m_drivetrain->SetAngleHeading(0.0);
-				//m_drivetrain->SetLimit(.95);
-				//Wait(0.25);
-				//m_drivetrain->EnableDistance();
-
-				//if (m_drivetrain->DistanceAtSetpoint())
-				{
-					//m_arm->wristSetPos(kwDriving);
-					//m_arm->shoulderSetPos(ksDriving);
-					//m_arm->setBurgle(false);
-					//m_drivetrain->DisableDistance();
-				}
-				m_autonCase++;
 				break;
 			}
 		}
@@ -1201,7 +1168,6 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
-		m_arm->burgleDisable();
 
 		m_arm->intakeSet(0.0);
 
@@ -1228,7 +1194,6 @@ public:
 
 	void TestInit ()
 	{
-		m_arm->burgleDisable();
 	}
 
 	void TestPeriodic()
@@ -1273,36 +1238,6 @@ public:
 		else{
 			m_arm->intakeSet(0);
 		}
-
-		/* if (m_driver->GetRawButton(AdvancedJoystick::kButtonX))
-		{
-			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-				m_arm->testSetBurgle(kLeft,1.0);
-			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-				m_arm->testSetBurgle(kLeft,-1.0);
-			else
-				m_arm->testSetBurgle(kLeft,0.0);
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonB))
-		{
-			if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-				m_arm->testSetBurgle(kRight,1.0);
-			else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-				m_arm->testSetBurgle(kRight,-1.0);
-			else
-				m_arm->testSetBurgle(kRight,0.0);
-		}
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonY))
-			m_arm->testSetBurgle(kBoth,0.5);
-		else if (m_driver->GetRawButton(AdvancedJoystick::kButtonA))
-			m_arm->testSetBurgle(kBoth,-0.5);
-		else
-			m_arm->testSetBurgle(kBoth,0.0);
-		*/
-
-		m_arm->testSetBurgle(kLeft, m_driver->GetRawAxis(AdvancedJoystick::kLeftY));
-		m_arm->testSetBurgle(kRight, m_driver->GetRawAxis(AdvancedJoystick::kRightY));
-
 	}
 
 	/** SPECIALIZED FUNCTIONS **/
@@ -1466,19 +1401,6 @@ public:
 		{
 			m_arm->intakeSet(0);
 		}
-
-		if (m_driver->GetRawButton(AdvancedJoystick::kButtonStart))
-		{
-			if(m_driver->GetPOV() == 0)
-				m_arm->testSetBurgle(kBoth, -0.3);
-			else if (m_driver->GetPOV() == 180)
-				m_arm->testSetBurgle(kBoth, 0.3);
-			else
-				m_arm->testSetBurgle(kBoth, 0);
-		}
-		else
-			m_arm->testSetBurgle(kBoth, 0);
-
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/
