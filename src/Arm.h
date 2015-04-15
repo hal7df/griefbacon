@@ -18,10 +18,9 @@
 #ifdef PRACTICE_BOT
 #define ARM_ENCODER_REVERSE false
 #endif
+
 #ifdef COMPETITION_BOT
 #define ARM_ENCODER_REVERSE true
-
-
 #endif
 
 #define WRIST_P -16.0

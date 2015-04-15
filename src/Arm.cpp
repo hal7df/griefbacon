@@ -26,7 +26,7 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_pickSR->SetVoltageRampRate(0.1);
 	m_pickW->SetVoltageRampRate(0.1);
 
-	m_shoulderEncode = new Encoder (4,5,ARM_ENCODER_REVERSE);
+	m_shoulderEncode = new Encoder (4,5,true);
 	m_shoulderEncode->SetDistancePerPulse(1./732.25);
 	m_wristEncode = new Encoder (6,7,ARM_ENCODER_REVERSE);
 	m_wristEncode->SetDistancePerPulse(1./2613.);
@@ -245,8 +245,8 @@ void Arm::wristSetSetpoint(float point){
 void Arm::clearCans(bool on) {
 	if (on)
 	{
-		m_intakeL->Set(-1.);
-		m_intakeR->Set(1.);
+		m_intakeL->Set(-1.0);
+		m_intakeR->Set(1.0);
 	}
 	else
 	{

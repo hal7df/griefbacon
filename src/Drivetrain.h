@@ -52,7 +52,7 @@ public:
 
 	void SetDistance (float distance) { m_distancePID->SetSetpoint(distance); }
 
-	void SetTurnPIDHeading (float angle) {m_turnPID->SetSetpoint(angle - m_gyroOffset);}
+	void SetTurnPIDHeading (float angle);
 	float GetTurnPIDHeading () {return m_turnPID->GetSetpoint();}
 	bool TurnPIDatSetpoint () { return fabs(GetGyroAngle() - m_turnPID->GetSetpoint()) < 7; }
 

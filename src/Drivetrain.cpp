@@ -54,6 +54,16 @@ Drivetrain::~Drivetrain() {
 	// TODO Auto-generated destructor stub
 }
 
+void Drivetrain::SetTurnPIDHeading(float angle) {
+
+	if (fabs(angle) < 30)
+		m_turnPID->SetPID(-0.5, TURN_I, TURN_D);
+	else
+		m_turnPID->SetPID(TURN_P, TURN_I, TURN_D);
+
+	m_turnPID->SetSetpoint(angle - m_gyroOffset);
+}
+
 void Drivetrain::Update() {
 #ifdef NAVX_ENABLED
 	GyroCal();

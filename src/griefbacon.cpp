@@ -184,7 +184,7 @@ public:
 			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
 			break;
 		case kThreeToteSmack:
-			SmartDashboard::PutString("Auton Mode", "Three Tote, Drive Back");
+			SmartDashboard::PutString("Auton Mode", "Three Tote SMACK");
 			break;
 		case kCanBurglarStay:
 			SmartDashboard::PutString("Auton Mode", "Burglar Arm Down, Stays");
@@ -811,7 +811,7 @@ public:
 			case 2:
 					if (m_autonLoop < 2)
 					{
-						m_elev->Set(kUMid);
+						m_elev->Set(kTop);
 						m_drivetrain->ResetEncoders();
 						m_drivetrain->SetTurnPIDHeading(15);
 						m_arm->clearCans(true);
