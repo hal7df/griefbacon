@@ -20,7 +20,7 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_intakeR = new CANTalon (intakeR);
 
 	m_lCanBurgle = new Victor (8);
-	m_rCanBurgle = new Victor (6);
+	m_rCanBurgle = new Victor (7);
 
 	m_pickSL->SetVoltageRampRate(0.1);
 	m_pickSR->SetVoltageRampRate(0.1);

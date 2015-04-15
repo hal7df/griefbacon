@@ -1152,7 +1152,7 @@ public:
 			m_burgleTime->Stop();
 			m_burgleTime->Start();
 			m_burgleTime->Reset();
-			m_arm->setBurgle(-0.3);
+			m_arm->setBurgle(1.0);
 			m_autonCase++;
 			break;
 		case 1:
@@ -1162,11 +1162,12 @@ public:
 			if (m_burgleTime->Get() > 0.5){
 				m_drivetrain->SetAngleHeading(0);
 				m_drivetrain->SetCorrLimit(0.1);
+				m_drivetrain->SetLimit(0.95);
 				m_autonCase++;
 			}
 			break;
 		case 2:
-			m_drivetrain->SetDistance(-7.0);
+			m_drivetrain->SetDistance(7.0);
 			if (!m_drivetrain->IsEnabledDistance())
 				m_drivetrain->EnableDistance();
 			if(m_drivetrain->DistanceAtSetpoint())
@@ -1186,7 +1187,7 @@ public:
 				m_burgleTime->Stop();
 				m_burgleTime->Start();
 				m_burgleTime->Reset();
-				m_arm->setBurgle(-0.3);
+				m_arm->setBurgle(1.0);
 				m_autonCase++;
 				break;
 			case 1:
