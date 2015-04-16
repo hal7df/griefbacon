@@ -625,12 +625,15 @@ public:
 
 				if (m_elev->AtSetpoint())
 				{
-					m_autonCase = 3;
+					if (m_autonLoop == 0)
+						m_autonCase = 2;
+					else
+						m_autonCase = 3;
 				}
 				break;
 			//Robot backs up. Goes to the next case when the distance is at setpoint.
 			case 2:
-				m_drivetrain->SetDistance(-0.5);
+				m_drivetrain->SetDistance(-0.25);
 
 				if (!m_drivetrain->IsEnabledDistance())
 					m_drivetrain->EnableDistance();
@@ -648,7 +651,13 @@ public:
 					{
 						m_elev->Set(kUMid);
 						m_drivetrain->ResetEncoders();
-						m_autonCase++;
+						if(m_autonLoop == 0)
+						{
+							if(m_elev->AtSetpoint())
+								m_autonCase++;
+						}
+						else
+							m_autonCase++;
 					}
 					else
 					{
@@ -674,11 +683,7 @@ public:
 				m_drivetrain->EnableDistance();
 				if(m_drivetrain->GetDistancePID() > 2)
 				{
-
-					if (m_autonLoop == 0)
-						m_drivetrain->SetLimit(0.5);
-					else
-						m_drivetrain->SetLimit(0.55);
+						m_drivetrain->SetLimit(0.6);
 				}
 				if (m_drivetrain->GetDistancePID() > 3)
 				{
@@ -759,7 +764,7 @@ public:
 			case 10:
 				m_elev->Set(kBottom);
 				if (m_drivetrain->GetDistancePID() < -0.5)
-					m_arm->intakeSet(0.5);
+					m_arm->intakeSet(1);
 				if (m_drivetrain->DistanceAtSetpoint())
 				{
 					m_drivetrain->DisableDistance();
@@ -1206,6 +1211,8 @@ public:
 		m_elev->Disable();
 		m_arm->wDisable();
 		m_arm->sDisable();
+
+		m_drivetrain->DisableAngle();
 
 		m_arm->intakeSet(0.0);
 
