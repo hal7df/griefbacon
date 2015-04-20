@@ -18,7 +18,8 @@ enum auton_t {
 	kKnockCanGoAutoZone,
 	kNothing,
 	kCanBurglar,
-	kCanBurglarStay
+	kCanBurglarStay,
+	kCanBurglarDelayDrive
 };
 
 
@@ -157,6 +158,8 @@ public:
 			m_autonChoice = kThreeToteSmack;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
 			m_autonChoice = kCanBurglarStay;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+			m_autonChoice = kCanBurglarDelayDrive;
 
 
 
@@ -188,6 +191,9 @@ public:
 			break;
 		case kCanBurglarStay:
 			SmartDashboard::PutString("Auton Mode", "Burglar Arm Down, Stays");
+			break;
+		case kCanBurglarDelayDrive:
+			SmartDashboard::PutString("Auton Mode", "Can Burglar Delay and Drive");
 			break;
 		}
 	}
@@ -248,6 +254,9 @@ public:
 		case kThreeToteSmack:
 			m_debug->SetMaxAutonCase(11);
 			break;
+		case kCanBurglarDelayDrive:
+			m_debug->SetMaxAutonCase(3);
+			break;
 		}
 /*
 		if (!m_debug->Running())
@@ -290,6 +299,9 @@ public:
 			break;
 		case kCanBurglarStay:
 			AutonCanBurglarStay();
+			break;
+		case kCanBurglarDelayDrive:
+			AutonCanBurglarDelayDrive();
 			break;
 		}
 
@@ -1510,17 +1522,15 @@ public:
 			m_autonCase++;
 			break;
 		case 1:
-			if (m_burgleTime->Get() > 0.24){
-				m_arm->setBurgle(0);
-			}
-			if (m_burgleTime->Get() > 0.5){
-				m_drivetrain->SetAngleHeading(0);
-				m_drivetrain->SetCorrLimit(0.1);
-				m_drivetrain->SetLimit(0.95);
-				m_autonCase++;
-			}
+			m_drivetrain->SetAngleHeading(0);
+			m_drivetrain->SetCorrLimit(0.1);
+			m_drivetrain->SetLimit(0.95);
+			m_autonCase++;
 			break;
 		case 2:
+			if (m_burgleTime->Get() > 0.4){
+				m_arm->setBurgle(0);
+			}
 			m_drivetrain->SetDistance(7.0);
 			if (!m_drivetrain->IsEnabledDistance())
 				m_drivetrain->EnableDistance();
@@ -1545,7 +1555,7 @@ public:
 				m_autonCase++;
 				break;
 			case 1:
-				if (m_burgleTime->Get() > 0.24){
+				if (m_burgleTime->Get() > 0.4){
 					m_arm->setBurgle(0);
 					m_autonCase++;
 				}
@@ -1553,6 +1563,40 @@ public:
 			}
 		}
 
+	void AutonCanBurglarDelayDrive()
+		{
+			switch(m_autonCase)
+			{
+			case 0:
+				m_burgleTime->Stop();
+				m_burgleTime->Start();
+				m_burgleTime->Reset();
+				m_arm->setBurgle(1.0);
+				m_autonCase++;
+				break;
+			case 1:
+				if (m_burgleTime->Get() > 0.3){
+					m_drivetrain->SetAngleHeading(0);
+					m_drivetrain->SetCorrLimit(0.1);
+					m_drivetrain->SetLimit(0.95);
+					m_autonCase++;
+				}
+				break;
+			case 2:
+				if (m_burgleTime->Get() > 0.4){
+					m_arm->setBurgle(0);
+				}
+				m_drivetrain->SetDistance(7.0);
+				if (!m_drivetrain->IsEnabledDistance())
+					m_drivetrain->EnableDistance();
+				if(m_drivetrain->DistanceAtSetpoint())
+				{
+					m_drivetrain-> DisableDistance();
+					m_autonCase++;
+				}
+				break;
+			}
+		}
 
 	void TeleopInit()
 	{
@@ -1806,9 +1850,9 @@ public:
 					m_burgleTime->Stop();
 					m_burgleTime->Start();
 					m_burgleTime->Reset();
-					m_arm->setBurgle(-0.3);
+					m_arm->setBurgle(1.0);
 				}
-				if (m_burgleTime->Get() > 0.24){
+				if (m_burgleTime->Get() > 0.4){
 					m_arm->setBurgle(0);
 				}
 
@@ -1817,7 +1861,11 @@ public:
 				m_arm->setBurgle(0.0);
 		}
 		else
+		{
 			m_arm->setBurgle(0.0);
+			m_burgleTime->Stop();
+			m_burgleTime->Reset();
+		}
 
 	}
 
@@ -1847,6 +1895,7 @@ public:
 		SmartDashboard::PutBoolean("Shoulder Reset", f_shoulderReset);
 		SmartDashboard::PutBoolean("Wrist Reset", f_wristReset);
 		SmartDashboard::PutBoolean("Elevator Reset", f_elevReset);
+		SmartDashboard::PutNumber("Burgle Time", m_burgleTime->Get());
 	}
 	void ZeroAll ()
 	{
