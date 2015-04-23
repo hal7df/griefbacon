@@ -1750,7 +1750,7 @@ public:
 			m_arm->wristSetPos(kwAutoPlace);
 			m_arm->rollerSet(-0.2);
 		}
-		else if ((m_operator->GetPOV() == 180) || m_operator->GetPOV() == 135){
+		else if (m_operator->GetPOV() == 180){
 			m_arm->shoulderSetPos(ksGround);
 			m_arm->wristSetPos(kwGround);
 			m_arm->sEnable();
@@ -1768,15 +1768,15 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if((m_operator ->GetPOV() == 270) || m_operator->GetPOV() == 315){
+		else if(m_operator ->GetPOV() == 270){
 			m_arm->shoulderSetPos(ksDriving);
 			m_arm->wristSetPos(kwDriving);
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
 		else if(m_operator ->GetPOV() == 0){
-			m_arm->shoulderSetPos(ksCanStack);
-			m_arm->wristSetPos(kwCanStack);
+			m_arm->shoulderSetPos(ksFiveCan);
+			m_arm->wristSetPos(kwFiveCan);
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
@@ -1787,12 +1787,12 @@ public:
 				m_arm->wEnable();
 		}
 		else if(m_operator ->GetPOV() == 90){
-			m_arm->shoulderSetPos(ksFiveCan);
-			m_arm->wristSetPos(kwFiveCan);
+			m_arm->shoulderSetPos(ksFourCanPlace);
+			m_arm->wristSetPos(kwFourCanPlace);
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && (m_operator->GetPOV() != 225))
+		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && (((m_operator->GetPOV() % 45) == 0) && ((m_operator->GetPOV() % 90) != 0)))
 		{
 			m_arm->sDisable();
 			m_arm->wDisable();
