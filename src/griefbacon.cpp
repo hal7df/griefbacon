@@ -823,7 +823,7 @@ public:
 				break;
 			//Robot backs up. Goes to the next case when the distance is at setpoint.
 			case 2:
-				m_drivetrain->SetDistance(-0.25);
+				m_drivetrain->SetDistance(-0.45);
 
 				if (!m_drivetrain->IsEnabledDistance())
 					m_drivetrain->EnableDistance();
@@ -851,6 +851,7 @@ public:
 					else
 					{
 						m_elev->Set(kCarry);
+						m_arm->intakeSet(0.0);
 						m_drivetrain->ResetEncoders();
 						//m_drivetrain->SetAngleHeading(-90.0);
 						//m_drivetrain->SetLimit(0.85);
@@ -907,7 +908,7 @@ public:
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
 					m_drivetrain->SetLimit(0.8);
-					m_drivetrain->SetDistance(11.75);
+					m_drivetrain->SetDistance(8.75);
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();
@@ -1780,10 +1781,10 @@ public:
 			m_arm->wEnable();
 		}
 		else if(m_operator ->GetPOV() == 90 && m_operator->GetRawButton(AdvancedJoystick::kButtonStart)){
-				m_arm->shoulderSetPos(ksPackage);
-				m_arm->wristSetPos(kwPackage);
-				m_arm->sEnable();
-				m_arm->wEnable();
+			m_arm->shoulderSetPos(ksPackage);
+			m_arm->wristSetPos(kwPackage);
+			m_arm->sEnable();
+			m_arm->wEnable();
 		}
 		else if(m_operator ->GetPOV() == 90){
 			m_arm->shoulderSetPos(ksFourCanPlace);
@@ -1791,7 +1792,7 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && ((m_operator->GetPOV() % 90) != 0))
+		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && ((m_operator->GetPOV() % 45) != 0))
 		{
 			m_arm->sDisable();
 			m_arm->wDisable();
@@ -1825,7 +1826,7 @@ public:
 			if (m_driver->GetRawAxis(AdvancedJoystick::kLeftY) > 0.0)
 			{
 				m_arm->intakeSet(m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger)*(fabs(m_driver->GetRawAxis(AdvancedJoystick::kLeftY))));
-				m_arm->wristSetSetpoint(-0.250);
+				m_arm->wristSetSetpoint(-0.225);
 				m_arm->rollerSet(-0.1);
 				m_arm->wEnable();
 			}
@@ -1863,7 +1864,6 @@ public:
 			m_burgleTime->Stop();
 			m_burgleTime->Reset();
 		}
-
 	}
 
 	/** MISCELLANEOUS FUNCTIONS **/
