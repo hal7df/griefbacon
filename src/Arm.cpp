@@ -31,7 +31,7 @@ Arm::Arm(int pickSL, int pickSR, int pickW, int pickRL, int pickRR, int intakeL,
 	m_wristEncode = new Encoder (6,7,ARM_ENCODER_REVERSE);
 	m_wristEncode->SetDistancePerPulse(1./2613.);
 
-	m_wristPid = new PIDController(WRIST_P,WRIST_I,WRIST_D,m_wristEncode,m_pickW);
+	m_wristPid = new PIDController(WRIST_P, 0, WRIST_D,m_wristEncode,m_pickW);
 	m_shoulderPid = new PIDController(SHOULDER_P, SHOULDER_I, SHOULDER_D, m_shoulderEncode, this);
 
 	f_getPID = false;
@@ -340,6 +340,12 @@ void Arm::Update()
 	}
 	else
 		f_shoulderStop = false;
+
+
+	if (WristAtSetpoint() && (m_wristPid->GetI() == 0))
+		m_wristPid-> SetPID(WRIST_P, WRIST_I, WRIST_D);
+	else if ((m_wristPid->GetI() != 0) && !WristAtSetpoint())
+		m_wristPid-> SetPID(WRIST_P, 0, WRIST_D);
 }
 void Arm::EStopCheck()
 {

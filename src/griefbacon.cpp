@@ -1689,7 +1689,6 @@ public:
 		m_elev->SetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 		m_arm->GetPID(m_operator->GetRawButton(AdvancedJoystick::kButtonBack));
 
-
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
 			m_elev->Set(kBottom);
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
@@ -1792,7 +1791,7 @@ public:
 			m_arm->sEnable();
 			m_arm->wEnable();
 		}
-		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && (((m_operator->GetPOV() % 45) == 0) && ((m_operator->GetPOV() % 90) != 0)))
+		else if((m_driver->GetRawAxis(AdvancedJoystick::kLeftTrigger) < 0.2) && ((m_operator->GetPOV() % 90) != 0))
 		{
 			m_arm->sDisable();
 			m_arm->wDisable();
