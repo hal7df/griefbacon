@@ -137,11 +137,10 @@ public:
 		//PrintData();
 
 
-		if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			{
-				m_autonChoice = kCanBurglar;
-				cout<<"Can Burglar";
-			}
+		if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+					m_autonChoice = kCanBurglarDelayDrive;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
+					m_autonChoice = kCanBurglar;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
 			m_autonChoice = kKnockCanGoAutoZone;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
@@ -153,13 +152,12 @@ public:
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonStart))
 			m_autonChoice = kNothing;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
-			m_autonChoice = kThreeToteBack;
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
 			m_autonChoice = kThreeToteSmack;
+		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonRB))
+			m_autonChoice = kThreeToteBack;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
 			m_autonChoice = kCanBurglarStay;
-		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-			m_autonChoice = kCanBurglarDelayDrive;
+
 
 
 
@@ -1575,7 +1573,7 @@ public:
 				m_autonCase++;
 				break;
 			case 1:
-				if (m_burgleTime->Get() > 0.3){
+				if (m_burgleTime->Get() > 0.3){ //0.3
 					m_drivetrain->SetAngleHeading(0);
 					m_drivetrain->SetCorrLimit(0.1);
 					m_drivetrain->SetLimit(0.95);
