@@ -134,6 +134,14 @@ void Elevator::Update ()
 		m_stackTime->Stop();
 		m_stackTime->Reset();
 	}
+
+	if (!DriverStation::GetInstance()->IsAutonomous())
+	{
+		if (m_pid->GetSetpoint() == kBottom && (m_elevEncode->GetDistance() < (0.4700 + 0.05)) && m_elevEncode->GetDistance() > 0.365)
+			m_pid->SetOutputRange(-0.2, 0.2);
+		else
+			m_pid->SetOutputRange(-1.0, 1.0);
+	}
 }
 
 void Elevator::PrintData()
@@ -238,4 +246,3 @@ void Elevator::Stack_internal()
 		break;
 	}
 }
-

@@ -1516,7 +1516,7 @@ public:
 			m_autonCase++;
 			break;
 		case 1:
-			if (m_burgleTime->Get() > 0.025){
+			if (m_burgleTime->Get() > 0.05){
 				m_drivetrain->SetAngleHeading(0);
 				m_drivetrain->SetCorrLimit(0.1);
 				m_drivetrain->SetLimit(0.95);
