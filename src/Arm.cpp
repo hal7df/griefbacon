@@ -333,13 +333,13 @@ void Arm::Update()
 		m_sStopTime->Reset();
 	}*/
 
-	if (sIsEnabled() && m_shoulderEncode->GetDistance() < -0.745 && m_wristEncode->GetDistance() < -0.411)
+	/*if (sIsEnabled() && m_shoulderEncode->GetDistance() < -0.745 && m_wristEncode->GetDistance() < -0.411)
 	{
 		sDisable();
 		f_shoulderStop = true;
 	}
 	else
-		f_shoulderStop = false;
+		f_shoulderStop = false;*/
 
 
 	if (WristAtSetpoint() && (m_wristPid->GetI() == 0))

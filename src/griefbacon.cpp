@@ -138,9 +138,9 @@ public:
 
 
 		if (m_operator->GetRawButton(AdvancedJoystick::kButtonBack) && m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-					m_autonChoice = kCanBurglarDelayDrive;
+			m_autonChoice = kCanBurglarDelayDrive;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonB))
-					m_autonChoice = kCanBurglar;
+			m_autonChoice = kCanBurglar;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonX))
 			m_autonChoice = kKnockCanGoAutoZone;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonY))
@@ -157,9 +157,6 @@ public:
 			m_autonChoice = kThreeToteBack;
 		else if (m_operator->GetRawButton(AdvancedJoystick::kButtonLB))
 			m_autonChoice = kCanBurglarStay;
-
-
-
 
 		switch(m_autonChoice)
 		{
@@ -908,7 +905,7 @@ public:
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
 					m_drivetrain->SetLimit(0.8);
-					m_drivetrain->SetDistance(8.75);
+					m_drivetrain->SetDistance(7.50);
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();
@@ -935,17 +932,15 @@ public:
 			{
 				m_drivetrain->DisableAngle();
 				m_drivetrain->ResetEncoders();
-
 				m_autonCase++;
 			}
 			break;
 
 			case 9:
-				if(m_elev->AtSetpoint())
-					m_arm->intakeSet(1);
 				if (m_arm->ShoulderAtSetpoint() && m_arm->WristAtSetpoint())
 				{
 					m_arm->rollerSet(1);
+					m_arm->intakeSet(1);
 					m_drivetrain->SetDistance(-4.0);
 					m_drivetrain->SetAngleHeading(72.5);
 					m_drivetrain->SetCorrLimit(0.25);
@@ -1521,10 +1516,12 @@ public:
 			m_autonCase++;
 			break;
 		case 1:
-			m_drivetrain->SetAngleHeading(0);
-			m_drivetrain->SetCorrLimit(0.1);
-			m_drivetrain->SetLimit(0.95);
-			m_autonCase++;
+			if (m_burgleTime->Get() > 0.025){
+				m_drivetrain->SetAngleHeading(0);
+				m_drivetrain->SetCorrLimit(0.1);
+				m_drivetrain->SetLimit(0.95);
+				m_autonCase++;
+			}
 			break;
 		case 2:
 			if (m_burgleTime->Get() > 0.4){
