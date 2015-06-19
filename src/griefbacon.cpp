@@ -707,6 +707,13 @@ public:
 		//if autonLoop is less than two, then it will reset encoders then go to case 1
 			case 5:
 				m_elev->Set(kBottom);
+				if (m_autonLoop == 2)
+				{
+					if ((m_elev->GetDistance() < (0.4700 + 0.05)) && m_elev->GetDistance() > 0.365)
+						m_elev->SetOutputRange(-0.4, 0.4);
+					else
+						m_elev->SetOutputRange(-1.0, 1.0);
+				}
 				if(m_elev->AtSetpoint())
 				{
 					if(m_autonLoop < 2)
@@ -723,8 +730,8 @@ public:
 				{
 					m_drivetrain->DisableAngle();
 					m_drivetrain->ResetEncoders();
-					m_drivetrain->SetLimit(0.7);
-					m_drivetrain->SetDistance(11.75);
+					m_drivetrain->SetLimit(0.63); //0.7
+					m_drivetrain->SetDistance(12.25); //11.75
 					m_drivetrain->SetAngleHeading(60.0);
 					m_drivetrain->SetCorrLimit(0.2);
 					m_drivetrain->EnableDistance();

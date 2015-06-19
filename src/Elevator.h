@@ -68,6 +68,8 @@ public:
 
 	void PIDWrite (float input) { Set((double)input); }
 
+	void SetOutputRange (float low, float high) { m_pid->SetOutputRange(low, high); }
+
 	void SetPID (bool set) { f_setPID = set; }
 
 	double GetRate () {return m_elevEncode -> GetRate();}
